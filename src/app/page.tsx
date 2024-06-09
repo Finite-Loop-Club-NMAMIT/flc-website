@@ -1,39 +1,14 @@
 import Link from "next/link";
 
 import { CreatePost } from "~/app/_components/create-post";
-import { getServerAuthSession } from "~/server/auth";
+import { auth } from "~/auth";
+
 import { api } from "~/trpc/server";
 
 export default async function Home() {
   const hello = await api.post.hello({ text: "from tRPC" });
-  const session = await getServerAuthSession();
-  
-
-  //router testing
-  const dummyEvent = {
-    name: "Annual Tech Conference3",
-    imgSrc: "https://example.com/conference.jpg",
-    deadline: new Date("1970-01-01T00:00:00.000Z"), // ISO 8601 format for Date
-    fromDate: new Date("1970-01-01T00:00:00.000Z"),
-    toDate: new Date("1970-01-01T00:00:00.000Z"),
-    description: "A conference focusing on the latest in tech.",
-    venue: "Tech Convention Center, Cityvill 3e",
-    type: "SOLO",
-    minTeamSize: 1,
-    maxTeamSize: 5,
-    maxTeams: 20,
-    category: "HACKATHON",
-    amount: 100,
-    state: "DRAFT",
-    isLegacy: false,
-  };
-
-  const branches = await api.branch.getAll();
-  const userLinks = await api.userLink.getOne({ userId: "123" });
-  // const createEvent = await api.event.create(dummyEvent)
-  // const deletedEvent = await api.event.delete({eventId:"clwyubtw2000ejez07yekeqjp"});
-  // console.log("user links: ", createEvent);
-  //  const newBranch = await api.branch.delete({name:"dummy"});
+  const session = await auth();
+  console.log(session)
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
@@ -90,7 +65,7 @@ export default async function Home() {
 }
 
 async function CrudShowcase() {
-  const session = await getServerAuthSession();
+  const session = await auth();
   if (!session?.user) return null;
 
   const latestPost = await api.post.getLatest();

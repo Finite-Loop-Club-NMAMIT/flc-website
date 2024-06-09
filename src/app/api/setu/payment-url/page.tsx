@@ -1,9 +1,10 @@
 "use client";
 import React, { useState } from "react";
 import { SetuUPIDeepLink } from "@setu/upi-deep-links";
+import { string } from "zod";
 
 const PaymentPage = () => {
-  const [paymentLink, setPaymentLink] = useState(null);
+  const [paymentLink, setPaymentLink] = useState([]);
 
   const generateLink = async () => {
     const upidl = SetuUPIDeepLink({
@@ -26,6 +27,7 @@ const PaymentPage = () => {
       console.log(data);
     } catch (err) {
       console.log(err);
+      setPaymentLink(err?.name);
     }
   };
 

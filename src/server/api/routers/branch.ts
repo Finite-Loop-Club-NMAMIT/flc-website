@@ -5,8 +5,10 @@ import { createTRPCRouter,protectedProcedure,publicProcedure } from "../trpc"
 
 //switch to protectedProcedure after auth is done
 export const branchRouter = createTRPCRouter({
-  getAll: publicProcedure.query(async ({ ctx }) => {
-    return await ctx.db.branch.findMany({});
+
+  getAll: publicProcedure
+   .query(async ({ ctx }) => {
+      return await ctx.db.branch.findMany({});
   }),
 
   create: publicProcedure

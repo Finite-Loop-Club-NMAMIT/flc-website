@@ -51,6 +51,8 @@ model User {
   Answer       Answer[]
   UserFeedback UserFeedback[]
 
+  Registration Registration[]
+
   updatedAt         DateTime            @updatedAt()
   createdAt         DateTime            @default(now())
   RefreshToken      RefreshToken[]
@@ -60,14 +62,14 @@ model User {
 model VerificationToken {
   id String @id @unique @default(cuid())
 
-  revoked   Boolean           @default(false)
-  type      VerificationType @default(EMAIL_VERIFICATION)
+  revoked Boolean          @default(false)
+  type    VerificationType @default(EMAIL_VERIFICATION)
 
   userId String
-  User      User              @relation(fields: [userId], references: [id])
+  User   User   @relation(fields: [userId], references: [id])
 
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model RefreshToken {
@@ -125,6 +127,20 @@ model ActivityPoint {
   createdAt DateTime @default(now())
 }
 
+model Registration {
+  id           String  @id @default(cuid())
+  userId       String
+  User         User    @relation(fields: [userId], references: [id])
+  languages    Json?
+  skills       Json?
+  whyJoin      String?
+  expectations String?
+  yearOfReg    Int
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+}
+
 // Event management
 
 model Event {
@@ -140,13 +156,13 @@ model Event {
   venue       String?
 
   type        EventType
-  minTeamSize Int            @default(1)
+  minTeamSize Int           @default(1)
   maxTeamSize Int
-  maxTeams    Int            @default(0) // 0 means infinity
+  maxTeams    Int           @default(0) // 0 means infinity
   category    EventCategory
-  amount      Int            @default(0)
+  amount      Int           @default(0)
   state       EventState    @default(DRAFT)
-  isLegacy    Boolean        @default(false)
+  isLegacy    Boolean       @default(false)
 
   ActivityPoint ActivityPoint[]
   Team          Team[]
@@ -211,7 +227,7 @@ model Attendence {
 }
 
 model Winner {
-  id         String      @id @default(cuid())
+  id         String     @id @default(cuid())
   winnerType WinnerType
 
   eventId String
@@ -227,7 +243,7 @@ model Winner {
 }
 
 model Certificate {
-  id              String           @id @default(cuid())
+  id              String          @id @default(cuid())
   issuedOn        DateTime
   certificateType CertificateType
 
@@ -244,7 +260,7 @@ model Certificate {
 }
 
 model Question {
-  id         String      @id @default(cuid())
+  id         String     @id @default(cuid())
   qs         String
   answerType AnswerType
 

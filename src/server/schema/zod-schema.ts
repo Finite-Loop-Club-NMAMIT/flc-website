@@ -71,15 +71,18 @@ const updateQuestionSchema = z.object({
 });
 
 const createAnswerSchema = z.object({
-  ans: z.string(),
   questionId: z.string(),
   userId: z.string(),
+  ans: z.string(),
 });
 
 const publishFeedbackTempleteSchema = z.object({
   id: z.string(),
   templateState: z.nativeEnum(FEEEDBACK_TEMPLATE_STATE)
 })
+const getQuestionsByFeedbackTemplateIdSchema = z.object({
+  feedbackTemplateId: z.string(),
+});
 
 export {
   updateEventSchema,
@@ -91,5 +94,6 @@ export {
   createQuestionSchema,
   updateQuestionSchema,
   createAnswerSchema,
-  publishFeedbackTempleteSchema
+  publishFeedbackTempleteSchema,
+  getQuestionsByFeedbackTemplateIdSchema
 }

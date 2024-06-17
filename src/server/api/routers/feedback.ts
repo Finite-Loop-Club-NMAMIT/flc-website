@@ -1,8 +1,9 @@
 import { z } from 'zod';
 import { createTRPCRouter, publicProcedure } from '../trpc';
 import { TRPCError } from "@trpc/server";
-import { createAnswerSchema, createFeedbackTemplateSchema, createQuestionSchema, publishFeedbackTempleteSchema, updateQuestionSchema } from '~/server/schema/zod-schema';
-import { findTemplateAndCheckQuestions } from '~/utils/findTemplateAndQuestions';
+import { createAnswerSchema, createFeedbackTemplateSchema, createQuestionSchema, getQuestionsByFeedbackTemplateIdSchema, publishFeedbackTempleteSchema, updateQuestionSchema } from '~/server/schema/zod-schema';
+import { findTemplateAndCheckQuestions } from '~/utils/helper';
+
 
 
 export const feedbackTemplateRouter = createTRPCRouter({
@@ -92,11 +93,29 @@ export const feedbackTemplateRouter = createTRPCRouter({
       }
     }),
 
+    //get all question of perticular FeedbackTemplete
+    getQuestionsByFeedbackTemplateId: publicProcedure
+    .input(getQuestionsByFeedbackTemplateIdSchema)
+    .query(async ({ input, ctx }) => {
+      try {
+        const questions = await ctx.db.question.findMany({
+          where: { feedbackTemplateId: input.feedbackTemplateId },
+        });
+        return questions;
+      } catch (error) {
+        console.error('Get Questions Error:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Something went wrong while fetching questions',
+        });
+      }
+    }),
+
 
   //Publish FeedbackTemplete of perticular event
   publishFeedbackTemplete: publicProcedure.input(publishFeedbackTempleteSchema).mutation(async ({ input, ctx }) => {
     const { id, templateState } = input;
-    await findTemplateAndCheckQuestions(id);
+    await findTemplateAndCheckQuestions(id);//checking  if question exists in Templete or not
     const updatedTemplate = await ctx.db.feedbackTemplate.update({
       where: { id },
       data: { templateState },
@@ -105,6 +124,27 @@ export const feedbackTemplateRouter = createTRPCRouter({
     return updatedTemplate;
   }),
 
+
+  //get All Published FeedbackTemplets with questions 
+  getAllPublishedFeedbackTemplatesWithQuestions: publicProcedure
+  .query(async ({ ctx }) => {
+    try {
+      const feedbackTemplates = await ctx.db.feedbackTemplate.findMany({
+        where: { templateState: 'PUBLISHED' }, 
+        include: {
+          Questions: true,
+        },
+      });
+      return feedbackTemplates;
+    } catch (error) {
+      console.error('Get All Feedback Templates Error:', error);
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Something went wrong while fetching feedback templates',
+      });
+    }
+  }),
+  
   // Submit an answer to a question
   submitAnswerToQuestion: publicProcedure
     .input(createAnswerSchema)
@@ -112,8 +152,8 @@ export const feedbackTemplateRouter = createTRPCRouter({
       try {
         const answer = await ctx.db.answer.create({
           data: {
-            ans: input.ans,
             questionId: input.questionId,
+            ans: input.ans,
             userId: input.userId,
           },
         });
@@ -129,7 +169,7 @@ export const feedbackTemplateRouter = createTRPCRouter({
 
 
   // View all feedback templates for an event ()check
-  viewFeedbackTemplatesByEvent: publicProcedure
+  viewUserFeedbackResponceForEvent: publicProcedure
     .input(z.string())
     .query(async ({ input, ctx }) => {
       try {
@@ -146,7 +186,6 @@ export const feedbackTemplateRouter = createTRPCRouter({
         return feedbackTemplates;
       } catch (error) {
         console.error('View FeedbackTemplates Error:', error);
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message: 'Something went wrong while fetching feedback templates',
@@ -154,44 +193,29 @@ export const feedbackTemplateRouter = createTRPCRouter({
       }
     }),
 
-  // View user feedback for a specific event
-  viewUserFeedbackForEvent: publicProcedure
-    .input(z.string())
-    .query(async ({ input, ctx }) => {
-      try {
-        const feedbackTemplates = await ctx.db.feedbackTemplate.findMany({
-          where: { eventId: input },
-          include: {
-            Questions: {
-              include: {
-                Answer: {
-                  include: {
-                    User: true,
-                  },
-                },
-              },
-            },
-            UserFeedback: true,
-          },
-        });
-        return feedbackTemplates;
-      } catch (error) {
-        console.error('View User Feedback Error:', error);
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Something went wrong while fetching user feedback',
-        });
-      }
-    }),
+  
 
   //  Delete a feedback template
   deleteFeedbackTemplate: publicProcedure
     .input(z.string())
     .mutation(async ({ input, ctx }) => {
       try {
-        await ctx.db.feedbackTemplate.delete({
+        const templateToDelete = await ctx.db.feedbackTemplate.delete({
           where: { id: input },
         });
+        if (!templateToDelete) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'FeedbackTemplate not found',
+          });
+        }
+
+        if (templateToDelete.templateState === 'PUBLISHED') {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: 'Cannot delete a template in "PUBLISHED" state',
+          });
+        }
         return { success: true };
       } catch (error) {
         console.error('Delete FeedbackTemplate Error:', error);

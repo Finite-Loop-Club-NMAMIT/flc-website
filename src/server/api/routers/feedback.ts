@@ -2,8 +2,7 @@ import { z } from 'zod';
 import { createTRPCRouter, publicProcedure } from '../trpc';
 import { TRPCError } from "@trpc/server";
 import { createAnswerSchema, createFeedbackTemplateSchema, createQuestionSchema, getQuestionsByFeedbackTemplateIdSchema, publishFeedbackTempleteSchema, updateQuestionSchema } from '~/server/schema/zod-schema';
-import { findTemplateAndCheckQuestions } from '~/utils/helper';
-
+import { findTemplateAndCheckQuestions } from '~/utils/findTemplateAndQuestions';
 
 
 export const feedbackTemplateRouter = createTRPCRouter({
@@ -112,8 +111,8 @@ export const feedbackTemplateRouter = createTRPCRouter({
     }),
 
 
-  //Publish FeedbackTemplete of perticular event
-  publishFeedbackTemplete: publicProcedure.input(publishFeedbackTempleteSchema).mutation(async ({ input, ctx }) => {
+  //Publish and Draft FeedbackTemplete of perticular event
+  publishAndDraftFeedbackTemplete: publicProcedure.input(publishFeedbackTempleteSchema).mutation(async ({ input, ctx }) => {
     const { id, templateState } = input;
     await findTemplateAndCheckQuestions(id);//checking  if question exists in Templete or not
     const updatedTemplate = await ctx.db.feedbackTemplate.update({

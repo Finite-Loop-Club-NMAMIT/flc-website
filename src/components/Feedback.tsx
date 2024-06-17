@@ -36,7 +36,7 @@ const Feedback = () => {
       },
     });
   const publishFeedback =
-    api.feedbackTemplate.publishFeedbackTemplete.useMutation({
+    api.feedbackTemplate.publishAndDraftFeedbackTemplete.useMutation({
       onSuccess: () => {
         console.log("s");
       },
@@ -143,8 +143,8 @@ const Feedback = () => {
         <button
           onClick={async () => {
             await publishFeedback.mutateAsync({
-              id: "clxj8cb5c000n72gc8n6rb9zt",
-              templateState: "PUBLISHED",
+              id: "clxj6ao3j000772gcxve7s39j",
+              templateState: "DRAFT",
             });
           }}
           className="text-md bg-white p-3 font-bold"

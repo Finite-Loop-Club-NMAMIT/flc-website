@@ -6,7 +6,8 @@ generator client {
 }
 
 datasource db {
-    provider = "cockroachdb"
+    // provider = "cockroachdb"
+    provider = "postgresql" // local docker db
     // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
     // Further reading:
     // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
@@ -263,8 +264,9 @@ model Answer {
 }
 
 model FeedbackTemplate {
-    id String @id @default(cuid())
-
+    id            String @id @default(cuid())
+    templateState FEEEDBACK_TEMPLATE_STATE @default(DRAFT)
+    
     eventId String
     Event   Event  @relation(fields: [eventId], references: [id])
 
@@ -337,4 +339,10 @@ enum ANSWER_TYPE {
     BOOLEAN
     RATING
     COMMENT
+}
+
+enum FEEEDBACK_TEMPLATE_STATE {
+    DRAFT
+    PUBLISHED
+
 }

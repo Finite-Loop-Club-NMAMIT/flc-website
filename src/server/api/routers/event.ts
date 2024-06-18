@@ -16,7 +16,7 @@ export const eventRouter = createTRPCRouter({
     createEvent: publicProcedure
         .input(createEventSchema)
         .mutation(async ({ ctx, input }) => {
-            // try {
+            try {
                 const data = {
                     ...input,
                     deadline: input.deadline ? new Date(input.deadline) : undefined,
@@ -25,13 +25,13 @@ export const eventRouter = createTRPCRouter({
                 };
 
                 return await ctx.db.event.create({ data });
-            // } catch (error) {
-            //     console.error('Create Event Error:', error);
-            //     throw new TRPCError({
-            //         code: 'INTERNAL_SERVER_ERROR',
-            //         message: 'Something went wrong while creating the event',
-            //     });
-            // }
+            } catch (error) {
+                console.error('Create Event Error:', error);
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: 'Something went wrong while creating the event',
+                });
+            }
         }),
 
     updateEvent: publicProcedure

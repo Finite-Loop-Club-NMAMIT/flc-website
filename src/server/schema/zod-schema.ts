@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { EVENT_TYPE, EVENT_CATEGORY, EVENT_STATE, ANSWER_TYPE, FEEEDBACK_TEMPLATE_STATE } from "@prisma/client";
-
+//Event management
 const createEventSchema = z.object({
   name: z.string(),
   imgSrc: z.string().optional(),
@@ -36,10 +36,6 @@ const updateEventSchema = z.object({
   state: z.nativeEnum(EVENT_STATE).optional(),
   isLegacy: z.boolean().optional(),
 });
-
-
-
-
 const setEventStateSchema = z.object({
   id: z.string(),
   state: z.nativeEnum(EVENT_STATE).optional(),
@@ -53,7 +49,7 @@ const getEventByStateSchema = z.object({
 });
 
 
-//-----------------/
+//FeedbackTemplete
 const createFeedbackTemplateSchema = z.object({
   eventId: z.string(),
 });
@@ -83,6 +79,12 @@ const publishFeedbackTempleteSchema = z.object({
 const getQuestionsByFeedbackTemplateIdSchema = z.object({
   feedbackTemplateId: z.string(),
 });
+// attendence mangement
+const markTeamAttendanceSchema =z.object({
+  teamId: z.string(),
+  eventId: z.string(),
+})
+
 
 export {
   updateEventSchema,
@@ -95,5 +97,6 @@ export {
   updateQuestionSchema,
   createAnswerSchema,
   publishFeedbackTempleteSchema,
-  getQuestionsByFeedbackTemplateIdSchema
+  getQuestionsByFeedbackTemplateIdSchema,
+  markTeamAttendanceSchema
 }

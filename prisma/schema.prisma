@@ -4,7 +4,7 @@
 generator client {
     provider = "prisma-client-js"
 }
-s
+
 datasource db {
     provider = "cockroachdb"
     // provider = "postgresql" // local docker db
@@ -264,9 +264,9 @@ model Answer {
 }
 
 model FeedbackTemplate {
-    id            String @id @default(cuid())
+    id            String                   @id @default(cuid())
     templateState FEEEDBACK_TEMPLATE_STATE @default(DRAFT)
-    
+
     eventId String
     Event   Event  @relation(fields: [eventId], references: [id])
 
@@ -344,5 +344,4 @@ enum ANSWER_TYPE {
 enum FEEEDBACK_TEMPLATE_STATE {
     DRAFT
     PUBLISHED
-
 }

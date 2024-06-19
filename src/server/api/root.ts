@@ -2,6 +2,7 @@ import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { eventRouter } from "./routers/event";
 import { feedbackTemplateRouter } from "./routers/feedback";
 import { attendanceRouter } from "./routers/attendence";
+import { teamRouter } from "./routers/team";
 
 /**
  * This is the primary router for your server.
@@ -9,9 +10,10 @@ import { attendanceRouter } from "./routers/attendence";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-   event:eventRouter,
-   feedbackTemplate:feedbackTemplateRouter,
-   attendence:attendanceRouter
+   event: eventRouter,
+   feedbackTemplate: feedbackTemplateRouter,
+   attendence: attendanceRouter,
+   team: teamRouter
 });
 
 // export type definition of API

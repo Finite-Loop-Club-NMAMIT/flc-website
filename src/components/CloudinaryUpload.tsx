@@ -2,6 +2,7 @@
 //refer eg. pages/coudinary/index.tsx
 
 import React, { useState } from "react";
+
 import {
   CldUploadWidget,
   type CloudinaryUploadWidgetInfo,
@@ -15,7 +16,7 @@ export type CloudinaryProp = {
 };
 
 export default function CloudinaryUpload({ linkName, userId }: CloudinaryProp) {
-    
+ 
   const [url, setUrl] = useState<string | null>(null);
 
  
@@ -31,6 +32,7 @@ export default function CloudinaryUpload({ linkName, userId }: CloudinaryProp) {
       url: secure_url,
       linkName: linkName ?? "Name of link", //from prop
     });
+    
   };
 
   return (

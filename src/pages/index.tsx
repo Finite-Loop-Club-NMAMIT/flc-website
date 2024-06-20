@@ -1,67 +1,94 @@
-import Feedback from "~/components/Feedback";
+"use client";
+
+import { signIn, signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import { api } from "~/utils/api";
 
 export default function Home() {
+  const router = useRouter();
 
-  // const a = api.event.getAllEvents.useQuery().data
-  // console.log(a);
+  const signUp = api.auth.signUp.useMutation();
+  const sendVerificationEmail = api.auth.sendVerifyEmail.useMutation();
 
-  const updateEvent = api.event.updateEvent.useMutation(
-    {
-      onSuccess: async() => {
-        console.log("s");
-        await refetchAllEvents()
-      },
-      onError: (error) => {
-        console.log(error);
-      },
-    },
-  );
-  
-  const {data:allEvents,refetch:refetchAllEvents}= api.event.getAllEvents.useQuery()
-  
+  const verifyEmail = api.auth.verifyEmail.useMutation();
+
+  // const test = api.test.test.useMutation();
 
   return (
-    <>
-      <main className=" flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c]">
-         <div>
-          {allEvents?.map((event,index)=>{
-            return(
-              <div key={index}>
-                {event.name}
-              </div>
-            )
-          })}
-         </div>
-        <button onClick={ async()=>{
-          await  updateEvent.mutateAsync(
-            {
-              eventId:"clxim942x0000if00bokqv8pl",
-              name: "Test Event 2",
-              imgSrc: "https://example.com/image.jpg",
-              deadline: new Date("2024-12-31T23:59:59Z"),
-              fromDate: new Date("2024-07-01T10:00:00Z"),
-              toDate: new Date("2024-07-01T18:00:00Z"),
-              description: "This is a test event.",
-              venue: "Test Venue",
-              type: "SOLO",
-              minTeamSize: 1,
-              maxTeamSize: 1,
-              maxTeams: 0,
-              category: "SPECIAL",
-              amount: 1,
-              state: "DRAFT",
-              isLegacy: false,
-            }
-           
-          );
-        }}>
-  create
-        </button>
-        <div>
-          <Feedback/>
-        </div>
-      </main>
-    </>
+    <main className=" flex h-screen w-full flex-col items-center justify-center gap-10">
+      <h1>hello this is titile</h1>
+
+      <button
+        onClick={() => {
+          signUp.mutate({
+            branchId: "clxiirynf00014vz8ayf6zotf",
+            email: "nnm22cs094@nmamit.in",
+            name: "Omkar Prabhu",
+            password: "password",
+            confirmPassword: "password",
+            phone: "9448846524",
+            year: "2023",
+          });
+        }}
+      >
+        Create
+      </button>
+
+      <button
+        onClick={() => {
+          sendVerificationEmail.mutate({
+            email: "nnm22cs094@nmamit.in",
+          });
+        }}
+      >
+        send
+      </button>
+
+      <button
+        onClick={() => {
+          verifyEmail.mutate({
+            token:
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbHhpa2pyb2gwMDAwM2J6bHFzZzV6bmhkIiwianRpIjoiY2x4aWwybWwxMDAwNDNiemxtdzF5MXE3bCIsImlhdCI6MTcxODYwNTA0OCwiZXhwIjoxNzE4NjkxNDQ4fQ.PxCSSYpXn2XFUQeJVPb0O95ZKEJKsIMKxmVH9ceXOfI",
+          });
+        }}
+      >
+        verify
+      </button>
+
+      <button
+        onClick={async () => {
+          const res = signIn("credentials", {
+            email: "nnm22cs094@nmamit.in",
+            password: "password",
+            redirect: false,
+          });
+          res
+            .then((res) => {
+              res?.status === 200 && router.push("/home");
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        }}
+      >
+        sign in
+      </button>
+
+      <button
+        onClick={async () => {
+          await signOut();
+        }}
+      >
+        signout
+      </button>
+
+      {/* <button
+        onClick={() => {
+          test.mutate();
+        }}
+      >
+        test protected ProcedureType
+      </button> */}
+    </main>
   );
 }

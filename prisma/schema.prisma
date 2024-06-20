@@ -19,27 +19,27 @@ datasource db {
 // Authentication
 model User {
     id            String    @id @default(cuid())
-    name          String?
+    name          String
     // College email will allow for verification
-    email         String?   @unique
+    email         String    @unique
     emailVerified DateTime?
     image         String?
 
     // Manually Added
     password String
-    phone    String @db.VarBit(10)
-    bio      String
-    year     String @db.VarBit(4)
+    phone    String
+    bio      String?
+    year     String
 
-    role     Role
-    position String
+    role     Role    @default(USER)
+    position String?
 
     branchId String
     Branch   Branch @relation(fields: [branchId], references: [id])
 
     UserLink UserLink[]
 
-    totalActivityPoints Int
+    totalActivityPoints Int             @default(0)
     ActivityPoint       ActivityPoint[]
 
     Organiser Organiser[]
@@ -52,25 +52,38 @@ model User {
     Answer       Answer[]
     UserFeedback UserFeedback[]
 
-    updatedAt DateTime @updatedAt()
-    createdAt DateTime @default(now())
+    updatedAt         DateTime            @updatedAt()
+    createdAt         DateTime            @default(now())
+    RefreshToken      RefreshToken[]
+    VerificationToken VerificationToken[]
 }
 
 model VerificationToken {
-    identifier String
-    token      String   @unique
-    expires    DateTime
+    id String @id @unique @default(cuid())
 
-    updatedAt DateTime @updatedAt()
+    revoked Boolean          @default(false)
+    type    VerificationType @default(EMAIL_VERIFICATION)
+
+    userId String
+    User   User   @relation(fields: [userId], references: [id])
+
     createdAt DateTime @default(now())
-
-    @@unique([identifier, token])
+    updatedAt DateTime @updatedAt
 }
 
-// model RefreshToken {
-//     token   String
-//     expires DateTime
-// }
+model RefreshToken {
+    id          String  @id @unique
+    hashedToken String
+    revoked     Boolean @default(false)
+
+    userId String
+    User   User   @relation(fields: [userId], references: [id])
+
+    createdAt DateTime @default(now())
+    updatedAt DateTime @updatedAt
+
+    @@index([userId])
+}
 
 // End of NextAuth
 
@@ -127,14 +140,14 @@ model Event {
     description String?
     venue       String?
 
-    type        EVENT_TYPE
-    minTeamSize Int            @default(1)
+    type        EventType
+    minTeamSize Int           @default(1)
     maxTeamSize Int
-    maxTeams    Int            @default(0) // 0 means infinity
-    category    EVENT_CATEGORY
-    amount      Int            @default(0)
-    state       EVENT_STATE    @default(DRAFT)
-    isLegacy    Boolean        @default(false)
+    maxTeams    Int           @default(0) // 0 means infinity
+    category    EventCategory
+    amount      Int           @default(0)
+    state       EventState    @default(DRAFT)
+    isLegacy    Boolean       @default(false)
 
     ActivityPoint ActivityPoint[]
     Team          Team[]
@@ -199,8 +212,8 @@ model Attendence {
 }
 
 model Winner {
-    id         String      @id @default(cuid())
-    winnerType WINNER_TYPE
+    id         String     @id @default(cuid())
+    winnerType WinnerType
 
     eventId String
     Event   Event  @relation(fields: [eventId], references: [id])
@@ -215,9 +228,9 @@ model Winner {
 }
 
 model Certificate {
-    id              String           @id @default(cuid())
+    id              String          @id @default(cuid())
     issuedOn        DateTime
-    certificateType CERTIFICATE_TYPE
+    certificateType CertificateType
 
     userId String
     User   User   @relation(fields: [userId], references: [id])
@@ -232,9 +245,9 @@ model Certificate {
 }
 
 model Question {
-    id         String      @id @default(cuid())
+    id         String     @id @default(cuid())
     qs         String
-    answerType ANSWER_TYPE
+    answerType AnswerType
 
     Answer Answer[]
 
@@ -303,12 +316,12 @@ enum Role {
     ADMIN
 }
 
-enum EVENT_TYPE {
+enum EventType {
     SOLO
     TEAM
 }
 
-enum EVENT_CATEGORY {
+enum EventCategory {
     // TODO: add more
     WORKSHOP
     COMPETITION
@@ -316,32 +329,38 @@ enum EVENT_CATEGORY {
     SPECIAL
 }
 
-enum EVENT_STATE {
+enum EventState {
     DRAFT
     PUBLISHED
     COMPLETED
 }
 
-enum WINNER_TYPE {
+enum WinnerType {
     WINNER
     RUNNER_UP
     SECOND_RUNNER_UP
 }
 
-enum CERTIFICATE_TYPE {
+enum CertificateType {
     WINNER
     RUNNER_UP
     SECOND_RUNNER_UP
     PARTICIPATION
 }
 
-enum ANSWER_TYPE {
+enum AnswerType {
     BOOLEAN
     RATING
     COMMENT
 }
 
+<<<<<<< HEAD
 enum FEEEDBACK_TEMPLATE_STATE {
     DRAFT
     PUBLISHED
+=======
+enum VerificationType {
+    PASSWORD_RESET
+    EMAIL_VERIFICATION
+>>>>>>> f78f41918d5800728461e01b959d15b0f04d4306
 }

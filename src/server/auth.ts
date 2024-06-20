@@ -1,15 +1,25 @@
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { type GetServerSidePropsContext } from "next";
+import bcrypt from "bcryptjs";
 import {
   getServerSession,
   type DefaultSession,
   type NextAuthOptions,
 } from "next-auth";
 import { type Adapter } from "next-auth/adapters";
-import DiscordProvider from "next-auth/providers/discord";
+import CredentialsProvider from "next-auth/providers/credentials";
 
-import { env } from "~/env";
 import { db } from "~/server/db";
+
+import { getUserByEmail } from "~/utils/auth/auth";
+import {
+  getRefreshTokenExpiry,
+  isJwtExpired,
+  rotateTokens,
+} from "~/utils/auth/jwt";
+import { login } from "~/services/auth.service";
+import { LoginSchema } from "~/zod/authZ";
+import { User } from "@prisma/client";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -18,18 +28,48 @@ import { db } from "~/server/db";
  * @see https://next-auth.js.org/getting-started/typescript#module-augmentation
  */
 declare module "next-auth" {
+  interface User {
+    accessToken: string;
+    refreshToken: string;
+    id?: string;
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+  }
+
+  interface AdapterUser {
+    accessToken: string;
+    refreshToken: string;
+    id?: string;
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+  }
+
   interface Session extends DefaultSession {
     user: DefaultSession["user"] & {
       id: string;
       // ...other properties
       // role: UserRole;
     };
+    accessToken: string;
   }
 
   // interface User {
   //   // ...other properties
   //   // role: UserRole;
   // }
+}
+declare module "next-auth/jwt" {
+  /**
+   * Returned by `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
+   */
+  interface JWT {
+    iat: number;
+    exp: number;
+    accessToken: string;
+    refreshToken: string;
+  }
 }
 
 /**
@@ -39,20 +79,132 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    session: ({ session, user }) => ({
-      ...session,
-      user: {
-        ...session.user,
-        id: user.id,
-      },
-    }),
+    async jwt({ token, user, trigger, session }): Promise<any> {
+      if (!token.sub) return token;
+
+      console.log("TOKEN FROM CLIENT COOKIES", token.accessToken);
+
+      if (user && trigger === "signIn") {
+        token = {
+          ...token,
+          sub: user.id,
+          name: user.name,
+          email: user.email,
+          accessToken: user.accessToken,
+          refreshToken: user.refreshToken,
+          iat: Math.floor(Date.now() / 1000),
+          exp: getRefreshTokenExpiry(user.refreshToken),
+        };
+        console.log("Token from user", token);
+        return token;
+      } else if (trigger === "update" && session) {
+        console.log("SESSIONN", session);
+        console.log("SESSION ACCESSTOKEN", session.accessToken);
+        token = {
+          ...token,
+          accessToken: session.accessToken,
+        };
+
+        return token;
+      } else if (isJwtExpired(String(token.accessToken))) {
+        // user signed in before and to check if the token is expired
+        console.log("expired, refreshing token");
+        console.log("Refresh tokennnnnn", token.refreshToken);
+
+        const [newAccessToken, newRefreshToken] = await rotateTokens(
+          String(token.refreshToken),
+        );
+        console.log(
+          "newAccessToken",
+          newAccessToken,
+          "newRefreshToken",
+          newRefreshToken,
+        );
+        console.log("old token", token);
+        if (newAccessToken && newRefreshToken) {
+          token = {
+            ...token,
+            accessToken: newAccessToken,
+            refreshToken: newRefreshToken,
+            exp: getRefreshTokenExpiry(newRefreshToken),
+          };
+          console.log("token.accessToken", token.accessToken);
+          console.log("token.refreshToken", token.refreshToken);
+          console.log("token.exp", token.exp);
+
+          console.log("token-new-token-attached", token);
+          if (token.accessToken === newAccessToken) {
+            return token;
+          } else {
+            return null;
+          }
+        } else {
+          console.log("unable to refresh token");
+
+          return null;
+        }
+      }
+      console.log("RETURNING TOKEN");
+      console.log(token);
+
+      return token;
+    },
+    async session({ session, token, trigger }) {
+      console.log("Hi from session");
+
+      if (token.sub && session.user) {
+        console.log("TOKEN FROM CALLBACK EXISTS");
+        session.user.id = token.sub;
+        session.user.name = token.name;
+        session.user.email = token.email!;
+
+        session.accessToken = token.accessToken;
+      }
+
+      console.log("Session", session);
+      return session;
+    },
+  },
+  session: {
+    strategy: "jwt",
+    maxAge: 7 * 24 * 60 * 60, // 7 days
   },
   adapter: PrismaAdapter(db) as Adapter,
   providers: [
-    DiscordProvider({
-      clientId: env.DISCORD_CLIENT_ID,
-      clientSecret: env.DISCORD_CLIENT_SECRET,
+    CredentialsProvider({
+      credentials: {},
+      async authorize(credentials: any, req: any): Promise<any> {
+        const validateFields = LoginSchema.safeParse(credentials);
+        if (!validateFields.success) {
+          console.log("Invalid fields", validateFields.error);
+          return null;
+        }
+        if (validateFields.success) {
+          const { email, password } = validateFields.data;
+          const data = await login({ email, password });
+          if (!data) return null;
+          const { accessToken, refreshToken } = data;
+          const existingUser: User | null = await getUserByEmail(email);
+          if (!existingUser) return null;
+          const passwordMatch = await bcrypt.compare(
+            password,
+            existingUser.password,
+          );
+
+          if (!passwordMatch) return null;
+          const user = {
+            ...existingUser,
+            refreshToken: refreshToken,
+            accessToken: accessToken,
+          };
+          console.log("User", user);
+
+          return user;
+        }
+        return null;
+      },
     }),
+
     /**
      * ...add more providers here.
      *

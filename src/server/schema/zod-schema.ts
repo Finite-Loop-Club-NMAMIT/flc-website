@@ -85,6 +85,31 @@ const markTeamAttendanceSchema =z.object({
   eventId: z.string(),
 })
 
+// team
+const createTeamZ = z.object({
+  eventId: z.string(),
+  teamName: z.string(),
+  userId: z.string(),
+});
+
+const joinTeamZ = z.object({
+  teamId: z.string(),
+  userId: z.string(),
+});
+
+const leaveTeamSchema = z.object({
+  teamId: z.string(),
+  userId: z.string(),
+});
+
+const deleteTeamInput = z.object({
+  teamId: z.string(),
+});
+
+const getUserTeamsInput = z.object({
+  userId: z.string(),
+});
+
 
 export {
   updateEventSchema,
@@ -98,5 +123,11 @@ export {
   createAnswerSchema,
   publishFeedbackTempleteSchema,
   getQuestionsByFeedbackTemplateIdSchema,
-  markTeamAttendanceSchema
+  markTeamAttendanceSchema,
+  createTeamZ ,
+  joinTeamZ,
+  leaveTeamSchema ,
+  deleteTeamInput,
+  getUserTeamsInput
+
 }

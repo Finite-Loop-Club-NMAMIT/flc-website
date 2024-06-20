@@ -77,6 +77,7 @@ export const eventRouter = createTRPCRouter({
                     throw new Error("Event with the given id does not exist")
                 }
                 
+            
                 if (eventexists.state === EVENT_STATE.PUBLISHED) {
                     throw new Error("Event  can't be deleted when it's in Published state")
                 }

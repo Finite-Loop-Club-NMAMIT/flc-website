@@ -140,13 +140,13 @@ model Event {
     description String?
     venue       String?
 
-    type        EventType
+    type        EVENT_TYPE
     minTeamSize Int           @default(1)
     maxTeamSize Int
     maxTeams    Int           @default(0) // 0 means infinity
-    category    EventCategory
+    category    EVENT_CATEGOERY
     amount      Int           @default(0)
-    state       EventState    @default(DRAFT)
+    state       EVENT_STATE  @default(DRAFT)
     isLegacy    Boolean       @default(false)
 
     ActivityPoint ActivityPoint[]
@@ -209,6 +209,8 @@ model Attendence {
 
     updatedAt DateTime @updatedAt()
     createdAt DateTime @default(now())
+
+    @@unique([userId, eventId]) 
 }
 
 model Winner {
@@ -247,7 +249,7 @@ model Certificate {
 model Question {
     id         String     @id @default(cuid())
     qs         String
-    answerType AnswerType
+    answerType  ANSWER_TYPE
 
     Answer Answer[]
 
@@ -316,24 +318,25 @@ enum Role {
     ADMIN
 }
 
-enum EventType {
+enum EVENT_TYPE {
     SOLO
     TEAM
 }
 
-enum EventCategory {
+enum EVENT_CATEGOERY {
     // TODO: add more
     WORKSHOP
     COMPETITION
     HACKATHON
     SPECIAL
 }
-
-enum EventState {
+enum EVENT_STATE {
     DRAFT
     PUBLISHED
     COMPLETED
 }
+
+
 
 enum WinnerType {
     WINNER
@@ -348,19 +351,17 @@ enum CertificateType {
     PARTICIPATION
 }
 
-enum AnswerType {
+enum ANSWER_TYPE {
     BOOLEAN
     RATING
     COMMENT
 }
 
-<<<<<<< HEAD
 enum FEEEDBACK_TEMPLATE_STATE {
     DRAFT
     PUBLISHED
-=======
+}
 enum VerificationType {
     PASSWORD_RESET
     EMAIL_VERIFICATION
->>>>>>> f78f41918d5800728461e01b959d15b0f04d4306
 }

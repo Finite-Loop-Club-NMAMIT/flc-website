@@ -21,12 +21,12 @@ export default function Home() {
       <button
         onClick={() => {
           signUp.mutate({
-            branchId: "clxiirynf00014vz8ayf6zotf",
-            email: "nnm22cs094@nmamit.in",
-            name: "Omkar Prabhu",
+            branchId: "clxn1c8xy0001kfh6fjdejjh8",
+            email: "hsathwik002@gmail.com",
+            name: "sathu",
             password: "password",
             confirmPassword: "password",
-            phone: "9448846524",
+            phone: "9902130645",
             year: "2023",
           });
         }}
@@ -37,7 +37,7 @@ export default function Home() {
       <button
         onClick={() => {
           sendVerificationEmail.mutate({
-            email: "nnm22cs094@nmamit.in",
+            email: "hsathwik002@gmail.com",
           });
         }}
       >
@@ -48,7 +48,7 @@ export default function Home() {
         onClick={() => {
           verifyEmail.mutate({
             token:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbHhpa2pyb2gwMDAwM2J6bHFzZzV6bmhkIiwianRpIjoiY2x4aWwybWwxMDAwNDNiemxtdzF5MXE3bCIsImlhdCI6MTcxODYwNTA0OCwiZXhwIjoxNzE4NjkxNDQ4fQ.PxCSSYpXn2XFUQeJVPb0O95ZKEJKsIMKxmVH9ceXOfI",
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbHhuaGRjNHQwMDAyNjEycTJ6bW45cHJzIiwianRpIjoiY2x4bmhlejBhMDAwNDYxMnFtNGMxNmlvbiIsImlhdCI6MTcxODkwMTIzNywiZXhwIjoxNzE4OTg3NjM3fQ.bdO-IcRJvEuNN2Dn2VXS2-t4uINoEB8kYdo9saUooPM",
           });
         }}
       >
@@ -58,7 +58,7 @@ export default function Home() {
       <button
         onClick={async () => {
           const res = signIn("credentials", {
-            email: "nnm22cs094@nmamit.in",
+            email: "hsathwik002@gmail.com",
             password: "password",
             redirect: false,
           });

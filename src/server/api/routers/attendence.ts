@@ -63,17 +63,24 @@ export const attendanceRouter = createTRPCRouter({
                 });
 
                 // Mark attendance for all team members
-                await ctx.db.attendence.updateMany({
-                    where: {
-                        userId: {
-                            in: team.Members.map((member) => member.id),
+                for (const member of team.Members) {
+                    const existingAttendance = await ctx.db.attendence.findFirst({
+                        where: {
+                            userId: member.id,
+                            eventId: input.eventId,
                         },
-                        eventId: input.eventId,
-                    },
-                    data: {
-                        hasAttended: true,
-                    },
-                });
+                    });
+
+                    if (!existingAttendance) {
+                        await ctx.db.attendence.create({
+                            data: {
+                                userId: member.id,
+                                eventId: input.eventId,
+                                hasAttended: true,
+                            },
+                        });
+                    }
+                }
 
                 return { success: true };
             } catch (error) {

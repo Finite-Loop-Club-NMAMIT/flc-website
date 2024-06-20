@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { EVENT_TYPE, EVENT_CATEGORY, EVENT_STATE, ANSWER_TYPE, FEEEDBACK_TEMPLATE_STATE } from "@prisma/client";
+import { EVENT_TYPE, EVENT_CATEGOERY, EVENT_STATE, ANSWER_TYPE, FEEEDBACK_TEMPLATE_STATE } from "@prisma/client";
 //Event management
 const createEventSchema = z.object({
   name: z.string(),
@@ -13,7 +13,7 @@ const createEventSchema = z.object({
   minTeamSize: z.number(),
   maxTeamSize: z.number(),
   maxTeams: z.number(),
-  category: z.nativeEnum(EVENT_CATEGORY),
+  category: z.nativeEnum(EVENT_CATEGOERY),
   amount: z.number(),
   state: z.nativeEnum(EVENT_STATE),
   isLegacy: z.boolean(),
@@ -31,7 +31,7 @@ const updateEventSchema = z.object({
   minTeamSize: z.number().optional(),
   maxTeamSize: z.number().optional(),
   maxTeams: z.number().optional(),
-  category: z.nativeEnum(EVENT_CATEGORY).optional(),
+  category: z.nativeEnum(EVENT_CATEGOERY).optional(),
   amount: z.number().optional(),
   state: z.nativeEnum(EVENT_STATE).optional(),
   isLegacy: z.boolean().optional(),

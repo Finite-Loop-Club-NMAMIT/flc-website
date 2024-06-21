@@ -144,7 +144,7 @@ model Event {
     minTeamSize Int           @default(1)
     maxTeamSize Int
     maxTeams    Int           @default(0) // 0 means infinity
-    category    EVENT_CATEGOERY
+    category   EVENT_CATEGORY
     amount      Int           @default(0)
     state       EVENT_STATE  @default(DRAFT)
     isLegacy    Boolean       @default(false)
@@ -323,7 +323,7 @@ enum EVENT_TYPE {
     TEAM
 }
 
-enum EVENT_CATEGOERY {
+enum EVENT_CATEGORY {
     // TODO: add more
     WORKSHOP
     COMPETITION

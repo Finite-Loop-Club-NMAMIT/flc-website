@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { EVENT_TYPE, EVENT_CATEGOERY, EVENT_STATE, ANSWER_TYPE, FEEEDBACK_TEMPLATE_STATE } from "@prisma/client";
+import { EVENT_TYPE, EVENT_CATEGORY, EVENT_STATE, ANSWER_TYPE, FEEEDBACK_TEMPLATE_STATE } from "@prisma/client";
 //Event management
 const createEventSchema = z.object({
   name: z.string(),
@@ -13,7 +13,7 @@ const createEventSchema = z.object({
   minTeamSize: z.number(),
   maxTeamSize: z.number(),
   maxTeams: z.number(),
-  category: z.nativeEnum(EVENT_CATEGOERY),
+  category: z.nativeEnum(EVENT_CATEGORY),
   amount: z.number(),
   state: z.nativeEnum(EVENT_STATE),
   isLegacy: z.boolean(),
@@ -31,7 +31,7 @@ const updateEventSchema = z.object({
   minTeamSize: z.number().optional(),
   maxTeamSize: z.number().optional(),
   maxTeams: z.number().optional(),
-  category: z.nativeEnum(EVENT_CATEGOERY).optional(),
+  category: z.nativeEnum(EVENT_CATEGORY).optional(),
   amount: z.number().optional(),
   state: z.nativeEnum(EVENT_STATE).optional(),
   isLegacy: z.boolean().optional(),
@@ -110,6 +110,99 @@ const getUserTeamsInput = z.object({
   userId: z.string(),
 });
 
+//authSchema
+const RegisterSchema = z
+  .object({
+    name: z.string().min(1, {
+      message: "Name is required",
+    }),
+    email: z
+      .string()
+      .email({
+        message: "Email is required",
+      })
+      .refine(
+        (email) => {
+          if (email.endsWith("@nmamit.in") || email.endsWith("@gmail.com")){
+            return true;
+          }
+          return false;
+        },
+        {
+          message: "Email must be from NMAMIT",
+        },
+      ),
+    phone: z.string().regex(/^[6-9]\d{9}$/, {
+      message: "Invalid phone number. Must be a 10-digit number ",
+    }),
+    year: z.string(),
+    branchId: z.string(),
+
+    password: z.string().min(8, {
+      message: "password should consist of minimum 6 characters",
+    }),
+
+    confirmPassword: z.string(),
+  })
+  .refine(
+    (data) => {
+      if (data.password === data.confirmPassword) {
+        return true;
+      }
+      return false;
+    },
+    {
+      path: ["confirmPassword"],
+      message: "passwords dont match",
+    },
+  );
+
+const LoginSchema = z.object({
+  email: z
+    .string()
+    .email({
+      message: "Email is required",
+    })
+    .refine(
+      (email) => {
+        if (email.endsWith("@nmamit.in") || email.endsWith("@gmail.com")) {
+          return true;
+        }
+        return false;
+      },
+      {
+        message: "Email must be from NMAMIT",
+      },
+    ),
+  password: z.string().min(1, { message: "Password is required" }),
+});
+
+const SendVerifyEmailSchema = z.object({
+  email: z
+    .string()
+    .email({
+      message: "Email is required",
+    })
+    .refine(
+      (email) => {
+        if(email.endsWith("@nmamit.in") || email.endsWith("@gmail.com")) {
+          return true;
+        }
+        return false;
+      },
+      {
+        message: "Email must be from NMAMIT",
+      },
+    ),
+});
+
+const VerifyEmailSchema = z.object({
+  token: z.string(),
+});
+
+const RefreshTokenSchema = z.object({
+  refreshToken: z.string(),
+});
 
 export {
   updateEventSchema,
@@ -128,6 +221,11 @@ export {
   joinTeamZ,
   leaveTeamSchema ,
   deleteTeamInput,
-  getUserTeamsInput
+  getUserTeamsInput,
+  LoginSchema,
+  RegisterSchema,
+  SendVerifyEmailSchema,
+  VerifyEmailSchema,
+  RefreshTokenSchema,
 
 }

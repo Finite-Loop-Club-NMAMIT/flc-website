@@ -3,7 +3,7 @@ import {
   RegisterSchema,
   SendVerifyEmailSchema,
   VerifyEmailSchema,
-} from "~/zod/authZ";
+} from "~/server/schema/zod-schema";
 import { v4 as uuidv4 } from "uuid";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";

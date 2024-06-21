@@ -1,7 +1,7 @@
 import { createTRPCRouter, publicProcedure } from '../trpc';
 import { TRPCError } from '@trpc/server';
 import { createWinnerZ, editWinnerTypeZ, getWinnersByEventIdZ } from '~/server/schema/zod-schema';
-import { findEventIfExistById } from '~/utils/findEventById';
+import { findEventIfExistById } from '~/utils/helper/findEventById';
 
 
 

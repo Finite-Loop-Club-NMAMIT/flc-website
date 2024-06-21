@@ -1,12 +1,9 @@
 
-
 import { TRPCError } from "@trpc/server";
-
 import { createTRPCRouter, publicProcedure } from "../trpc"
 import { EVENT_STATE } from "@prisma/client";
-
 import { z } from "zod";
-import { findEventIfExistById } from "~/utils/findEventById";
+import { findEventIfExistById } from "~/utils/helper/findEventById";
 import { createEventSchema, setEventLegacySchema, setEventStateSchema, updateEventSchema } from "~/server/schema/zod-schema";
 
 

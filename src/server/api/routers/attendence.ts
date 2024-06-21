@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { createTRPCRouter, publicProcedure } from '../trpc';
 import { TRPCError } from '@trpc/server';
 import { markTeamAttendanceSchema } from '~/server/schema/zod-schema';
-import { findEventIfExistById } from '~/utils/findEventById';
+import { findEventIfExistById } from '~/utils/helper/findEventById';
 
 export const attendanceRouter = createTRPCRouter({
 

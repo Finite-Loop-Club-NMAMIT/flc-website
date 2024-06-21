@@ -121,9 +121,9 @@ const Test = () => {
       <button
         onClick={async () => {
           await markwinner.mutateAsync({
-            teamId: "clxoelqti000213uqpjsh08xy",
+            teamId: "clxoee8190001333kejqr9a89",
             eventId: "clxo9upup000361cin6jb9y7b",
-            winnerType: "RUNNER_UP",
+            winnerType: "WINNER",
           });
         }}
       >
@@ -133,7 +133,7 @@ const Test = () => {
         onClick={async () => {
           await edit.mutateAsync({
             winnerId: "clxoemxyj0001c390xs1ewlwq",
-            winnerType: "SECOND_RUNNER_UP",
+            winnerType: "RUNNER_UP",
           });
         }}
       >

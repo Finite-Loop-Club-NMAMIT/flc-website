@@ -80,7 +80,7 @@ const getQuestionsByFeedbackTemplateIdSchema = z.object({
   feedbackTemplateId: z.string(),
 });
 // attendence mangement
-const markTeamAttendanceSchema =z.object({
+const markTeamAttendanceSchema = z.object({
   teamId: z.string(),
   eventId: z.string(),
 })
@@ -123,7 +123,7 @@ const RegisterSchema = z
       })
       .refine(
         (email) => {
-          if (email.endsWith("@nmamit.in") || email.endsWith("@gmail.com")){
+          if (email.endsWith("@nmamit.in") || email.endsWith("@gmail.com")) {
             return true;
           }
           return false;
@@ -185,7 +185,7 @@ const SendVerifyEmailSchema = z.object({
     })
     .refine(
       (email) => {
-        if(email.endsWith("@nmamit.in") || email.endsWith("@gmail.com")) {
+        if (email.endsWith("@nmamit.in") || email.endsWith("@gmail.com")) {
           return true;
         }
         return false;
@@ -204,6 +204,16 @@ const RefreshTokenSchema = z.object({
   refreshToken: z.string(),
 });
 
+//winner
+const createWinnerZ = z.object({
+  eventId: z.string(),
+  teamId: z.string(),
+  winnerType: z.enum(['WINNER', 'RUNNER_UP', 'SECOND_RUNNER_UP']),
+});
+const getWinnersByEventIdZ =
+  z.string()
+
+
 export {
   updateEventSchema,
   createEventSchema,
@@ -217,9 +227,9 @@ export {
   publishFeedbackTempleteSchema,
   getQuestionsByFeedbackTemplateIdSchema,
   markTeamAttendanceSchema,
-  createTeamZ ,
+  createTeamZ,
   joinTeamZ,
-  leaveTeamSchema ,
+  leaveTeamSchema,
   deleteTeamInput,
   getUserTeamsInput,
   LoginSchema,
@@ -227,5 +237,6 @@ export {
   SendVerifyEmailSchema,
   VerifyEmailSchema,
   RefreshTokenSchema,
-
+  createWinnerZ,
+  getWinnersByEventIdZ
 }

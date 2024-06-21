@@ -28,15 +28,25 @@ const Test = () => {
       },
     });
 
-  const { data: attended } = api.attendence.getTeamsWithAttendanceTrue.useQuery(
-    {
-      eventId: "clxnfscr30004cgf4yh6o8670",
-    },
+  // const { data: attended } = api.attendence.getTeamsWithAttendanceTrue.useQuery(
+  //   {
+  //     eventId: "clxnfscr30004cgf4yh6o8670",
+  //   },
+  // );
+  const { data: winners } = api.winner.getWinnersByEventId.useQuery(
+   "clxo9upup000361cin6jb9y7b"
   );
-
+  const markwinner = api.winner.createWinner.useMutation({
+    onSuccess: async () => {
+      console.log("s");
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
   return (
-    <div>
-      {attended?.map((team, index) => (
+    <div className=" flex gap-2">
+      {/* {attended?.map((team, index) => (
         <div key={index} className="team">
           <h2>Team: {team.name}</h2>
           <ul className="members">
@@ -47,18 +57,22 @@ const Test = () => {
             ))}
           </ul>
         </div>
-      ))}
+      ))} */}
+
+      <div>
+        <pre> winner :{JSON.stringify(winners, null, 2)}</pre>
+      </div>
 
       <button
         onClick={async () => {
           await createteam.mutateAsync({
-            eventId: "clxnfscr30004cgf4yh6o8670",
-            teamName: "a",
-            userId: "clxn1cxck0001cgf4v9d342nd",
+            eventId: "clxo9upup000361cin6jb9y7b",
+            teamName: "ab",
+            userId: "clxo9xe6t000144vd3l6s6uu9",
           });
         }}
       >
-        create
+        create Team
       </button>
       <button
         onClick={async () => {
@@ -79,6 +93,17 @@ const Test = () => {
         }}
       >
         join
+      </button>
+      <button
+        onClick={async () => {
+          await markwinner.mutateAsync({
+            teamId: "clxoelqti000213uqpjsh08xy",
+            eventId: "clxo9upup000361cin6jb9y7b",
+            winnerType: "RUNNER_UP",
+          });
+        }}
+      >
+        set winner
       </button>
     </div>
   );

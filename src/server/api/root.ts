@@ -4,6 +4,7 @@ import { feedbackTemplateRouter } from "./routers/feedback";
 import { attendanceRouter } from "./routers/attendence";
 import { teamRouter } from "./routers/team";
 import { authRouter } from "./routers/auth";
+import { winnerRouter } from "./routers/winner";
 
 /**
  * This is the primary router for your server.
@@ -16,6 +17,7 @@ export const appRouter = createTRPCRouter({
    attendence: attendanceRouter,
    team: teamRouter,
   auth: authRouter,
+  winner:winnerRouter
 });
 
 // export type definition of API

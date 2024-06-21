@@ -1,6 +1,6 @@
 import { createTRPCRouter, publicProcedure } from '../trpc';
 import { TRPCError } from '@trpc/server';
-import { createWinnerZ, getWinnersByEventIdZ } from '~/server/schema/zod-schema';
+import { createWinnerZ, editWinnerTypeZ, getWinnersByEventIdZ } from '~/server/schema/zod-schema';
 import { findEventIfExistById } from '~/utils/findEventById';
 
 
@@ -51,6 +51,21 @@ export const winnerRouter = createTRPCRouter({
                     });
                 }
 
+                // Check if the winner type already exists for the event
+                const existingWinner = await ctx.db.winner.findFirst({
+                    where: {
+                        eventId: eventId,
+                        winnerType: winnerType,
+                    },
+                });
+
+                if (existingWinner) {
+                    throw new TRPCError({
+                        code: 'CONFLICT',
+                        message: `Winner type ${winnerType} for this event is already mentioned`,
+                    });
+                }
+
                 // Create the winner record
                 const winner = await ctx.db.winner.create({
                     data: {
@@ -73,22 +88,50 @@ export const winnerRouter = createTRPCRouter({
             }
         }),
 
+    //edit winnerType by winnerId
+    editWinnerType: publicProcedure
+        .input(editWinnerTypeZ)
+        .mutation(async ({ input, ctx }) => {
+            const { winnerId, winnerType } = input;
+
+            try {
+                // Find the existing winner by winnerId
+                const existingWinner = await ctx.db.winner.findUnique({
+                    where: { id: winnerId },
+                });
+
+                if (!existingWinner) {
+                    throw new TRPCError({
+                        code: 'NOT_FOUND',
+                        message: 'Winner not found',
+                    });
+                }
+
+                // Update the winnerType
+                const updatedWinner = await ctx.db.winner.update({
+                    where: { id: winnerId },
+                    data: { winnerType },
+                });
+
+                return { success: true, winner: updatedWinner };
+            } catch (error) {
+                if (error instanceof TRPCError) {
+                    throw error;
+                } else {
+                    throw new TRPCError({
+                        code: 'INTERNAL_SERVER_ERROR',
+                        message: 'An error occurred while editing winner type',
+                    });
+                }
+            }
+        }),
     // Get winners for a specific event
     getWinnersByEventId: publicProcedure
         .input(getWinnersByEventIdZ)
         .query(async ({ input, ctx }) => {
             try {
                 // Check if the event exists
-                const event = await ctx.db.event.findUnique({
-                    where: { id: input },
-                });
-
-                if (!event) {
-                    throw new TRPCError({
-                        code: 'NOT_FOUND',
-                        message: 'Event not found',
-                    });
-                }
+                await findEventIfExistById(input)
 
                 // Fetch winners for the event with team details including members
                 const winners = await ctx.db.winner.findMany({
@@ -99,7 +142,7 @@ export const winnerRouter = createTRPCRouter({
 
                             include: { Members: true, Event: true },
                         },
-                       
+
                     },
                 });
                 return { success: true, winners };

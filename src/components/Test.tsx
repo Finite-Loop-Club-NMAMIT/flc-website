@@ -44,6 +44,14 @@ const Test = () => {
       console.log(error);
     },
   });
+  const edit = api.winner.editWinnerType.useMutation({
+    onSuccess: async () => {
+      console.log("s");
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
   return (
     <div className=" flex gap-2">
       {/* {attended?.map((team, index) => (
@@ -58,10 +66,10 @@ const Test = () => {
           </ul>
         </div>
       ))} */}
-
+{/* 
       <div>
         <pre> winner :{JSON.stringify(winners, null, 2)}</pre>
-      </div>
+      </div> */}
 
       <button
         onClick={async () => {
@@ -104,6 +112,16 @@ const Test = () => {
         }}
       >
         set winner
+      </button>
+      <button
+        onClick={async () => {
+          await edit.mutateAsync({
+          winnerId:"clxoemxyj0001c390xs1ewlwq",
+            winnerType: "SECOND_RUNNER_UP"
+          });
+        }}
+      >
+         update winner
       </button>
     </div>
   );

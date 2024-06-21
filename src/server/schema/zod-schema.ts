@@ -210,9 +210,11 @@ const createWinnerZ = z.object({
   teamId: z.string(),
   winnerType: z.enum(['WINNER', 'RUNNER_UP', 'SECOND_RUNNER_UP']),
 });
-const getWinnersByEventIdZ =
-  z.string()
-
+const getWinnersByEventIdZ = z.string()
+const editWinnerTypeZ = z.object({
+  winnerId: z.string(),
+  winnerType: z.enum(['WINNER', 'RUNNER_UP', 'SECOND_RUNNER_UP']),
+});
 
 export {
   updateEventSchema,
@@ -238,5 +240,6 @@ export {
   VerifyEmailSchema,
   RefreshTokenSchema,
   createWinnerZ,
-  getWinnersByEventIdZ
+  getWinnersByEventIdZ,
+  editWinnerTypeZ
 }

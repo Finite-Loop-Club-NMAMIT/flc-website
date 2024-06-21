@@ -2,9 +2,10 @@ import { error } from "console";
 import { db } from "~/server/db";
 import { compareHashedPassword, getUserByEmail } from "~/utils/auth/auth";
 import { hashToken } from "~/utils/auth/hashToken";
-import { LoginSchema } from "~/zod/authZ";
+
 import { v4 as uuidv4 } from "uuid";
 import { generateTokens } from "~/utils/auth/jwt";
+import { LoginSchema } from "~/server/schema/zod-schema";
 
 const addVerificationTokenToWhitelist = async ({
   userId,

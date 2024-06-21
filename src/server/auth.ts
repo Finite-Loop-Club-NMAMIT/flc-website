@@ -18,8 +18,9 @@ import {
   rotateTokens,
 } from "~/utils/auth/jwt";
 import { login } from "~/services/auth.service";
-import { LoginSchema } from "~/zod/authZ";
+
 import { User } from "@prisma/client";
+import { LoginSchema } from "./schema/zod-schema";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`

@@ -210,12 +210,12 @@ model Attendence {
     updatedAt DateTime @updatedAt()
     createdAt DateTime @default(now())
 
-    @@unique([userId, eventId]) 
+   @@unique([userId, eventId])
 }
 
 model Winner {
     id         String     @id @default(cuid())
-    winnerType WinnerType
+    winnerType WINNER_TYPE
 
     eventId String
     Event   Event  @relation(fields: [eventId], references: [id])
@@ -232,7 +232,7 @@ model Winner {
 model Certificate {
     id              String          @id @default(cuid())
     issuedOn        DateTime
-    certificateType CertificateType
+    certificateType  CERTIFICATE_TYPE
 
     userId String
     User   User   @relation(fields: [userId], references: [id])
@@ -338,13 +338,13 @@ enum EVENT_STATE {
 
 
 
-enum WinnerType {
+enum  WINNER_TYPE {
     WINNER
     RUNNER_UP
     SECOND_RUNNER_UP
 }
 
-enum CertificateType {
+enum CERTIFICATE_TYPE {
     WINNER
     RUNNER_UP
     SECOND_RUNNER_UP

@@ -215,6 +215,10 @@ const editWinnerTypeZ = z.object({
   winnerId: z.string(),
   winnerType: z.enum(['WINNER', 'RUNNER_UP', 'SECOND_RUNNER_UP']),
 });
+//certificate
+const issueCertificateByEventIdZ = z.object({
+  eventId: z.string(),
+});
 
 export {
   updateEventSchema,
@@ -241,5 +245,6 @@ export {
   RefreshTokenSchema,
   createWinnerZ,
   getWinnersByEventIdZ,
-  editWinnerTypeZ
+  editWinnerTypeZ,
+  issueCertificateByEventIdZ
 }

@@ -34,7 +34,7 @@ const Test = () => {
   //   },
   // );
   const { data: winners } = api.winner.getWinnersByEventId.useQuery(
-   "clxo9upup000361cin6jb9y7b"
+    "clxo9upup000361cin6jb9y7b",
   );
   const markwinner = api.winner.createWinner.useMutation({
     onSuccess: async () => {
@@ -52,6 +52,22 @@ const Test = () => {
       console.log(error);
     },
   });
+  const issuecertificate = api.certificate.issueCertificatesForWinners.useMutation({
+      onSuccess: async () => {
+        console.log("s");
+      },
+      onError: (error) => {
+        console.log(error);
+      },
+    });
+  const issuecertificateparticipent = api.certificate.issueCertificatesForParticipants.useMutation({
+      onSuccess: async () => {
+        console.log("s");
+      },
+      onError: (error) => {
+        console.log(error);
+      },
+    });
   return (
     <div className=" flex gap-2">
       {/* {attended?.map((team, index) => (
@@ -66,7 +82,7 @@ const Test = () => {
           </ul>
         </div>
       ))} */}
-{/* 
+      {/* 
       <div>
         <pre> winner :{JSON.stringify(winners, null, 2)}</pre>
       </div> */}
@@ -75,8 +91,8 @@ const Test = () => {
         onClick={async () => {
           await createteam.mutateAsync({
             eventId: "clxo9upup000361cin6jb9y7b",
-            teamName: "ab",
-            userId: "clxo9xe6t000144vd3l6s6uu9",
+            teamName: "d",
+            userId: "clxoqs3o3000013vikv72k7s6",
           });
         }}
       >
@@ -116,12 +132,30 @@ const Test = () => {
       <button
         onClick={async () => {
           await edit.mutateAsync({
-          winnerId:"clxoemxyj0001c390xs1ewlwq",
-            winnerType: "SECOND_RUNNER_UP"
+            winnerId: "clxoemxyj0001c390xs1ewlwq",
+            winnerType: "SECOND_RUNNER_UP",
           });
         }}
       >
-         update winner
+        update winner
+      </button>
+      <button
+        onClick={async () => {
+          await issuecertificate.mutateAsync({
+            eventId: "clxo9upup000361cin6jb9y7b",
+          });
+        }}
+      >
+        winner certificate
+      </button>
+      <button
+        onClick={async () => {
+          await issuecertificateparticipent.mutateAsync({
+            eventId: "clxo9upup000361cin6jb9y7b",
+          });
+        }}
+      >
+        participent certificate
       </button>
     </div>
   );

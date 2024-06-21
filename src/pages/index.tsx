@@ -22,7 +22,7 @@ export default function Home() {
         onClick={() => {
           signUp.mutate({
             branchId: "clxo9upud000161ci3havtfke",
-            email: "nnm22is144@nmamit.in",
+            email: "sathwikhh@gmail.com",
             name: "sathwik",
             password: "password",
             confirmPassword: "password",
@@ -37,7 +37,7 @@ export default function Home() {
       <button
         onClick={() => {
           sendVerificationEmail.mutate({
-            email: "nnm22is144@nmamit.in",
+            email: "sathwikhh@gmail.com",
           });
         }}
       >
@@ -48,7 +48,7 @@ export default function Home() {
         onClick={() => {
           verifyEmail.mutate({
             token:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbHhvYTZ2YTMwMDA0NDR2ZHByODltMzh2IiwianRpIjoiY2x4b2E4dGpuMDAwNjQ0dmQxNWVidWFkcSIsImlhdCI6MTcxODk0OTY1OSwiZXhwIjoxNzE5MDM2MDU5fQ.wjljJeg8iIGtL5lG3RTvp6iHZKe8sRzy8L2xgzwugmQ",
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbHhvcXMzbzMwMDAwMTN2aWt2NzJrN3M2IiwianRpIjoiY2x4b3FzOTI3MDAwMjEzdmlyNHQ2ZGFkdyIsImlhdCI6MTcxODk3NzQzOSwiZXhwIjoxNzE5MDYzODM5fQ.uPsK9Me38dAZVQJdj4-Kb9AtI6i49YcW45eTlQ6-4vE",
           });
         }}
       >
@@ -58,7 +58,7 @@ export default function Home() {
       <button
         onClick={async () => {
           const res = signIn("credentials", {
-            email: "hsathwik002@gmail.com",
+            email: "sathwikhh@gmail.com",
             password: "password",
             redirect: false,
           });

@@ -1,11 +1,11 @@
-import { createTRPCRouter,  publicProcedure } from "../trpc"
+import { adminProcedure, createTRPCRouter, } from "../trpc"
 import { TRPCError } from '@trpc/server';
 import { issueCertificateByEventIdZ } from '~/server/schema/zod-schema';
 import { findEventIfExistById } from "~/utils/helper/findEventById";
 
 export const certificateRouter = createTRPCRouter({
     // when this endpoint hits , it will search for  winners of that event , and create certificate for then , issuedate is now() , and certificate type=winnertype   
-    issueCertificatesForWinners:publicProcedure
+    issueCertificatesForWinners:adminProcedure
         .input(issueCertificateByEventIdZ)
         .mutation(async ({ input, ctx }) => {
             const { eventId } = input;
@@ -57,7 +57,7 @@ export const certificateRouter = createTRPCRouter({
             }
         }),
     // when this endpoint  it will search for teams , which is isComfrimed, hasAttended , and create certificate for then with same date , and certificate type =PARTICIPATION
-    issueCertificatesForParticipants: publicProcedure
+    issueCertificatesForParticipants:adminProcedure
         .input(issueCertificateByEventIdZ)
         .mutation(async ({ input, ctx }) => {
             const { eventId } = input;

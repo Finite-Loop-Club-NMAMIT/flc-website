@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { createTRPCRouter, publicProcedure } from '../trpc';
+import { adminProcedure, createTRPCRouter, protectedProcedure} from '../trpc';
 import { TRPCError } from '@trpc/server';
 import { findEventIfExistById } from '~/utils/helper/findEventById';
 import { createTeamZ, joinTeamZ, leaveTeamSchema } from '~/server/schema/zod-schema';
@@ -11,7 +11,7 @@ import { createTeamZ, joinTeamZ, leaveTeamSchema } from '~/server/schema/zod-sch
 export const teamRouter = createTRPCRouter({
 
     // Create a team for a specific event
-    createTeam: publicProcedure
+    createTeam: protectedProcedure
         .input(createTeamZ)
         .mutation(async ({ input, ctx }) => {
             const { eventId, teamName, userId } = input;
@@ -55,7 +55,7 @@ export const teamRouter = createTRPCRouter({
         }),
 
     //join team
-    joinTeam: publicProcedure
+    joinTeam: protectedProcedure
         .input(joinTeamZ)
         .mutation(async ({ input, ctx }) => {
             const { teamId, userId } = input;
@@ -148,7 +148,7 @@ export const teamRouter = createTRPCRouter({
 
 
     // Leave a team for a specific event
-    leaveTeam: publicProcedure
+    leaveTeam: protectedProcedure
         .input(leaveTeamSchema)
         .mutation(async ({ input, ctx }) => {
             const { teamId, userId } = input;
@@ -197,7 +197,7 @@ export const teamRouter = createTRPCRouter({
         }),
 
     //delete team by team id
-    deleteTeam: publicProcedure
+    deleteTeam: protectedProcedure
         .input(z.object({
             teamId: z.string(),
         }))
@@ -237,7 +237,7 @@ export const teamRouter = createTRPCRouter({
         }),
 
     // Get all teams with team details of a particular user
-    getTeamsByUserId: publicProcedure
+    getTeamsByUserId: protectedProcedure
         .input(z.string())
         .query(async ({ input, ctx }) => {
             try {
@@ -259,7 +259,7 @@ export const teamRouter = createTRPCRouter({
         }),
 
     // Get all team list with info of a particular event
-    getTeamsByEventIdForAdmin: publicProcedure
+    getTeamsByEventIdForAdmin: adminProcedure
         .input(z.string())
         .query(async ({ input, ctx }) => {
             try {

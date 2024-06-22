@@ -1,4 +1,4 @@
-import { createTRPCRouter, publicProcedure } from '../trpc';
+import { adminProcedure, createTRPCRouter, protectedProcedure, } from '../trpc';
 import { TRPCError } from '@trpc/server';
 import { createWinnerZ, editWinnerTypeZ, getWinnersByEventIdZ } from '~/server/schema/zod-schema';
 import { findEventIfExistById } from '~/utils/helper/findEventById';
@@ -8,7 +8,7 @@ import { findEventIfExistById } from '~/utils/helper/findEventById';
 
 export const winnerRouter = createTRPCRouter({
     // Create a winner for a team in an event
-    createWinner: publicProcedure
+    createWinner: adminProcedure
         .input(createWinnerZ)
         .mutation(async ({ input, ctx }) => {
             const { eventId, teamId, winnerType } = input;
@@ -89,7 +89,7 @@ export const winnerRouter = createTRPCRouter({
         }),
 
     //edit winnerType by winnerId
-    editWinnerType: publicProcedure
+    editWinnerType: adminProcedure
         .input(editWinnerTypeZ)
         .mutation(async ({ input, ctx }) => {
             const { winnerId, winnerType } = input;
@@ -126,7 +126,7 @@ export const winnerRouter = createTRPCRouter({
             }
         }),
     // Get winners for a specific event
-    getWinnersByEventId: publicProcedure
+    getWinnersByEventId: protectedProcedure
         .input(getWinnersByEventIdZ)
         .query(async ({ input, ctx }) => {
             try {

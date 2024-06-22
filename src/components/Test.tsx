@@ -82,7 +82,7 @@ const Test = () => {
           </ul>
         </div>
       ))} */}
-      {/* 
+{/*       
       <div>
         <pre> winner :{JSON.stringify(winners, null, 2)}</pre>
       </div> */}
@@ -121,9 +121,9 @@ const Test = () => {
       <button
         onClick={async () => {
           await markwinner.mutateAsync({
-            teamId: "clxoee8190001333kejqr9a89",
+            teamId: "clxoqvlmq0001144uh9rql7cd",
             eventId: "clxo9upup000361cin6jb9y7b",
-            winnerType: "WINNER",
+            winnerType: "RUNNER_UP",
           });
         }}
       >

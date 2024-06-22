@@ -1,6 +1,6 @@
 
 import { TRPCError } from "@trpc/server";
-import { createTRPCRouter, publicProcedure } from "../trpc"
+import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc"
 import { EVENT_STATE } from "@prisma/client";
 import { z } from "zod";
 import { findEventIfExistById } from "~/utils/helper/findEventById";
@@ -10,7 +10,7 @@ import { createEventSchema, setEventLegacySchema, setEventStateSchema, updateEve
 
 export const eventRouter = createTRPCRouter({
     //Create New Event(Admin)--->
-    createEvent: publicProcedure
+    createEvent: adminProcedure
         .input(createEventSchema)
         .mutation(async ({ ctx, input }) => {
             try {
@@ -31,7 +31,7 @@ export const eventRouter = createTRPCRouter({
             }
         }),
 
-    updateEvent: publicProcedure
+    updateEvent: adminProcedure
         .input(updateEventSchema)
         .mutation(async ({ ctx, input }) => {
             try {
@@ -64,7 +64,7 @@ export const eventRouter = createTRPCRouter({
         }),
 
     //Delete Event By Its ID(Admin)--->   
-    DeleteEvent: publicProcedure
+    DeleteEvent: adminProcedure
         .input(z.object({ eventId: z.string() }))
         .mutation(async ({ ctx, input }) => {
             try {
@@ -92,7 +92,7 @@ export const eventRouter = createTRPCRouter({
 
         }),
     // Set Event state to "DRAFT","PUBLISHED","COMPLETED"(Admin)------>
-    setEventState: publicProcedure
+    setEventState: adminProcedure
         .input(setEventStateSchema)
         .mutation(async ({ input, ctx }) => {
             // if (
@@ -121,7 +121,7 @@ export const eventRouter = createTRPCRouter({
             }
         }),
     // Set Event Legacy to True Or flase (Admin)-->
-    setEventLegacy: publicProcedure
+    setEventLegacy:adminProcedure
         .input(setEventLegacySchema)
         .mutation(async ({ input, ctx }) => {
             // if (
@@ -149,7 +149,7 @@ export const eventRouter = createTRPCRouter({
             }
         }),
     // Get all events(All)--->
-    getAllEvents: publicProcedure
+    getAllEvents: adminProcedure
         .query(async ({ ctx }) => {
             try {
                 const events = await ctx.db.event.findMany();
@@ -179,7 +179,7 @@ export const eventRouter = createTRPCRouter({
             }
         }),
     //Get all Upcommming "DRAFT" events(All) -->
-    getAllDraftEvents: publicProcedure
+    getAllDraftEvents: protectedProcedure
         .query(async ({ ctx }) => {
             try {
                 // Fetch all draft events
@@ -198,7 +198,7 @@ export const eventRouter = createTRPCRouter({
             }
         }),
     //Get all Completed events(All) -->
-    getAllCompletedEvents: publicProcedure
+    getAllCompletedEvents:protectedProcedure
         .query(async ({ ctx }) => {
             try {
                 // Fetch all completed events
@@ -217,7 +217,7 @@ export const eventRouter = createTRPCRouter({
             }
         }),
     //get all events which are isLegacy
-    getAllLegacyEvents: publicProcedure
+    getAllLegacyEvents: protectedProcedure
         .query(async ({ ctx }) => {
             try {
                 const legacyEvents = await ctx.db.event.findMany({
@@ -233,7 +233,7 @@ export const eventRouter = createTRPCRouter({
             }
         }),
     // get all sorted "PUBLISHED" events
-    getPublishedEvents: publicProcedure
+    getPublishedEvents:protectedProcedure
         .query(async ({ ctx }) => {
             try {
                 // Fetch published events sorted by date
@@ -253,7 +253,7 @@ export const eventRouter = createTRPCRouter({
             }
         }),
     // get all sorted "PUBLISHED" events which are Legacy
-    getPublishedAndLegacyEvents: publicProcedure
+    getPublishedAndLegacyEvents: protectedProcedure
         .query(async ({ ctx }) => {
             try {
                 // Fetch published and legacy events sorted by date
@@ -278,7 +278,7 @@ export const eventRouter = createTRPCRouter({
             }
         }),
     //get all events by its State by input--->
-    getEventByState: publicProcedure
+    getEventByState:protectedProcedure
         .input(setEventStateSchema)
         .query(async ({ input, ctx }) => {
             try {

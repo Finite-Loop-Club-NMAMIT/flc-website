@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { createTRPCRouter, publicProcedure } from '../trpc';
+import { adminProcedure, createTRPCRouter, } from '../trpc';
 import { TRPCError } from '@trpc/server';
 import { markTeamAttendanceSchema } from '~/server/schema/zod-schema';
 import { findEventIfExistById } from '~/utils/helper/findEventById';
@@ -7,7 +7,7 @@ import { findEventIfExistById } from '~/utils/helper/findEventById';
 export const attendanceRouter = createTRPCRouter({
 
     // Mark  Team attendance(solo/team both )-->
-    markTeamAttendanceOfPerticularEvent: publicProcedure
+    markTeamAttendanceOfPerticularEvent: adminProcedure
         .input(markTeamAttendanceSchema)
         .mutation(async ({ input, ctx }) => {
             try {
@@ -92,7 +92,7 @@ export const attendanceRouter = createTRPCRouter({
             }
         }),
     // Get teams with members whose attendance is true for a particular event
-    getTeamsWithAttendanceTrue: publicProcedure
+    getTeamsWithAttendanceTrue: adminProcedure
         .input(z.object({
             eventId: z.string(),
         }))
@@ -124,7 +124,7 @@ export const attendanceRouter = createTRPCRouter({
         }),
 
     // Get teams with members whose attendance is false for a particular event
-    getTeamsWithAttendanceFalse: publicProcedure
+    getTeamsWithAttendanceFalse:adminProcedure
         .input(z.object({
             eventId: z.string(),
         }))

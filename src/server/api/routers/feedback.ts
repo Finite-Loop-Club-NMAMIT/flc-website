@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { createTRPCRouter, publicProcedure } from '../trpc';
+import { adminProcedure, createTRPCRouter, protectedProcedure } from '../trpc';
 import { TRPCError } from "@trpc/server";
 import { createAnswerSchema, createFeedbackTemplateSchema, createQuestionSchema, getQuestionsByFeedbackTemplateIdSchema, publishFeedbackTempleteSchema, updateQuestionSchema } from '~/server/schema/zod-schema';
 import { findTemplateAndCheckQuestions } from '~/utils/helper/findTemplateAndQuestions';
@@ -8,7 +8,7 @@ import { findTemplateAndCheckQuestions } from '~/utils/helper/findTemplateAndQue
 export const feedbackTemplateRouter = createTRPCRouter({
 
   // Create a feedback template for a specific event(amind)
-  createFeedbackTemplate: publicProcedure
+  createFeedbackTemplate: adminProcedure
     .input(createFeedbackTemplateSchema)
     .mutation(async ({ input, ctx }) => {
       try {
@@ -29,7 +29,7 @@ export const feedbackTemplateRouter = createTRPCRouter({
 
 
   // Add a question to a feedback template
-  addQuestionToFeedbackTemplate: publicProcedure
+  addQuestionToFeedbackTemplate: adminProcedure
     .input(createQuestionSchema)
     .mutation(async ({ input, ctx }) => {
       try {
@@ -52,7 +52,7 @@ export const feedbackTemplateRouter = createTRPCRouter({
 
 
   // Update a question in a feedback template
-  updateQuestionInFeedbackTemplate: publicProcedure
+  updateQuestionInFeedbackTemplate: adminProcedure
     .input(updateQuestionSchema)
     .mutation(async ({ input, ctx }) => {
       try {
@@ -75,7 +75,7 @@ export const feedbackTemplateRouter = createTRPCRouter({
 
 
   // Delete a question from a feedback template
-  deleteQuestionFromFeedbackTemplate: publicProcedure
+  deleteQuestionFromFeedbackTemplate: adminProcedure
     .input(z.string())
     .mutation(async ({ input, ctx }) => {
       try {
@@ -93,7 +93,7 @@ export const feedbackTemplateRouter = createTRPCRouter({
     }),
 
     //get all question of perticular FeedbackTemplete
-    getQuestionsByFeedbackTemplateId: publicProcedure
+    getQuestionsByFeedbackTemplateId:adminProcedure
     .input(getQuestionsByFeedbackTemplateIdSchema)
     .query(async ({ input, ctx }) => {
       try {
@@ -112,7 +112,7 @@ export const feedbackTemplateRouter = createTRPCRouter({
 
 
   //Publish and Draft FeedbackTemplete of perticular event
-  publishAndDraftFeedbackTemplete: publicProcedure.input(publishFeedbackTempleteSchema).mutation(async ({ input, ctx }) => {
+  publishAndDraftFeedbackTemplete: adminProcedure.input(publishFeedbackTempleteSchema).mutation(async ({ input, ctx }) => {
     const { id, templateState } = input;
     await findTemplateAndCheckQuestions(id);//checking  if question exists in Templete or not
     const updatedTemplate = await ctx.db.feedbackTemplate.update({
@@ -125,7 +125,7 @@ export const feedbackTemplateRouter = createTRPCRouter({
 
 
   //get All Published FeedbackTemplets with questions 
-  getAllPublishedFeedbackTemplatesWithQuestions: publicProcedure
+  getAllPublishedFeedbackTemplatesWithQuestions:protectedProcedure
   .query(async ({ ctx }) => {
     try {
       const feedbackTemplates = await ctx.db.feedbackTemplate.findMany({
@@ -145,7 +145,7 @@ export const feedbackTemplateRouter = createTRPCRouter({
   }),
   
   // Submit an answer to a question
-  submitAnswerToQuestion: publicProcedure
+  submitAnswerToQuestion: protectedProcedure
     .input(createAnswerSchema)
     .mutation(async ({ input, ctx }) => {
       try {
@@ -168,7 +168,7 @@ export const feedbackTemplateRouter = createTRPCRouter({
 
 
   // View all feedback templates for an event ()check
-  viewUserFeedbackResponceForEvent: publicProcedure
+  viewUserFeedbackResponceForEvent: adminProcedure
     .input(z.string())
     .query(async ({ input, ctx }) => {
       try {
@@ -195,7 +195,7 @@ export const feedbackTemplateRouter = createTRPCRouter({
   
 
   //  Delete a feedback template
-  deleteFeedbackTemplate: publicProcedure
+  deleteFeedbackTemplate:adminProcedure
     .input(z.string())
     .mutation(async ({ input, ctx }) => {
       try {

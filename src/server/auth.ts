@@ -36,6 +36,7 @@ declare module "next-auth" {
     name?: string | null;
     email?: string | null;
     image?: string | null;
+    role?: string | null;
   }
 
   interface AdapterUser {
@@ -45,13 +46,14 @@ declare module "next-auth" {
     name?: string | null;
     email?: string | null;
     image?: string | null;
+    role?: string | null;
   }
 
   interface Session extends DefaultSession {
     user: DefaultSession["user"] & {
       id: string;
       // ...other properties
-      // role: UserRole;
+      role: string;
     };
     accessToken: string;
   }
@@ -68,6 +70,7 @@ declare module "next-auth/jwt" {
   interface JWT {
     iat: number;
     exp: number;
+    role: string; 
     accessToken: string;
     refreshToken: string;
   }
@@ -91,6 +94,7 @@ export const authOptions: NextAuthOptions = {
           sub: user.id,
           name: user.name,
           email: user.email,
+          role: user.role,
           accessToken: user.accessToken,
           refreshToken: user.refreshToken,
           iat: Math.floor(Date.now() / 1000),
@@ -158,7 +162,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.sub;
         session.user.name = token.name;
         session.user.email = token.email!;
-
+        session.user.role = token.role!;
         session.accessToken = token.accessToken;
       }
 

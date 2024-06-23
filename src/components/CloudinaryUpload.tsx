@@ -2,7 +2,6 @@
 //refer eg. pages/coudinary/index.tsx
 
 import React, { useState } from "react";
-
 import {
   CldUploadWidget,
   type CloudinaryUploadWidgetInfo,
@@ -10,28 +9,59 @@ import {
 } from "next-cloudinary";
 import { api } from "~/utils/api";
 
+
+export enum uploadTypeEnum {
+  userLink = "userLink",
+  userPicture = "userProfile",
+  eventPicture = "eventPicture",
+}
+
 export type CloudinaryProp = {
   linkName: string;
   userId?: string | null;
+  eventId?: string | null;
+  type: uploadTypeEnum;
 };
 
-export default function CloudinaryUpload({ linkName, userId }: CloudinaryProp) {
+export default function CloudinaryUpload({ linkName, userId, eventId, type }: CloudinaryProp) {
  
   const [url, setUrl] = useState<string | null>(null);
 
- 
-  const addImageToDb = api.userLink.create.useMutation();
+  // let addImageTouserLink: UseTRPCMutationResult<{ id: string; linkName: string; url: string; userId: string | null; updatedAt: Date; createdAt: Date; }, TRPCClientErrorLike<{ input: { linkName: string; userId: string; url: string; }; output: { id: string; linkName: string; url: string; userId: string | null; updatedAt: Date; createdAt: Date; }; transformer: true; errorShape: { data: { zodError: z.typeToFlattenedError<any, string> | null; code: TRPC_ERROR_CODE_KEY; httpStatus: number; path?: string; stack?: string; }; message: string; code: TRPC_ERROR_CODE_NUMBER; }; }>, { linkName: string; userId: string; url: string; }, unknown>;
 
-  const handleSuccess = (result: CloudinaryUploadWidgetResults) => {
+  const addImageToUserLink = api.userLink.create.useMutation();
+  // const addImageToUser = api.user.update.useMutaion();
+  // const addImageToEvent = api.userLink.updateEvent.useMutaion()
+ 
+  async function addImageToDB(secure_url:string) {
+    if (type == uploadTypeEnum.userLink) {
+      addImageToUserLink.mutate({
+        userId: userId ?? "clxikjroh00003bzlqsg5znhd", //from the auth
+        url: secure_url,
+        linkName: linkName ?? "Name of link", //from prop
+      });
+    }
+    else if(type == uploadTypeEnum.userPicture){
+      // addImageToUser.mutate({
+      //   userId: userId ?? "clxikjroh00003bzlqsg5znhd", //from the auth
+      //   image: secure_url,
+      // });
+    }
+    else if(type == uploadTypeEnum.eventPicture){
+      //  addImageToEvent.mutate({
+      //    eventId: eventId ?? "clxgbokx4000ewc828rix4mxn", //from the auth
+      //    imgSrc: secure_url,
+      //  });
+    }
+  }
+
+  const handleSuccess = async (result: CloudinaryUploadWidgetResults) => {
     const { info } = result;
     const { secure_url } = info as CloudinaryUploadWidgetInfo;
     setUrl(secure_url);
+    await addImageToDB(secure_url);
 
-    addImageToDb.mutate({
-      userId: userId ?? "clxikjroh00003bzlqsg5znhd", //from the auth
-      url: secure_url,
-      linkName: linkName ?? "Name of link", //from prop
-    });
+    
     
   };
 
@@ -42,7 +72,7 @@ export default function CloudinaryUpload({ linkName, userId }: CloudinaryProp) {
         <CldUploadWidget
           signatureEndpoint="/api/cloudinary/sign"
           onSuccess={(result) => {
-            handleSuccess(result);
+            void handleSuccess(result);
           }}
         >
           {({ open }) => {

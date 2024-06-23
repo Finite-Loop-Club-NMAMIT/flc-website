@@ -7,6 +7,7 @@ export default function CloudinaryDelete() {
     const router = useRouter();
   const mutation = api.userLink.delete.useMutation();
   const userLinks = api.userLink.getAll.useQuery();
+  
   console.log(userLinks);
 
   const handleDelete = async (url:string, id:string) => {

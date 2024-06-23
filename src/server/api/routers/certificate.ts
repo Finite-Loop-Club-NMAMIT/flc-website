@@ -103,8 +103,8 @@ export const certificateRouter = createTRPCRouter({
                     }
                 }
 
-                // activity points updation
-              
+
+
 
 
                 return { success: true };

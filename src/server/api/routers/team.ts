@@ -346,7 +346,8 @@ export const teamRouter = createTRPCRouter({
     listAvailableTeams: protectedProcedure
         .input(searchTeamForEventz)
         .query(async ({ input, ctx }) => {
-            const { eventId, userId } = input;
+            const { eventId } = input;
+            const userId = ctx.session.user.id;
 
             try {
                 // Fetch the event to ensure it exists

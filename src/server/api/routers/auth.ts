@@ -1,6 +1,8 @@
 import {
   LoginSchema,
   RegisterSchema,
+  ResetPasswordSchema,
+  SendPasswordResetSchema,
   SendVerifyEmailSchema,
   VerifyEmailSchema,
 } from "~/server/schema/zod-schema";
@@ -19,17 +21,22 @@ import {
   hashPassword,
 } from "~/utils/auth/auth";
 import {
+  addPasswordResetTokenToWhitelist,
   addRefreshTokenToWhitelist,
   addVerificationTokenToWhitelist,
   revokeVerificationToken,
 } from "~/services/auth.service";
 import {
   findVerificationTokenById,
+  generatePasswordResetToken,
   generateTokens,
   generateVerificationToken,
   secrets,
 } from "~/utils/auth/jwt";
-import { sendVerificationEmail } from "~/utils/nodemailer/nodemailer";
+import {
+  sendPasswordResetEmail,
+  sendVerificationEmail,
+} from "~/utils/nodemailer/nodemailer";
 
 export const authRouter = createTRPCRouter({
   signUp: publicProcedure
@@ -181,6 +188,108 @@ export const authRouter = createTRPCRouter({
           },
           data: {
             emailVerified: new Date(),
+          },
+        });
+
+        await revokeVerificationToken(savedToken.id);
+
+        return verifiedUser;
+      } catch (error) {
+        if (error instanceof TokenExpiredError) {
+          console.error("Token has expired:", error);
+        } else if (error instanceof NotBeforeError) {
+          console.error("Token not active:", error.message);
+        } else if (error instanceof JsonWebTokenError) {
+          console.error("JWT Error:", error.message);
+        } else {
+          console.error("Unknown error:", error);
+        }
+        throw error;
+      }
+    }),
+
+  sendPasswordResetEmail: publicProcedure
+    .input(SendPasswordResetSchema)
+    .mutation(async ({ ctx, input }) => {
+      const { email } = input;
+      try {
+        const existingUser = await getUserByEmail(email);
+        if (!existingUser) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "User not found",
+          });
+        }
+        if (!existingUser.emailVerified) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "User not verified",
+          });
+        }
+        const { id: token } = await addPasswordResetTokenToWhitelist({
+          userId: existingUser.id,
+        });
+
+        const passwordResetToken = generatePasswordResetToken(
+          existingUser,
+          token,
+        );
+        const url = `${process.env.AUTH_URL}/auth/new-password?token=${passwordResetToken}`;
+
+        await sendPasswordResetEmail(
+          existingUser.email,
+          url,
+          existingUser.name,
+        );
+
+        return {
+          success: "Email sent",
+        };
+      } catch (error) {
+        console.error(error);
+        if (error instanceof TRPCError) {
+          throw error;
+        }
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Something went wrong",
+        });
+      }
+    }),
+
+  resetPassword: publicProcedure
+    .input(ResetPasswordSchema)
+    .mutation(async ({ ctx, input }) => {
+      const { token, newPassword } = input;
+
+      try {
+        const payload = jwt.verify(
+          token,
+          secrets.JWT_PASSWORD_RESET_SECRET,
+        ) as jwt.JwtPayload;
+
+        const savedToken = await findVerificationTokenById(payload.jti!);
+        if (!savedToken || savedToken.revoked == true) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Invalid token",
+          });
+        }
+        const user = await getUserById(payload.userId! as string);
+        if (!user) {
+          throw new TRPCError({
+            code: "BAD_REQUEST",
+            message: "Invalid token",
+          });
+        }
+
+        const hashedPassword = await hashPassword(newPassword);
+        const verifiedUser = await ctx.db.user.update({
+          where: {
+            id: user.id,
+          },
+          data: {
+            password: hashedPassword!,
           },
         });
 

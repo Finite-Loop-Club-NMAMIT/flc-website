@@ -30,3 +30,24 @@ export const sendVerificationEmail = async (
     throw error;
   });
 };
+
+export const sendPasswordResetEmail = async (
+  email: string,
+  url: string,
+  name: string,
+) => {
+  async function main() {
+    await transporter.sendMail({
+      from: '"Finite Loop Club" <flc@nmamit.in>',
+      to: email,
+      subject: "Reset your password",
+      text: `Hi ${name}`,
+      html: `<p>click <a href="${url}">here </a> to reset your password</p>`,
+    });
+  }
+
+  await main().catch((error) => {
+    console.error(error);
+    throw error;
+  });
+};

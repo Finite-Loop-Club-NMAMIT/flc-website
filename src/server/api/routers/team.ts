@@ -379,7 +379,7 @@ export const teamRouter = createTRPCRouter({
                     !userTeams.includes(team.id)
                 );
 
-                console.log("Available teams:", availableTeams); // Debugging output
+
 
                 return { success: true, availableTeams };
             } catch (error) {

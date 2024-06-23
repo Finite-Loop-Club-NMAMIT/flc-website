@@ -35,11 +35,24 @@ const Test = () => {
       console.log(error);
     },
   });
+  const manuvalAttendence =
+    api.attendence.manuallyMarkUserAttendanceForConfirmedTeams.useMutation({
+      onSuccess: async () => {
+        console.log("s");
+      },
+      onError: (error) => {
+        console.log(error);
+      },
+    });
 
-  const { data: teams } = api.team.listAvailableTeams.useQuery({
-    eventId: "clxo9upup000361cin6jb9y7b",
-    userId: "clxoqs3o3000013vikv72k7s6",
-  });
+  // const { data: teams } = api.team.listAvailableTeams.useQuery({
+  //   eventId: "clxo9upup000361cin6jb9y7b",
+  //   userId: "clxoqs3o3000013vikv72k7s6",
+  // });
+  // const { data: teamUsers } =
+  //   api.attendence.manuallyRenderUsersOfConfirmedTeams.useQuery({
+  //     eventId: "clxo9upup000361cin6jb9y7b",
+  //   });
   // const { data: attended } = api.attendence.getTeamsWithAttendanceTrue.useQuery(
   //   {
   //     eventId: "clxnfscr30004cgf4yh6o8670",
@@ -92,9 +105,12 @@ const Test = () => {
       <div>
         <pre> winner :{JSON.stringify(winners, null, 2)}</pre>
       </div> */}
-      <div>
+      {/* <div>
+        <pre> Users:{JSON.stringify(teamUsers, null, 2)}</pre>
+      </div> */}
+      {/* <div>
         <pre> {JSON.stringify(teams)}</pre>
-      </div> 
+      </div> */}
 
       <button
         onClick={async () => {
@@ -136,6 +152,17 @@ const Test = () => {
         }}
       >
         set winner
+      </button>
+      <button
+        onClick={async () => {
+          await manuvalAttendence.mutateAsync({
+            eventId:"clxo9upup000361cin6jb9y7b",
+            userId: "clxoa6va3000444vdpr89m38v",
+            hasAttended: true,
+          });
+        }}
+      >
+        mark manuval attendence
       </button>
       <button
         onClick={async () => {

@@ -14,7 +14,7 @@ export const attendanceRouter = createTRPCRouter({
                 const event = await findEventIfExistById(input.eventId);
 
                 // Check if the event state is appropriate
-                if (event.state !== 'PUBLISHED' ) {
+                if (event.state !== 'PUBLISHED') {
                     throw new TRPCError({
                         code: 'BAD_REQUEST',
                         message: 'Cannot mark attendance for an event that is not PUBLISHED or COMPLETED',
@@ -24,6 +24,7 @@ export const attendanceRouter = createTRPCRouter({
                 const team = await ctx.db.team.findUnique({
                     where: {
                         id: input.teamId,
+                        eventId: input.eventId
                     },
                     include: {
                         Members: true,
@@ -33,7 +34,7 @@ export const attendanceRouter = createTRPCRouter({
                 if (!team) {
                     throw new TRPCError({
                         code: 'NOT_FOUND',
-                        message: 'Team not found',
+                        message: 'Team not found or team is not registered for this event',
                     });
                 }
 
@@ -51,8 +52,6 @@ export const attendanceRouter = createTRPCRouter({
                         message: 'Team must have at least one member',
                     });
                 }
-                // check team ->event
-               
                 // Mark attendance for the team
                 await ctx.db.team.update({
                     where: {
@@ -92,6 +91,125 @@ export const attendanceRouter = createTRPCRouter({
                 });
             }
         }),
+
+    // this endpoint renders the user info of the team which iscomfrimed for perticular event 
+    manuallyRenderUsersOfConfirmedTeams: adminProcedure
+        .input(z.object({
+            eventId: z.string(),
+        }))
+        .query(async ({ input, ctx }) => {
+            try {
+                const event = await ctx.db.event.findUnique({
+                    where: { id: input.eventId },
+                });
+
+                if (!event) {
+                    throw new TRPCError({
+                        code: 'NOT_FOUND',
+                        message: 'Event not found',
+                    });
+                }
+
+                const teams = await ctx.db.team.findMany({
+                    where: {
+                        eventId: input.eventId,
+                        isConfirmed: true,
+                    },
+                    include: {
+                        Members: true,
+                    },
+                });
+
+                return { success: true, teams };
+            } catch (error) {
+                console.error('Render Users of Confirmed Teams Error:', error);
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: 'Something went wrong while fetching team users',
+                    cause: error,
+                });
+            }
+        }),
+    //marking attendence manuvaly for a user 
+    manuallyMarkUserAttendanceForConfirmedTeams: adminProcedure
+        .input(z.object({
+            eventId: z.string(),
+            userId: z.string(),
+            hasAttended: z.boolean(),
+        }))
+        .mutation(async ({ input, ctx }) => {
+            try {
+                // Check if the event exists
+                const event = await ctx.db.event.findUnique({
+                    where: { id: input.eventId },
+                });
+
+                if (!event) {
+                    throw new TRPCError({
+                        code: 'NOT_FOUND',
+                        message: 'Event not found',
+                    });
+                }
+
+                // Fetch all teams for the event that are confirmed and include members
+                const teams = await ctx.db.team.findMany({
+                    where: {
+                        eventId: input.eventId,
+                        isConfirmed: true,
+                    },
+                    include: {
+                        Members: true,
+                    },
+                });
+
+                // Find the team where the user is a member
+                const userTeam = teams.find(team => team.Members.some(member => member.id === input.userId));
+
+                if (!userTeam) {
+                    throw new TRPCError({
+                        code: 'BAD_REQUEST',
+                        message: 'User is not a member of any confirmed team for this event',
+                    });
+                }
+
+                // Update or create attendance record for the user
+                let existingAttendance = await ctx.db.attendence.findFirst({
+                    where: {
+                        userId: input.userId,
+                        eventId: input.eventId,
+                    },
+                });
+
+                if (!existingAttendance) {
+                    // Create new attendance record
+                    existingAttendance = await ctx.db.attendence.create({
+                        data: {
+                            userId: input.userId,
+                            eventId: input.eventId,
+                            hasAttended: input.hasAttended,
+                        },
+                    });
+                } else {
+                    // Update existing attendance record
+                    existingAttendance = await ctx.db.attendence.update({
+                        where: { id: existingAttendance.id },
+                        data: {
+                            hasAttended: input.hasAttended,
+                        },
+                    });
+                }
+
+                return { success: true };
+            } catch (error) {
+                console.error('Mark User Attendance Error:', error);
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: 'Something went wrong while marking user attendance',
+                    cause: error,
+                });
+            }
+        }),
+
     // Get teams with members whose attendance is true for a particular event
     getTeamsWithAttendanceTrue: adminProcedure
         .input(z.object({
@@ -125,7 +243,7 @@ export const attendanceRouter = createTRPCRouter({
         }),
 
     // Get teams with members whose attendance is false for a particular event
-    getTeamsWithAttendanceFalse:adminProcedure
+    getTeamsWithAttendanceFalse: adminProcedure
         .input(z.object({
             eventId: z.string(),
         }))

@@ -2,6 +2,7 @@ import { adminProcedure, createTRPCRouter, publicProcedure, } from '../trpc';
 import { TRPCError } from '@trpc/server';
 import { createWinnerZ, editWinnerTypeZ, getWinnersByEventIdZ } from '~/server/schema/zod-schema';
 import { findEventIfExistById } from '~/utils/helper/findEventById';
+import { checkOrganiser } from '~/utils/helper/organiserCheck';
 
 
 
@@ -12,7 +13,9 @@ export const winnerRouter = createTRPCRouter({
         .input(createWinnerZ)
         .mutation(async ({ input, ctx }) => {
             const { eventId, teamId, winnerType } = input;
+            const userId = ctx.session.user.id;
 
+            await checkOrganiser(userId, eventId);
             try {
                 // Check if the event exists and is completed
                 const event = await findEventIfExistById(eventId)
@@ -94,6 +97,22 @@ export const winnerRouter = createTRPCRouter({
         .input(editWinnerTypeZ)
         .mutation(async ({ input, ctx }) => {
             const { winnerId, winnerType } = input;
+            const existingWinner = await ctx.db.winner.findUnique({
+                where: { id: winnerId },
+                select: { eventId: true },
+            });
+
+            if (!existingWinner) {
+                throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: 'Winner not found',
+                });
+            }
+
+            const eventId = existingWinner.eventId;
+            const userId = ctx.session.user.id;
+
+            await checkOrganiser(userId, eventId);
 
             try {
                 // Find the existing winner by winnerId

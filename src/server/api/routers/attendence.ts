@@ -1,16 +1,20 @@
 import { z } from 'zod';
-import { adminProcedure, createTRPCRouter, } from '../trpc';
+import { adminProcedure, createTRPCRouter, protectedProcedure, } from '../trpc';
 import { TRPCError } from '@trpc/server';
 import { markTeamAttendanceSchema } from '~/server/schema/zod-schema';
 import { findEventIfExistById } from '~/utils/helper/findEventById';
+import { checkOrganiser } from '~/utils/helper/organiserCheck';
 
 export const attendanceRouter = createTRPCRouter({
 
     // Mark  Team attendance(solo/team both )-->
-    markTeamAttendanceOfPerticularEvent: adminProcedure
+    markTeamAttendanceOfPerticularEvent: protectedProcedure
         .input(markTeamAttendanceSchema)
         .mutation(async ({ input, ctx }) => {
             try {
+                const userId = ctx.session.user.id;
+
+                await checkOrganiser(userId, input.eventId); // checks if the user is the organiser of the event or not 
                 const event = await findEventIfExistById(input.eventId);
 
                 // Check if the event state is appropriate
@@ -93,7 +97,7 @@ export const attendanceRouter = createTRPCRouter({
         }),
 
     // this endpoint renders the user info of the team which iscomfrimed for perticular event 
-    manuallyRenderUsersOfConfirmedTeams: adminProcedure
+    manuallyRenderUsersOfConfirmedTeams: protectedProcedure
         .input(z.object({
             eventId: z.string(),
         }))
@@ -131,7 +135,7 @@ export const attendanceRouter = createTRPCRouter({
             }
         }),
     //marking attendence manuvaly for a user 
-    manuallyMarkUserAttendanceForConfirmedTeams: adminProcedure
+    manuallyMarkUserAttendanceForConfirmedTeams: protectedProcedure
         .input(z.object({
             eventId: z.string(),
             userId: z.string(),

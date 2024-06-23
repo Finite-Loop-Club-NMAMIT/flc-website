@@ -27,15 +27,27 @@ const Test = () => {
         console.log(error);
       },
     });
+  const confrimTeam = api.team.confirmTeam.useMutation({
+    onSuccess: async () => {
+      console.log("s");
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
 
+  const { data: teams } = api.team.listAvailableTeams.useQuery({
+    eventId: "clxo9upup000361cin6jb9y7b",
+    userId: "clxoqs3o3000013vikv72k7s6",
+  });
   // const { data: attended } = api.attendence.getTeamsWithAttendanceTrue.useQuery(
   //   {
   //     eventId: "clxnfscr30004cgf4yh6o8670",
   //   },
   // );
-  const { data: winners } = api.winner.getWinnersByEventId.useQuery(
-    "clxo9upup000361cin6jb9y7b",
-  );
+  // const { data: winners } = api.winner.getWinnersByEventId.useQuery(
+  //   "clxo9upup000361cin6jb9y7b",
+  // );
   const markwinner = api.winner.createWinner.useMutation({
     onSuccess: async () => {
       console.log("s");
@@ -52,7 +64,8 @@ const Test = () => {
       console.log(error);
     },
   });
-  const issuecertificate = api.certificate.issueCertificatesForWinners.useMutation({
+  const issuecertificate =
+    api.certificate.issueCertificatesForWinners.useMutation({
       onSuccess: async () => {
         console.log("s");
       },
@@ -60,14 +73,7 @@ const Test = () => {
         console.log(error);
       },
     });
-  const issuecertificateparticipent = api.certificate.issueCertificatesForParticipants.useMutation({
-      onSuccess: async () => {
-        console.log("s");
-      },
-      onError: (error) => {
-        console.log(error);
-      },
-    });
+
   return (
     <div className=" flex gap-2">
       {/* {attended?.map((team, index) => (
@@ -82,10 +88,13 @@ const Test = () => {
           </ul>
         </div>
       ))} */}
-{/*       
+      {/*       
       <div>
         <pre> winner :{JSON.stringify(winners, null, 2)}</pre>
       </div> */}
+      <div>
+        <pre> {JSON.stringify(teams)}</pre>
+      </div> 
 
       <button
         onClick={async () => {
@@ -101,22 +110,21 @@ const Test = () => {
       <button
         onClick={async () => {
           await joinTeam.mutateAsync({
-            teamId: "clxng3gt50001612qvbdusu2y",
-            userId: "clxnhdc4t0002612q2zmn9prs",
+            teamId: "clxoqvlmq0001144uh9rql7cd",
+            userId: "clxoqs3o3000013vikv72k7s6",
           });
         }}
       >
-        join
+        join Team
       </button>
       <button
         onClick={async () => {
-          await markTeam.mutateAsync({
-            teamId: "clxng3gt50001612qvbdusu2y",
-            eventId: "clxnfscr30004cgf4yh6o8670",
+          await confrimTeam.mutateAsync({
+            teamId: "clxoqvlmq0001144uh9rql7cd",
           });
         }}
       >
-        join
+        confrim team
       </button>
       <button
         onClick={async () => {
@@ -148,15 +156,7 @@ const Test = () => {
       >
         winner certificate
       </button>
-      <button
-        onClick={async () => {
-          await issuecertificateparticipent.mutateAsync({
-            eventId: "clxo9upup000361cin6jb9y7b",
-          });
-        }}
-      >
-        participent certificate
-      </button>
+      <button>participent certificate</button>
     </div>
   );
 };

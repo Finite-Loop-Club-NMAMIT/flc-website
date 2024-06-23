@@ -4,8 +4,9 @@ import { issueCertificateByEventIdZ } from '~/server/schema/zod-schema';
 import { findEventIfExistById } from "~/utils/helper/findEventById";
 
 export const certificateRouter = createTRPCRouter({
-    // when this endpoint hits , it will search for  winners of that event , and create certificate for then , issuedate is now() , and certificate type=winnertype   
-    issueCertificatesForWinners:adminProcedure
+    // when this endpoint hits , it will search for  winners of that event , and create certificate for then , issuedate is now() ,
+    //  and certificate type=winnertype    and also issues certificate for participents
+    issueCertificatesForWinners: adminProcedure
         .input(issueCertificateByEventIdZ)
         .mutation(async ({ input, ctx }) => {
             const { eventId } = input;
@@ -30,8 +31,10 @@ export const certificateRouter = createTRPCRouter({
                     });
                 }
 
+                //
+
                 // Create certificates for each winner
-                const certificates = await Promise.all(
+                await Promise.all(
                     winners.map(async (winner) => {  // For each winner, map through their team members and create certificates
                         return ctx.db.certificate.createMany({
                             data: winner.Team.Members.map((member) => ({
@@ -44,72 +47,64 @@ export const certificateRouter = createTRPCRouter({
                     })
                 );
 
-                return { success: true, certificates };
-            } catch (error) {
-                if (error instanceof TRPCError) {
-                    throw error;
-                } else {
-                    throw new TRPCError({
-                        code: 'INTERNAL_SERVER_ERROR',
-                        message: 'An error occurred while issuing certificates',
+                try {
+                    // this issues participation certicficates for the (code explaination is written below )
+                    // Fetch teams that are confirmed and have attended
+                    const teams = await ctx.db.team.findMany({
+                        where: { eventId, isConfirmed: true, hasAttended: true },
+                        include: { Members: { select: { id: true, name: true } } },
                     });
-                }
-            }
-        }),
-    // when this endpoint  it will search for teams , which is isComfrimed, hasAttended , and create certificate for then with same date , and certificate type =PARTICIPATION
-    issueCertificatesForParticipants:adminProcedure
-        .input(issueCertificateByEventIdZ)
-        .mutation(async ({ input, ctx }) => {
-            const { eventId } = input;
 
-            try {
-                // Check if the event exists
-                const event = await findEventIfExistById(eventId)
+                    if (teams.length === 0) {
+                        throw new TRPCError({
+                            code: 'NOT_FOUND',
+                            message: 'No participants found for this event',
+                        });
+                    }
 
-                // Fetch teams that are confirmed and have attended
-                const teams = await ctx.db.team.findMany({
-                    where: { eventId, isConfirmed: true, hasAttended: true },
-                    include: { Members: { select: { id: true, name: true } } },
-                });
-
-                if (teams.length === 0) {
-                    throw new TRPCError({
-                        code: 'NOT_FOUND',
-                        message: 'No participants found for this event',
+                    // Get all existing certificates for this event
+                    const existingCertificates = await ctx.db.certificate.findMany({
+                        where: { eventId },
                     });
-                }
 
-                // Get all existing certificates for this event
-                const existingCertificates = await ctx.db.certificate.findMany({
-                    where: { eventId },
-                });
-                // Extract userIds from existing certificates
-                const existingUserEventIds = existingCertificates.map(cert => cert.userId);
+                    // Extract userIds from existing certificates
+                    const existingUserEventIds = existingCertificates.map(cert => cert.userId);
 
-                // Create certificates for each participant who does not have one yet
+                    // Create certificates for each participant who does not have one yet
 
-                const certificates = []; // array copy
+                    const certificates = []; // array copy
 
-                // Iterate through each team and its members
-                for (const team of teams) {
-                    for (const member of team.Members) {
-                        // Check if the member already has a certificate for this event
-                        if (!existingUserEventIds.includes(member.id)) {
-                            // If member does not have a certificate, create one
-                            const certificate = await ctx.db.certificate.create({
-                                data: {
-                                    issuedOn: new Date(),
-                                    certificateType: 'PARTICIPATION',
-                                    userId: member.id,
-                                    eventId: event.id,
-                                },
-                            });
-                            certificates.push(certificate); // Push the created certificate to the certificates arra
+                    // Iterate through each team and its members
+                    for (const team of teams) {
+                        for (const member of team.Members) {
+                            // Check if the member already has a certificate for this event
+                            if (!existingUserEventIds.includes(member.id)) {
+                                // If member does not have a certificate, create one
+                                const certificate = await ctx.db.certificate.create({
+                                    data: {
+                                        issuedOn: new Date(),
+                                        certificateType: 'PARTICIPATION',
+                                        userId: member.id,
+                                        eventId: event.id,
+                                    },
+                                });
+                                certificates.push(certificate); // Push the created certificate to the certificates arra
+                            }
                         }
+                    }
+                } catch (error) {
+                    if (error instanceof TRPCError) {
+                        throw error;
+                    } else {
+                        throw new TRPCError({
+                            code: 'INTERNAL_SERVER_ERROR',
+                            message: 'An error occurred while issuing Participation certificates',
+                        });
                     }
                 }
 
-                return { success: true, certificates };
+
+                return { success: true };
             } catch (error) {
                 if (error instanceof TRPCError) {
                     throw error;
@@ -121,6 +116,8 @@ export const certificateRouter = createTRPCRouter({
                 }
             }
         }),
+
+
 });
 
 

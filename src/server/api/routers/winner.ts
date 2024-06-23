@@ -1,4 +1,4 @@
-import { adminProcedure, createTRPCRouter, protectedProcedure, } from '../trpc';
+import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure, } from '../trpc';
 import { TRPCError } from '@trpc/server';
 import { createWinnerZ, editWinnerTypeZ, getWinnersByEventIdZ } from '~/server/schema/zod-schema';
 import { findEventIfExistById } from '~/utils/helper/findEventById';
@@ -17,12 +17,13 @@ export const winnerRouter = createTRPCRouter({
                 // Check if the event exists and is completed
                 const event = await findEventIfExistById(eventId)
 
-                if (event.state !== 'COMPLETED') {
+                if (event.state !== 'PUBLISHED') {
                     throw new TRPCError({
                         code: 'BAD_REQUEST',
-                        message: 'Event must be in completed state to declare winners',
+                        message: 'Event must be in Published state to declare winners',
                     });
                 }
+                //add completed validation-->
 
                 // Check if the team exists for the event and is confirmed and has attended
                 const team = await ctx.db.team.findUnique({
@@ -88,7 +89,7 @@ export const winnerRouter = createTRPCRouter({
             }
         }),
 
-    //edit winnerType by winnerId
+    //edit winnerType by winnerId -
     editWinnerType: adminProcedure
         .input(editWinnerTypeZ)
         .mutation(async ({ input, ctx }) => {
@@ -126,7 +127,7 @@ export const winnerRouter = createTRPCRouter({
             }
         }),
     // Get winners for a specific event
-    getWinnersByEventId: protectedProcedure
+    getWinnersByEventId: publicProcedure
         .input(getWinnersByEventIdZ)
         .query(async ({ input, ctx }) => {
             try {

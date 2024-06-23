@@ -13,13 +13,13 @@ import { certificateRouter } from "./routers/certificate";
  * All routers added in /api/routers should be manually added here.
  */
 export const appRouter = createTRPCRouter({
-   event: eventRouter,
-   feedbackTemplate: feedbackTemplateRouter,
-   attendence: attendanceRouter,
-   team: teamRouter,
+  event: eventRouter,
+  feedbackTemplate: feedbackTemplateRouter,
+  attendence: attendanceRouter,
+  team: teamRouter,
   auth: authRouter,
-  winner:winnerRouter,
-  certificate:certificateRouter
+  winner: winnerRouter,
+  certificate: certificateRouter
 });
 
 // export type definition of API

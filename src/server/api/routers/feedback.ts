@@ -50,7 +50,6 @@ export const feedbackTemplateRouter = createTRPCRouter({
       }
     }),
 
-
   // Update a question in a feedback template
   updateQuestionInFeedbackTemplate: adminProcedure
     .input(updateQuestionSchema)
@@ -114,7 +113,7 @@ export const feedbackTemplateRouter = createTRPCRouter({
   //Publish and Draft FeedbackTemplete of perticular event
   publishAndDraftFeedbackTemplete: adminProcedure.input(publishFeedbackTempleteSchema).mutation(async ({ input, ctx }) => {
     const { id, templateState } = input;
-    await findTemplateAndCheckQuestions(id);//checking  if question exists in Templete or not
+    await findTemplateAndCheckQuestions(id); //checking  if question exists in Templete or not
     const updatedTemplate = await ctx.db.feedbackTemplate.update({
       where: { id },
       data: { templateState },

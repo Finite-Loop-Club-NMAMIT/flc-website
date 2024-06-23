@@ -14,7 +14,7 @@ export const attendanceRouter = createTRPCRouter({
                 const event = await findEventIfExistById(input.eventId);
 
                 // Check if the event state is appropriate
-                if (event.state !== 'PUBLISHED' && event.state !== 'COMPLETED') {
+                if (event.state !== 'PUBLISHED' ) {
                     throw new TRPCError({
                         code: 'BAD_REQUEST',
                         message: 'Cannot mark attendance for an event that is not PUBLISHED or COMPLETED',
@@ -51,7 +51,8 @@ export const attendanceRouter = createTRPCRouter({
                         message: 'Team must have at least one member',
                     });
                 }
-
+                // check team ->event
+               
                 // Mark attendance for the team
                 await ctx.db.team.update({
                     where: {

@@ -3,7 +3,7 @@ import { EVENT_TYPE, EVENT_CATEGORY, EVENT_STATE, ANSWER_TYPE, FEEEDBACK_TEMPLAT
 //Event management
 const createEventSchema = z.object({
   name: z.string(),
-  imgSrc: z.string().optional(),
+  imgSrc: z.string().optional(),  // default-->
   deadline: z.date().optional(),
   fromDate: z.date(),
   toDate: z.date(),
@@ -107,6 +107,10 @@ const deleteTeamInput = z.object({
 });
 
 const getUserTeamsInput = z.object({
+  userId: z.string(),
+});
+const searchTeamForEventz = z.object({
+  eventId: z.string(),
   userId: z.string(),
 });
 
@@ -235,6 +239,7 @@ export {
   markTeamAttendanceSchema,
   createTeamZ,
   joinTeamZ,
+  searchTeamForEventz,
   leaveTeamSchema,
   deleteTeamInput,
   getUserTeamsInput,

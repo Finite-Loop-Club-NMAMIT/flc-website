@@ -1,8 +1,8 @@
 import { z } from 'zod';
-import { adminProcedure, createTRPCRouter, protectedProcedure} from '../trpc';
+import { createTRPCRouter, protectedProcedure } from '../trpc';
 import { TRPCError } from '@trpc/server';
 import { findEventIfExistById } from '~/utils/helper/findEventById';
-import { createTeamZ, joinTeamZ, leaveTeamSchema } from '~/server/schema/zod-schema';
+import { createTeamZ, joinTeamZ, leaveTeamSchema, searchTeamForEventz } from '~/server/schema/zod-schema';
 
 
 
@@ -17,8 +17,10 @@ export const teamRouter = createTRPCRouter({
             const { eventId, teamName, userId } = input;
 
             try {
-                await findEventIfExistById(eventId); // Checking if event exists
+                // Check if the event exists
+                await findEventIfExistById(eventId);
 
+                // Check if the team name already exists for the event
                 const existingTeam = await ctx.db.team.findFirst({
                     where: { eventId, name: teamName },
                 });
@@ -30,6 +32,26 @@ export const teamRouter = createTRPCRouter({
                     });
                 }
 
+                // Check if the user is already in a team for the event
+                const userTeam = await ctx.db.team.findFirst({
+                    where: {
+                        eventId,
+                        Members: {
+                            some: {
+                                id: userId,
+                            },
+                        },
+                    },
+                });
+
+                if (userTeam) {
+                    throw new TRPCError({
+                        code: 'BAD_REQUEST',
+                        message: 'User is already in a team for this event',
+                    });
+                }
+
+                // Create the new team and add the user as a member
                 const team = await ctx.db.team.create({
                     data: {
                         name: teamName,
@@ -54,6 +76,7 @@ export const teamRouter = createTRPCRouter({
             }
         }),
 
+
     //join team
     joinTeam: protectedProcedure
         .input(joinTeamZ)
@@ -73,6 +96,7 @@ export const teamRouter = createTRPCRouter({
                     });
                 }
 
+                // Check if the user is already in the team
                 if (team.Members.some(member => member.id === userId)) {
                     throw new TRPCError({
                         code: 'BAD_REQUEST',
@@ -80,6 +104,26 @@ export const teamRouter = createTRPCRouter({
                     });
                 }
 
+                // Check if the user is already in another team for the same event
+                const userTeamsForEvent = await ctx.db.team.findMany({
+                    where: {
+                        eventId: team.eventId,
+                        Members: {
+                            some: {
+                                id: userId,
+                            },
+                        },
+                    },
+                });
+
+                if (userTeamsForEvent.length > 0) {
+                    throw new TRPCError({
+                        code: 'BAD_REQUEST',
+                        message: 'User is already in another team for this event',
+                    });
+                }
+
+                // Check if the team is full based on event type
                 if (team.Event.type === 'SOLO' && team.Members.length === 1) {
                     throw new TRPCError({
                         code: 'BAD_REQUEST',
@@ -104,35 +148,75 @@ export const teamRouter = createTRPCRouter({
                     },
                 });
 
-                // Fetch updated team members count
-                const updatedTeam = await ctx.db.team.findUnique({
+                return { success: true };
+            } catch (error) {
+                if (error instanceof TRPCError) {
+                    throw error; // Re-throw known TRPC errors
+                } else {
+                    throw new TRPCError({
+                        code: 'INTERNAL_SERVER_ERROR',
+                        message: 'An unexpected error occurred',
+                        cause: error,
+                    });
+                }
+            }
+        }),
+
+
+    // confrim team 
+    confirmTeam: protectedProcedure
+        .input(z.object({
+            teamId: z.string(),
+        }))
+        .mutation(async ({ input, ctx }) => {
+            const { teamId } = input;
+
+            try {
+                // Fetch the team and include its members and associated event details
+                const team = await ctx.db.team.findUnique({
                     where: { id: teamId },
-                    include: { Members: true },
+                    include: { Members: true, Event: true },
                 });
 
-                if (!updatedTeam) {
+                // Check if the team exists
+                if (!team) {
                     throw new TRPCError({
                         code: 'NOT_FOUND',
-                        message: 'Team not found after joining',
+                        message: 'Team not found',
                     });
                 }
 
-                // Confirm the team if conditions are met
-                let isConfirmed = false;
-                if (team.Event.type === 'SOLO' && updatedTeam.Members.length === 1) {
-                    isConfirmed = true;
-                } else if (team.Event.type === 'TEAM' && updatedTeam.Members.length >= team.Event.minTeamSize) {
-                    isConfirmed = true;
-                }
-
-                if (isConfirmed) {
-                    await ctx.db.team.update({
-                        where: { id: teamId },
-                        data: { isConfirmed: true },
+                // Check the event type and member count
+                if (team.Event.type === 'SOLO') {
+                    if (team.Members.length !== 1) {
+                        throw new TRPCError({
+                            code: 'BAD_REQUEST',
+                            message: 'Solo events must have exactly one member',
+                        });
+                    }
+                } else if (team.Event.type === 'TEAM') {
+                    if (team.Members.length < team.Event.minTeamSize || team.Members.length > team.Event.maxTeamSize) {
+                        throw new TRPCError({
+                            code: 'BAD_REQUEST',
+                            message: `Team size must be between ${team.Event.minTeamSize} and ${team.Event.maxTeamSize}`,
+                        });
+                    }
+                } else {
+                    throw new TRPCError({
+                        code: 'BAD_REQUEST',
+                        message: 'Invalid event type',
                     });
                 }
 
-                return { success: true, team: updatedTeam };
+                // Mark the team as confirmed
+                await ctx.db.team.update({
+                    where: { id: teamId },
+                    data: {
+                        isConfirmed: true,
+                    },
+                });
+
+                return { success: true, message: 'Team confirmed successfully' };
             } catch (error) {
                 if (error instanceof TRPCError) {
                     throw error; // Re-throw known TRPC errors
@@ -166,13 +250,12 @@ export const teamRouter = createTRPCRouter({
                     });
                 }
 
-                if (team.Members.length <= team.Event.minTeamSize) {
+                if (team.isConfirmed == true) {
                     throw new TRPCError({
                         code: 'BAD_REQUEST',
-                        message: 'Cannot leave the team, it will fall below the minimum team size',
+                        message: 'Cannot leave the team, has it is confrimed',
                     });
                 }
-
                 await ctx.db.team.update({
                     where: { id: teamId },
                     data: {
@@ -217,6 +300,7 @@ export const teamRouter = createTRPCRouter({
                     });
                 }
 
+
                 // Delete the team
                 await ctx.db.team.delete({
                     where: { id: teamId },
@@ -258,8 +342,61 @@ export const teamRouter = createTRPCRouter({
             }
         }),
 
+    // Endpoint to list teams for an event that are not full,(user searching for a team which is empty that he can join in last Min)
+    listAvailableTeams: protectedProcedure
+        .input(searchTeamForEventz)
+        .query(async ({ input, ctx }) => {
+            const { eventId, userId } = input;
+
+            try {
+                // Fetch the event to ensure it exists
+                const event = await ctx.db.event.findUnique({
+                    where: { id: eventId },
+                });
+
+                if (!event) {
+                    throw new TRPCError({
+                        code: 'NOT_FOUND',
+                        message: 'Event not found',
+                    });
+                }
+
+                // Fetch all teams for the event
+                const teams = await ctx.db.team.findMany({
+                    where: { eventId },
+                    include: { Members: true, Event: true },
+                });
+
+                // Get the IDs of teams that the user is already a member of
+                const userTeams = teams
+                    .filter(team => team.Members.some(member => member.id === userId))
+                    .map(team => team.id);
+
+                // Filter out teams that are full or already include the user
+                const availableTeams = teams.filter(team =>
+                    team.Event.type === 'TEAM' &&
+                    team.Members.length < event.maxTeamSize &&
+                    !userTeams.includes(team.id)
+                );
+
+                console.log("Available teams:", availableTeams); // Debugging output
+
+                return { success: true, availableTeams };
+            } catch (error) {
+                console.error("Error fetching available teams:", error);
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: 'An unexpected error occurred',
+                    cause: error,
+                });
+            }
+        }),
+
+
+
+
     // Get all team list with info of a particular event
-    getTeamsByEventIdForAdmin: adminProcedure
+    getTeamsByEventIdForAdmin: protectedProcedure
         .input(z.string())
         .query(async ({ input, ctx }) => {
             try {

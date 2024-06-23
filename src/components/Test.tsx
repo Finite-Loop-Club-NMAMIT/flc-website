@@ -18,15 +18,15 @@ const Test = () => {
       console.log(error);
     },
   });
-  const markTeam =
-    api.attendence.markTeamAttendanceOfPerticularEvent.useMutation({
-      onSuccess: async () => {
-        console.log("s");
-      },
-      onError: (error) => {
-        console.log(error);
-      },
-    });
+  // const markTeam =
+  //   api.attendence.markTeamAttendanceOfPerticularEvent.useMutation({
+  //     onSuccess: async () => {
+  //       console.log("s");
+  //     },
+  //     onError: (error) => {
+  //       console.log(error);
+  //     },
+  //   });
   const confrimTeam = api.team.confirmTeam.useMutation({
     onSuccess: async () => {
       console.log("s");
@@ -61,7 +61,7 @@ const Test = () => {
   // const { data: winners } = api.winner.getWinnersByEventId.useQuery(
   //   "clxo9upup000361cin6jb9y7b",
   // );
-  const { data: info } = api.team.getTeamsByUserId.useQuery();
+  // const { data: info } = api.team.getTeamsByUserId.useQuery();
   const markwinner = api.winner.createWinner.useMutation({
     onSuccess: async () => {
       console.log("s");
@@ -79,7 +79,7 @@ const Test = () => {
     },
   });
   const issuecertificate =
-    api.certificate.issueCertificatesForWinners.useMutation({
+    api.certificate.issueCertificatesForWinnersAndParticipents.useMutation({
       onSuccess: async () => {
         console.log("s");
       },
@@ -87,9 +87,38 @@ const Test = () => {
         console.log(error);
       },
     });
+  const markpoints = api.activitypoints.addActivityPointsForEvent.useMutation({
+    onSuccess: async () => {
+      console.log("s");
+    },
+    onError: (error) => {
+      console.log(error);
+    },
+  });
+
+  const calculateAndUpdatePoints =
+    api.activitypoints.calculateAndUpdateTotalActivityPoints.useMutation();
+
+  const handleCalculateAndUpdate = async () => {
+    try {
+      await calculateAndUpdatePoints.mutateAsync();
+      console.log("Total Activity Points updated successfully!");
+    } catch (error) {
+      console.error("Error updating total activity points:", error);
+    }
+  };
 
   return (
-    <div className=" flex gap-2">
+    <div>
+      <div>
+        <button
+          className="bg-black p-2 text-white "
+          onClick={handleCalculateAndUpdate}
+        >
+          Calculate and Update Total Activity Points
+        </button>
+      </div>
+
       {/* {attended?.map((team, index) => (
         <div key={index} className="team">
           <h2>Team: {team.name}</h2>
@@ -112,16 +141,15 @@ const Test = () => {
       {/* <div>
         <pre> {JSON.stringify(teams)}</pre>
       </div> */}
-      <div>
+      {/* <div>
         <pre> {JSON.stringify(info)}</pre>
-      </div>
+      </div> */}
 
       <button
         onClick={async () => {
           await createteam.mutateAsync({
             eventId: "clxo9upup000361cin6jb9y7b",
             teamName: "new",
-       
           });
         }}
       >
@@ -131,7 +159,6 @@ const Test = () => {
         onClick={async () => {
           await joinTeam.mutateAsync({
             teamId: "clxoqvlmq0001144uh9rql7cd",
-          
           });
         }}
       >
@@ -147,10 +174,11 @@ const Test = () => {
         confrim team
       </button>
       <button
+        className="bg-black p-2 text-white "
         onClick={async () => {
           await markwinner.mutateAsync({
-            teamId: "clxoqvlmq0001144uh9rql7cd",
-            eventId: "clxo9upup000361cin6jb9y7b",
+            teamId: "clxrj4hfp0000rot46qqbl1fr",
+            eventId: "clxoac4vp000013uqr2ne64ff",
             winnerType: "RUNNER_UP",
           });
         }}
@@ -160,7 +188,7 @@ const Test = () => {
       <button
         onClick={async () => {
           await manuvalAttendence.mutateAsync({
-            eventId:"clxo9upup000361cin6jb9y7b",
+            eventId: "clxo9upup000361cin6jb9y7b",
             userId: "clxoa6va3000444vdpr89m38v",
             hasAttended: true,
           });
@@ -180,14 +208,24 @@ const Test = () => {
       </button>
       <button
         onClick={async () => {
-          await issuecertificate.mutateAsync({
+          await markpoints.mutateAsync({
             eventId: "clxo9upup000361cin6jb9y7b",
+            points: 10,
           });
         }}
       >
-        winner certificate
+        mark points
       </button>
-      <button>participent certificate</button>
+      <button
+        className="bg-black p-2 text-white "
+        onClick={async () => {
+          await issuecertificate.mutateAsync({
+            eventId: "clxoac4vp000013uqr2ne64ff",
+          });
+        }}
+      >
+        participent certificate
+      </button>
     </div>
   );
 };

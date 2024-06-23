@@ -6,7 +6,7 @@ import { findEventIfExistById } from "~/utils/helper/findEventById";
 export const certificateRouter = createTRPCRouter({
     // when this endpoint hits , it will search for  winners of that event , and create certificate for then , issuedate is now() ,
     //  and certificate type=winnertype    and also issues certificate for participents
-    issueCertificatesForWinners: adminProcedure
+    issueCertificatesForWinnersAndParticipents: adminProcedure
         .input(issueCertificateByEventIdZ)
         .mutation(async ({ input, ctx }) => {
             const { eventId } = input;
@@ -102,6 +102,9 @@ export const certificateRouter = createTRPCRouter({
                         });
                     }
                 }
+
+                // activity points updation
+              
 
 
                 return { success: true };

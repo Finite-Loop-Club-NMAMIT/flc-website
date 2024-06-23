@@ -91,8 +91,8 @@ export const feedbackTemplateRouter = createTRPCRouter({
       }
     }),
 
-    //get all question of perticular FeedbackTemplete
-    getQuestionsByFeedbackTemplateId:adminProcedure
+  //get all question of perticular FeedbackTemplete
+  getQuestionsByFeedbackTemplateId: adminProcedure
     .input(getQuestionsByFeedbackTemplateIdSchema)
     .query(async ({ input, ctx }) => {
       try {
@@ -124,35 +124,37 @@ export const feedbackTemplateRouter = createTRPCRouter({
 
 
   //get All Published FeedbackTemplets with questions 
-  getAllPublishedFeedbackTemplatesWithQuestions:protectedProcedure
-  .query(async ({ ctx }) => {
-    try {
-      const feedbackTemplates = await ctx.db.feedbackTemplate.findMany({
-        where: { templateState: 'PUBLISHED' }, 
-        include: {
-          Questions: true,
-        },
-      });
-      return feedbackTemplates;
-    } catch (error) {
-      console.error('Get All Feedback Templates Error:', error);
-      throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Something went wrong while fetching feedback templates',
-      });
-    }
-  }),
-  
+  getAllPublishedFeedbackTemplatesWithQuestions: protectedProcedure
+    .query(async ({ ctx }) => {
+      try {
+        const feedbackTemplates = await ctx.db.feedbackTemplate.findMany({
+          where: { templateState: 'PUBLISHED' },
+          include: {
+            Questions: true,
+          },
+        });
+        return feedbackTemplates;
+      } catch (error) {
+        console.error('Get All Feedback Templates Error:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Something went wrong while fetching feedback templates',
+        });
+      }
+    }),
+
   // Submit an answer to a question
   submitAnswerToQuestion: protectedProcedure
     .input(createAnswerSchema)
     .mutation(async ({ input, ctx }) => {
       try {
+        const userId = ctx.session.user.id;
+
         const answer = await ctx.db.answer.create({
           data: {
             questionId: input.questionId,
             ans: input.ans,
-            userId: input.userId,
+            userId: userId,
           },
         });
         return answer;
@@ -161,9 +163,11 @@ export const feedbackTemplateRouter = createTRPCRouter({
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message: 'Something went wrong while submitting answer',
+          cause: error,
         });
       }
     }),
+
 
 
   // View all feedback templates for an event ()check
@@ -191,10 +195,10 @@ export const feedbackTemplateRouter = createTRPCRouter({
       }
     }),
 
-  
+
 
   //  Delete a feedback template
-  deleteFeedbackTemplate:adminProcedure
+  deleteFeedbackTemplate: adminProcedure
     .input(z.string())
     .mutation(async ({ input, ctx }) => {
       try {
@@ -224,3 +228,5 @@ export const feedbackTemplateRouter = createTRPCRouter({
       }
     }),
 });
+
+

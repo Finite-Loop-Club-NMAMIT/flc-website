@@ -14,8 +14,9 @@ export const teamRouter = createTRPCRouter({
     createTeam: protectedProcedure
         .input(createTeamZ)
         .mutation(async ({ input, ctx }) => {
-            const { eventId, teamName, userId } = input;
+            const { eventId, teamName } = input;
 
+            const userId = ctx.session.user.id;
             try {
                 // Check if the event exists
                 await findEventIfExistById(eventId);
@@ -81,8 +82,8 @@ export const teamRouter = createTRPCRouter({
     joinTeam: protectedProcedure
         .input(joinTeamZ)
         .mutation(async ({ input, ctx }) => {
-            const { teamId, userId } = input;
-
+            const { teamId } = input;
+            const userId = ctx.session.user.id;
             try {
                 const team = await ctx.db.team.findUnique({
                     where: { id: teamId },
@@ -235,8 +236,8 @@ export const teamRouter = createTRPCRouter({
     leaveTeam: protectedProcedure
         .input(leaveTeamSchema)
         .mutation(async ({ input, ctx }) => {
-            const { teamId, userId } = input;
-
+            const { teamId } = input;
+            const userId = ctx.session.user.id;
             try {
                 const team = await ctx.db.team.findUnique({
                     where: { id: teamId },
@@ -321,26 +322,25 @@ export const teamRouter = createTRPCRouter({
         }),
 
     // Get all teams with team details of a particular user
-    getTeamsByUserId: protectedProcedure
-        .input(z.string())
-        .query(async ({ input, ctx }) => {
-            try {
-                const teams = await ctx.db.team.findMany({
-                    where: {
-                        Members: { some: { id: input } },
-                    },
-                    include: { Members: true, Event: true },
-                });
+    getTeamsByUserId: protectedProcedure.query(async ({ ctx }) => {
+        try {
+            const userId = ctx.session.user.id;
+            const teams = await ctx.db.team.findMany({
+                where: {
+                    Members: { some: { id: userId } },
+                },
+                include: { Members: true, Event: true },
+            });
 
-                return { success: true, teams };
-            } catch (error) {
-                throw new TRPCError({
-                    code: 'INTERNAL_SERVER_ERROR',
-                    message: 'An unexpected error occurred while fetching teams by user ID',
-                    cause: error,
-                });
-            }
-        }),
+            return { success: true, teams };
+        } catch (error) {
+            throw new TRPCError({
+                code: 'INTERNAL_SERVER_ERROR',
+                message: 'An unexpected error occurred while fetching teams by user ID',
+                cause: error,
+            });
+        }
+    }),
 
     // Endpoint to list teams for an event that are not full,(user searching for a team which is empty that he can join in last Min)
     listAvailableTeams: protectedProcedure

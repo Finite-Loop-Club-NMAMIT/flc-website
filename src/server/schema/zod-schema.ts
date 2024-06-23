@@ -68,7 +68,7 @@ const updateQuestionSchema = z.object({
 
 const createAnswerSchema = z.object({
   questionId: z.string(),
-  userId: z.string(),
+  // userId: from session
   ans: z.string(),
 });
 
@@ -89,17 +89,17 @@ const markTeamAttendanceSchema = z.object({
 const createTeamZ = z.object({
   eventId: z.string(),
   teamName: z.string(),
-  userId: z.string(),
+  // userId: from session
 });
 
 const joinTeamZ = z.object({
   teamId: z.string(),
-  userId: z.string(),
+  // userId: from session 
 });
 
 const leaveTeamSchema = z.object({
   teamId: z.string(),
-  userId: z.string(),
+  // userId: from session 
 });
 
 const deleteTeamInput = z.object({
@@ -111,7 +111,7 @@ const getUserTeamsInput = z.object({
 });
 const searchTeamForEventz = z.object({
   eventId: z.string(),
-  userId: z.string(),
+  // userId:  from session 
 });
 
 //authSchema

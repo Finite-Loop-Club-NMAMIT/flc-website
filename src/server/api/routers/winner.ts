@@ -1,4 +1,4 @@
-import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure, } from '../trpc';
+import { adminProcedure, createTRPCRouter, publicProcedure, } from '../trpc';
 import { TRPCError } from '@trpc/server';
 import { createWinnerZ, editWinnerTypeZ, getWinnersByEventIdZ } from '~/server/schema/zod-schema';
 import { findEventIfExistById } from '~/utils/helper/findEventById';
@@ -23,7 +23,7 @@ export const winnerRouter = createTRPCRouter({
                         message: 'Event must be in Published state to declare winners',
                     });
                 }
-                //add completed validation-->
+
 
                 // Check if the team exists for the event and is confirmed and has attended
                 const team = await ctx.db.team.findUnique({

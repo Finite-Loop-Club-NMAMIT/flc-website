@@ -61,6 +61,7 @@ const Test = () => {
   // const { data: winners } = api.winner.getWinnersByEventId.useQuery(
   //   "clxo9upup000361cin6jb9y7b",
   // );
+  const { data: info } = api.team.getTeamsByUserId.useQuery();
   const markwinner = api.winner.createWinner.useMutation({
     onSuccess: async () => {
       console.log("s");
@@ -111,13 +112,16 @@ const Test = () => {
       {/* <div>
         <pre> {JSON.stringify(teams)}</pre>
       </div> */}
+      <div>
+        <pre> {JSON.stringify(info)}</pre>
+      </div>
 
       <button
         onClick={async () => {
           await createteam.mutateAsync({
             eventId: "clxo9upup000361cin6jb9y7b",
-            teamName: "d",
-            userId: "clxoqs3o3000013vikv72k7s6",
+            teamName: "new",
+       
           });
         }}
       >
@@ -127,7 +131,7 @@ const Test = () => {
         onClick={async () => {
           await joinTeam.mutateAsync({
             teamId: "clxoqvlmq0001144uh9rql7cd",
-            userId: "clxoqs3o3000013vikv72k7s6",
+          
           });
         }}
       >

@@ -12,6 +12,7 @@ const AUTH_SECRET = process.env.AUTH_SECRET!;
 
 const secrets = {
   JWT_VERIFICATION_SECRET: AUTH_SECRET + "verification",
+  JWT_PASSWORD_RESET_SECRET: AUTH_SECRET + "passwordReset",
   JWT_ACCESS_SECRET: AUTH_SECRET + "access",
   JWT_REFRESH_SECRET: AUTH_SECRET + "verify",
 };
@@ -46,6 +47,23 @@ const generateVerificationToken = (
     },
 
     secrets.JWT_VERIFICATION_SECRET,
+    {
+      expiresIn: "1d",
+    },
+  );
+};
+
+const generatePasswordResetToken = (
+  user: { id: string },
+  jti: string,
+): string => {
+  return jwt.sign(
+    {
+      userId: user.id,
+      jti,
+    },
+
+    secrets.JWT_PASSWORD_RESET_SECRET,
     {
       expiresIn: "1d",
     },
@@ -215,4 +233,5 @@ export {
   revokeRefreshToken,
   refreshToken,
   rotateTokens,
+  generatePasswordResetToken,
 };

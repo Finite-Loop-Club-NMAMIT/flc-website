@@ -5,6 +5,7 @@ import { hashToken } from "~/utils/auth/hashToken";
 import { LoginSchema } from "~/zod/authZ";
 import { v4 as uuidv4 } from "uuid";
 import { generateTokens } from "~/utils/auth/jwt";
+import * as cron from "node-cron";
 
 const addVerificationTokenToWhitelist = async ({
   userId,
@@ -15,6 +16,25 @@ const addVerificationTokenToWhitelist = async ({
     const token = await db.verificationToken.create({
       data: {
         userId,
+      },
+    });
+    return token;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+const addPasswordResetTokenToWhitelist = async ({
+  userId,
+}: {
+  userId: string;
+}) => {
+  try {
+    const token = await db.verificationToken.create({
+      data: {
+        userId,
+        type: "PASSWORD_RESET",
       },
     });
     return token;
@@ -109,9 +129,47 @@ const login = async (input: { email: string; password: string }) => {
   }
 };
 
+cron.schedule("*/3 * * * *", async () => {
+  await db.refreshToken.deleteMany({
+    where: {
+      revoked: true,
+    },
+  });
+  await db.verificationToken.deleteMany({
+    where: {
+      revoked: true,
+    },
+  });
+
+  //deleting non-revoked tokens after their expiry time
+  const expiryTime = new Date();
+  expiryTime.setHours(expiryTime.getHours() - 5);
+
+  await db.refreshToken.deleteMany({
+    where: {
+      revoked: false,
+      createdAt: {
+        lte: expiryTime,
+      },
+    },
+  });
+
+  await db.verificationToken.deleteMany({
+    where: {
+      revoked: false,
+      createdAt: {
+        lte: expiryTime,
+      },
+    },
+  });
+
+  console.log("cron job running: deleted revoked tokens");
+});
+
 export {
   addVerificationTokenToWhitelist,
   revokeVerificationToken,
   addRefreshTokenToWhitelist,
+  addPasswordResetTokenToWhitelist,
   login,
 };

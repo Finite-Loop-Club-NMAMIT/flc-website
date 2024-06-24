@@ -9,7 +9,8 @@ export default function Home() {
 
   const signUp = api.auth.signUp.useMutation();
   const sendVerificationEmail = api.auth.sendVerifyEmail.useMutation();
-
+  const sendPasswordResetEmail = api.auth.sendPasswordResetEmail.useMutation();
+  const resetPassword = api.auth.resetPassword.useMutation();
   const verifyEmail = api.auth.verifyEmail.useMutation();
 
   // const test = api.test.test.useMutation();
@@ -41,7 +42,16 @@ export default function Home() {
           });
         }}
       >
-        send
+        send verifyEmail
+      </button>
+      <button
+        onClick={() => {
+          sendPasswordResetEmail.mutate({
+            email: "nnm22cs094@nmamit.in",
+          });
+        }}
+      >
+        send password reset emaik
       </button>
 
       <button
@@ -52,14 +62,26 @@ export default function Home() {
           });
         }}
       >
-        verify
+        verify email
+      </button>
+
+      <button
+        onClick={() => {
+          resetPassword.mutate({
+            newPassword: "password2",
+            token:
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbHhpa2pyb2gwMDAwM2J6bHFzZzV6bmhkIiwianRpIjoiY2x4cHNwMjVkMDAwM2Uxd2Roc2ljNTR1eiIsImlhdCI6MTcxOTA0MTExNSwiZXhwIjoxNzE5MTI3NTE1fQ.CLpTdZUn74b6BmBYr8o19hjVwnbq9u8g_f184xvxSU4",
+          });
+        }}
+      >
+        reset password
       </button>
 
       <button
         onClick={async () => {
           const res = signIn("credentials", {
             email: "nnm22cs094@nmamit.in",
-            password: "password",
+            password: "password2",
             redirect: false,
           });
           res

@@ -85,8 +85,32 @@ const SendVerifyEmailSchema = z.object({
     ),
 });
 
+const SendPasswordResetSchema = z.object({
+  email: z
+    .string()
+    .email({
+      message: "Email is required",
+    })
+    .refine(
+      (email) => {
+        if (email.endsWith("@nmamit.in")) {
+          return true;
+        }
+        return false;
+      },
+      {
+        message: "Email must be from NMAMIT",
+      },
+    ),
+});
+
 const VerifyEmailSchema = z.object({
   token: z.string(),
+});
+
+const ResetPasswordSchema = z.object({
+  token: z.string(),
+  newPassword: z.string(),
 });
 
 const RefreshTokenSchema = z.object({
@@ -99,4 +123,6 @@ export {
   SendVerifyEmailSchema,
   VerifyEmailSchema,
   RefreshTokenSchema,
+  SendPasswordResetSchema,
+  ResetPasswordSchema,
 };

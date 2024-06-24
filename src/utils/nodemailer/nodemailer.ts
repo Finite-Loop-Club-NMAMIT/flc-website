@@ -51,3 +51,24 @@ export const sendPasswordResetEmail = async (
     throw error;
   });
 };
+export const sendCertificationIsuueForEmail = async (
+  email: string,
+  certificationType:string,
+  eventName: string,
+  name: string,
+) => {
+  async function main() {
+    await transporter.sendMail({
+      from: '"Finite Loop Club" <flc@nmamit.in>',
+      to: email,
+      subject: "Flc Certification",
+      text: `Hi ${name}`,
+      html: `<p>Your ${certificationType} certification for ${eventName} has been isuued</p>`,
+    });
+  }
+
+  await main().catch((error) => {
+    console.error(error);
+    throw error;
+  });
+};

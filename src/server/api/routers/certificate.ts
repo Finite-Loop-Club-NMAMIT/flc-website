@@ -1,25 +1,30 @@
-import { adminProcedure, createTRPCRouter, } from "../trpc"
+import { createTRPCRouter, protectedProcedure, } from "../trpc"
 import { TRPCError } from '@trpc/server';
 import { issueCertificateByEventIdZ } from '~/server/schema/zod-schema';
 import { findEventIfExistById } from "~/utils/helper/findEventById";
+import { checkOrganiser } from "~/utils/helper/organiserCheck";
+import { sendCertificationIsuueForEmail } from "~/utils/nodemailer/nodemailer";
 
 export const certificateRouter = createTRPCRouter({
     // when this endpoint hits , it will search for  winners of that event , and create certificate for then , issuedate is now() ,
     //  and certificate type=winnertype    and also issues certificate for participents
-    issueCertificatesForWinnersAndParticipents: adminProcedure
+    issueCertificatesForWinnersAndParticipants: protectedProcedure
         .input(issueCertificateByEventIdZ)
         .mutation(async ({ input, ctx }) => {
             const { eventId } = input;
+            const userId = ctx.session.user.id;
 
+            await checkOrganiser(userId, input.eventId);
             try {
                 // Check if the event exists
-                const event = await findEventIfExistById(eventId)
+                const event = await findEventIfExistById(eventId);
+
                 // Fetch winners of the event
                 const winners = await ctx.db.winner.findMany({
                     where: { eventId },
                     include: {
                         Team: {
-                            include: { Members: { select: { id: true, name: true } } },
+                            include: { Members: { select: { id: true, name: true, email: true } } }, // include email
                         },
                     },
                 });
@@ -31,12 +36,10 @@ export const certificateRouter = createTRPCRouter({
                     });
                 }
 
-                //
-
-                // Create certificates for each winner
+                // Create certificates for each winner and send email
                 await Promise.all(
-                    winners.map(async (winner) => {  // For each winner, map through their team members and create certificates
-                        return ctx.db.certificate.createMany({
+                    winners.map(async (winner) => {
+                        const certificates = await ctx.db.certificate.createMany({
                             data: winner.Team.Members.map((member) => ({
                                 issuedOn: new Date(),
                                 certificateType: winner.winnerType,
@@ -44,15 +47,28 @@ export const certificateRouter = createTRPCRouter({
                                 eventId: event.id,
                             })),
                         });
+
+                        // Send email to each team member
+                        await Promise.all(
+                            winner.Team.Members.map((member) =>
+                                sendCertificationIsuueForEmail(
+                                    member.email,
+                                    winner.winnerType,
+                                    event.name,
+                                    member.name
+                                )
+                            )
+                        );
+
+                        return certificates;
                     })
                 );
 
                 try {
-                    // this issues participation certicficates for the (code explaination is written below )
                     // Fetch teams that are confirmed and have attended
                     const teams = await ctx.db.team.findMany({
                         where: { eventId, isConfirmed: true, hasAttended: true },
-                        include: { Members: { select: { id: true, name: true } } },
+                        include: { Members: { select: { id: true, name: true, email: true } } }, // include email
                     });
 
                     if (teams.length === 0) {
@@ -71,8 +87,7 @@ export const certificateRouter = createTRPCRouter({
                     const existingUserEventIds = existingCertificates.map(cert => cert.userId);
 
                     // Create certificates for each participant who does not have one yet
-
-                    const certificates = []; // array copy
+                    const certificates = [];
 
                     // Iterate through each team and its members
                     for (const team of teams) {
@@ -88,7 +103,15 @@ export const certificateRouter = createTRPCRouter({
                                         eventId: event.id,
                                     },
                                 });
-                                certificates.push(certificate); // Push the created certificate to the certificates arra
+                                certificates.push(certificate);
+
+                                // Send email to the participant
+                                await sendCertificationIsuueForEmail(
+                                    member.email,
+                                    'PARTICIPATION',
+                                    event.name,
+                                    member.name
+                                );
                             }
                         }
                     }
@@ -103,10 +126,6 @@ export const certificateRouter = createTRPCRouter({
                     }
                 }
 
-
-
-
-
                 return { success: true };
             } catch (error) {
                 if (error instanceof TRPCError) {
@@ -118,7 +137,8 @@ export const certificateRouter = createTRPCRouter({
                     });
                 }
             }
-        }),
+        })
+
 
 
 });

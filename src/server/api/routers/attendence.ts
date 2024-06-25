@@ -3,7 +3,7 @@ import { adminProcedure, createTRPCRouter, protectedProcedure, } from '../trpc';
 import { TRPCError } from '@trpc/server';
 import { markTeamAttendanceSchema } from '~/server/schema/zod-schema';
 import { findEventIfExistById } from '~/utils/helper/findEventById';
-// import { checkOrganiser } from '~/utils/helper/organiserCheck';
+import { checkOrganiser } from '~/utils/helper/organiserCheck';
 import { sendAttendenceStatusForEmail } from '~/utils/nodemailer/nodemailer';
 
 export const attendanceRouter = createTRPCRouter({
@@ -13,9 +13,9 @@ export const attendanceRouter = createTRPCRouter({
         .input(markTeamAttendanceSchema)
         .mutation(async ({ input, ctx }) => {
             try {
-                // const userId = ctx.session.user.id;
+                const userId = ctx.session.user.id;
 
-                // await checkOrganiser(userId, input.eventId); // checks if the user is the organiser of the event or not 
+                await checkOrganiser(userId, input.eventId); // checks if the user is the organiser of the event or not 
                 const event = await findEventIfExistById(input.eventId);
 
                 // Check if the event state is appropriate
@@ -128,6 +128,9 @@ export const attendanceRouter = createTRPCRouter({
         }))
         .query(async ({ input, ctx }) => {
             try {
+                const userId = ctx.session.user.id;
+
+                await checkOrganiser(userId, input.eventId); 
                 const event = await ctx.db.event.findUnique({
                     where: { id: input.eventId },
                 });
@@ -167,6 +170,9 @@ export const attendanceRouter = createTRPCRouter({
         }))
         .mutation(async ({ input, ctx }) => {
             try {
+                const userId = ctx.session.user.id;
+
+                await checkOrganiser(userId, input.eventId); 
                 // Check if the event exists
                 const event = await ctx.db.event.findUnique({
                     where: { id: input.eventId },
@@ -252,9 +258,9 @@ export const attendanceRouter = createTRPCRouter({
         }))
         .mutation(async ({ input, ctx }) => {
             try {
-                // const userId = ctx.session.user.id;
+                const userId = ctx.session.user.id;
 
-                // await checkOrganiser(userId, input.eventId);
+                await checkOrganiser(userId, input.eventId);
                 // Check if the event exists
                 const event = await ctx.db.event.findUnique({
                     where: { id: input.eventId },
@@ -337,6 +343,9 @@ export const attendanceRouter = createTRPCRouter({
         }))
         .mutation(async ({ input, ctx }) => {
             try {
+                const userId = ctx.session.user.id;
+
+                await checkOrganiser(userId, input.eventId); 
                 // Find the event
                 const event = await ctx.db.event.findUnique({
                     where: { id: input.eventId },

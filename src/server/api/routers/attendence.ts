@@ -3,7 +3,7 @@ import { adminProcedure, createTRPCRouter, protectedProcedure, } from '../trpc';
 import { TRPCError } from '@trpc/server';
 import { markTeamAttendanceSchema } from '~/server/schema/zod-schema';
 import { findEventIfExistById } from '~/utils/helper/findEventById';
-import { checkOrganiser } from '~/utils/helper/organiserCheck';
+// import { checkOrganiser } from '~/utils/helper/organiserCheck';
 import { sendAttendenceStatusForEmail } from '~/utils/nodemailer/nodemailer';
 
 export const attendanceRouter = createTRPCRouter({
@@ -13,9 +13,9 @@ export const attendanceRouter = createTRPCRouter({
         .input(markTeamAttendanceSchema)
         .mutation(async ({ input, ctx }) => {
             try {
-                const userId = ctx.session.user.id;
+                // const userId = ctx.session.user.id;
 
-                await checkOrganiser(userId, input.eventId); // checks if the user is the organiser of the event or not 
+                // await checkOrganiser(userId, input.eventId); // checks if the user is the organiser of the event or not 
                 const event = await findEventIfExistById(input.eventId);
 
                 // Check if the event state is appropriate
@@ -110,21 +110,6 @@ export const attendanceRouter = createTRPCRouter({
                         await sendAttendenceStatusForEmail(member.email, event.name, member.name, true);
                     }
                 }
-
-                // Check for members who didn't attend
-                const allMembers = team.Members;
-                for (const member of allMembers) {
-                    const existingAttendance = await ctx.db.attendence.findFirst({
-                        where: {
-                            userId: member.id,
-                            eventId: input.eventId,
-                        },
-                    });
-
-                    if (!(existingAttendance?.hasAttended)) {
-                        await sendAttendenceStatusForEmail(member.email, event.name, member.name, false);
-                    }
-                }
                 return { success: true };
             } catch (error) {
                 console.error('Mark Solo Attendance Error:', error);
@@ -174,8 +159,92 @@ export const attendanceRouter = createTRPCRouter({
                 });
             }
         }),
-    //marking attendence manuvaly for a user 
+    //Marking attendence manuvaly for a user 
     manuallyMarkUserAttendanceForConfirmedTeams: protectedProcedure
+        .input(z.object({
+            eventId: z.string(),
+            userId: z.string(),
+        }))
+        .mutation(async ({ input, ctx }) => {
+            try {
+                // Check if the event exists
+                const event = await ctx.db.event.findUnique({
+                    where: { id: input.eventId },
+                });
+
+                if (!event) {
+                    throw new TRPCError({
+                        code: 'NOT_FOUND',
+                        message: 'Event not found',
+                    });
+                }
+
+                // Fetch all teams for the event that are confirmed and include members
+                const teams = await ctx.db.team.findMany({
+                    where: {
+                        eventId: input.eventId,
+                        isConfirmed: true,
+                    },
+                    include: {
+                        Members: true,
+                    },
+                });
+
+                // Find the team where the user is a member
+                const userTeam = teams.find(team => team.Members.some(member => member.id === input.userId));
+
+                if (!userTeam) {
+                    throw new TRPCError({
+                        code: 'BAD_REQUEST',
+                        message: 'User is not a member of any confirmed team for this event',
+                    });
+                }
+
+                // Update or create attendance record for the user with hasAttended as true
+                let existingAttendance = await ctx.db.attendence.findFirst({
+                    where: {
+                        userId: input.userId,
+                        eventId: input.eventId,
+                    },
+                });
+
+                if (!existingAttendance) {
+                    // Create new attendance record
+                    existingAttendance = await ctx.db.attendence.create({
+                        data: {
+                            userId: input.userId,
+                            eventId: input.eventId,
+                            hasAttended: true, // Marking attendance as true by default
+                        },
+                    });
+                } else {
+                    // Update existing attendance record
+                    existingAttendance = await ctx.db.attendence.update({
+                        where: { id: existingAttendance.id },
+                        data: {
+                            hasAttended: true, // Marking attendance as true
+                        },
+                    });
+                }
+
+                // Find the user's details
+                const user = userTeam.Members.find(member => member.id === input.userId);
+                if (user) {
+                    await sendAttendenceStatusForEmail(user.email, event.name, user.name, true);
+                }
+
+                return { success: true };
+            } catch (error) {
+                console.error('Mark User Attendance Error:', error);
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: 'Something went wrong while marking user attendance',
+                    cause: error,
+                });
+            }
+        }),
+    //updating attendence manuvaly for a user 
+    manuallyUpdateUserAttendanceForConfirmedTeams: protectedProcedure
         .input(z.object({
             eventId: z.string(),
             userId: z.string(),
@@ -183,9 +252,9 @@ export const attendanceRouter = createTRPCRouter({
         }))
         .mutation(async ({ input, ctx }) => {
             try {
-                const userId = ctx.session.user.id;
+                // const userId = ctx.session.user.id;
 
-                await checkOrganiser(userId, input.eventId);
+                // await checkOrganiser(userId, input.eventId);
                 // Check if the event exists
                 const event = await ctx.db.event.findUnique({
                     where: { id: input.eventId },
@@ -257,6 +326,63 @@ export const attendanceRouter = createTRPCRouter({
                 throw new TRPCError({
                     code: 'INTERNAL_SERVER_ERROR',
                     message: 'Something went wrong while marking user attendance',
+                    cause: error,
+                });
+            }
+        }),
+    //send  this email after marking attendece ,it will send mail of users ,who did not attend
+    sendMailForAbsenteesOfPerticularEvent: protectedProcedure
+        .input(z.object({
+            eventId: z.string(),
+        }))
+        .mutation(async ({ input, ctx }) => {
+            try {
+                // Find the event
+                const event = await ctx.db.event.findUnique({
+                    where: { id: input.eventId },
+                });
+
+                if (!event) {
+                    throw new TRPCError({
+                        code: 'NOT_FOUND',
+                        message: 'Event not found',
+                    });
+                }
+
+                // Fetch all confirmed teams for the event and include members
+                const teams = await ctx.db.team.findMany({
+                    where: {
+                        eventId: input.eventId,
+                        isConfirmed: true,
+                    },
+                    include: {
+                        Members: true,
+                    },
+                });
+
+                // Iterate through each team and send emails to members who haven't attended
+                for (const team of teams) {
+                    for (const member of team.Members) {
+                        const existingAttendance = await ctx.db.attendence.findFirst({
+                            where: {
+                                userId: member.id,
+                                eventId: input.eventId,
+                            },
+                        });
+
+                        // Check if existingAttendance is null or undefined, or if hasAttended is false
+                        if (!existingAttendance || existingAttendance.hasAttended === false) {
+                            await sendAttendenceStatusForEmail(member.email, event.name, member.name, false);
+                        }
+                    }
+                }
+
+                return { success: true };
+            } catch (error) {
+                console.error('Send Mail for Absentees Error:', error);
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: 'Something went wrong while sending mail to absentees',
                     cause: error,
                 });
             }

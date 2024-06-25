@@ -19,15 +19,15 @@ const Test = () => {
       console.log(error);
     },
   });
-  // const markTeam =
-  //   api.attendence.markTeamAttendanceOfPerticularEvent.useMutation({
-  //     onSuccess: async () => {
-  //       console.log("s");
-  //     },
-  //     onError: (error) => {
-  //       console.log(error);
-  //     },
-  //   });
+  const markTeam =
+    api.attendence.markTeamAttendanceOfPerticularEvent.useMutation({
+      onSuccess: async () => {
+        console.log("s");
+      },
+      onError: (error) => {
+        console.log(error);
+      },
+    });
   const confrimTeam = api.team.confirmTeam.useMutation({
     onSuccess: async () => {
       console.log("s");
@@ -37,7 +37,7 @@ const Test = () => {
     },
   });
   const manuvalAttendence =
-    api.attendence.manuallyMarkUserAttendanceForConfirmedTeams.useMutation({
+    api.attendence. manuallyMarkUserAttendanceForConfirmedTeams.useMutation({
       onSuccess: async () => {
         console.log("s");
       },
@@ -204,11 +204,25 @@ const Test = () => {
             await manuvalAttendence.mutateAsync({
               eventId: "clxo9upup000361cin6jb9y7b",
               userId: "clxoa6va3000444vdpr89m38v",
-              hasAttended: true,
+             
             });
           }}
         >
           mark manuval attendence
+        </button>
+      </div>
+      <div>
+        <button
+          className="rounded-md bg-black p-2 text-white  "
+          onClick={async () => {
+            await markTeam .mutateAsync({
+              eventId: "clxo9upup000361cin6jb9y7b",
+              teamId: "clxoee8190001333kejqr9a89",
+              
+            });
+          }}
+        >
+          markteam attendence
         </button>
       </div>
       <div>

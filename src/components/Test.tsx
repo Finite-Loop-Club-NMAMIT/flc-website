@@ -1,5 +1,6 @@
 import React from "react";
 import { api } from "~/utils/api";
+import SubmitFeedback from "./SubmitFeedback";
 
 const Test = () => {
   const joinTeam = api.team.joinTeam.useMutation({
@@ -248,6 +249,7 @@ const Test = () => {
           participent certificate
         </button>
       </div>
+      <SubmitFeedback />
     </div>
   );
 };

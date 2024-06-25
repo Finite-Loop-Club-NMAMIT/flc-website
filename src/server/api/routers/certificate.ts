@@ -1,13 +1,14 @@
 import { createTRPCRouter, protectedProcedure, } from "../trpc"
 import { TRPCError } from '@trpc/server';
 import { issueCertificateByEventIdZ } from '~/server/schema/zod-schema';
+import { sendCertificate } from "~/utils/certificationEmail/email";
 import { findEventIfExistById } from "~/utils/helper/findEventById";
 import { checkOrganiser } from "~/utils/helper/organiserCheck";
-import { sendCertificationIsuueForEmail } from "~/utils/nodemailer/nodemailer";
+
 
 export const certificateRouter = createTRPCRouter({
     // when this endpoint hits , it will search for  winners of that event , and create certificate for then , issuedate is now() ,
-    //  and certificate type=winnertype    and also issues certificate for participents
+    //  and certificate type=winnertype    and also issuess certificate for participents
     issueCertificatesForWinnersAndParticipants: protectedProcedure
         .input(issueCertificateByEventIdZ)
         .mutation(async ({ input, ctx }) => {
@@ -48,14 +49,15 @@ export const certificateRouter = createTRPCRouter({
                             })),
                         });
 
-                        // Send email to each team member
+                        // Send email to each winners(alltype)team member
                         await Promise.all(
                             winner.Team.Members.map((member) =>
-                                sendCertificationIsuueForEmail(
-                                    member.email,
-                                    winner.winnerType,
+                                sendCertificate(
+                                    member.name,
                                     event.name,
-                                    member.name
+                                    member.email,
+                                    "Topperformer",
+                                    winner.winnerType,
                                 )
                             )
                         );
@@ -105,13 +107,14 @@ export const certificateRouter = createTRPCRouter({
                                 });
                                 certificates.push(certificate);
 
-                                // Send email to the participant
-                                await sendCertificationIsuueForEmail(
-                                    member.email,
-                                    'PARTICIPATION',
+                                // Send email to the participant team
+                                await sendCertificate(
+                                    member.name,
                                     event.name,
-                                    member.name
-                                );
+                                    member.email,
+                                    "Participation",
+
+                                )
                             }
                         }
                     }
@@ -138,9 +141,6 @@ export const certificateRouter = createTRPCRouter({
                 }
             }
         })
-
-
-
 });
 
 

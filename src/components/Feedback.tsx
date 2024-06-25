@@ -55,15 +55,7 @@ const Feedback = () => {
       },
     });
 
-  const answerQuestion =
-    api.feedbackTemplate.submitAnswerToQuestion.useMutation({
-      onSuccess: () => {
-        console.log("s");
-      },
-      onError: (error) => {
-        console.log(error);
-      },
-    });
+  
 
   const { data: getallQuestions, refetch: refeatchAllQuestions } =
     api.feedbackTemplate.getQuestionsByFeedbackTemplateId.useQuery({
@@ -159,18 +151,7 @@ const Feedback = () => {
         >
           Delete_Feedbacke
         </button>
-        <button
-          onClick={async () => {
-            await answerQuestion.mutateAsync({
-              ans: "sathwik",
-              questionId: "clxj6iegf000b72gcag45lcc7",
-              userId: "abcdeggfjiakjion",
-            });
-          }}
-          className="text-md bg-white p-3 font-bold"
-        >
-          Submit_Answer
-        </button>
+       
       </div>
     </main>
   );

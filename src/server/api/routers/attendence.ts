@@ -143,6 +143,9 @@ export const attendanceRouter = createTRPCRouter({
         }))
         .mutation(async ({ input, ctx }) => {
             try {
+                const userId = ctx.session.user.id;
+
+                await checkOrganiser(userId, input.eventId);
                 // Check if the event exists
                 const event = await ctx.db.event.findUnique({
                     where: { id: input.eventId },

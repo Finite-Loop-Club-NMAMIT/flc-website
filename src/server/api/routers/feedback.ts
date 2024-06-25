@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { adminProcedure, createTRPCRouter, protectedProcedure } from '../trpc';
 import { TRPCError } from "@trpc/server";
-import { createAnswerSchema, createFeedbackTemplateSchema, createQuestionSchema, getQuestionsByFeedbackTemplateIdSchema, publishFeedbackTempleteSchema, updateQuestionSchema } from '~/server/schema/zod-schema';
+import { createAnswerSchema, createFeedbackTemplateSchema, createQuestionSchema, getQuestionsByFeedbackTemplateIdSchema, publishFeedbackTempleteSchema, submitFeedbackSchema, updateQuestionSchema } from '~/server/schema/zod-schema';
 import { findTemplateAndCheckQuestions } from '~/utils/helper/findTemplateAndQuestions';
 
 
@@ -142,7 +142,55 @@ export const feedbackTemplateRouter = createTRPCRouter({
         });
       }
     }),
+  // submit user feedback with there answers
+  submitUserFeedback: protectedProcedure
+    .input(submitFeedbackSchema)
+    .mutation(async ({ input, ctx }) => {
+      try {
+        const userId = ctx.session.user.id;
+        const { feedbackTemplateId, answers } = input;
 
+        // Check if UserFeedback already exists
+        let userFeedback = await ctx.db.userFeedback.findFirst({
+          where: {
+            userId: userId,
+            feedbackTemplateId: feedbackTemplateId,
+          },
+        });
+
+        // Create UserFeedback entry if it doesn't exist
+        if (!userFeedback) {
+          userFeedback = await ctx.db.userFeedback.create({
+            data: {
+              userId: userId,
+              feedbackTemplateId: feedbackTemplateId,
+            },
+          });
+        }
+
+        // Create or update Answer entries and link them to UserFeedback
+        for (const answer of answers) {
+          await ctx.db.answer.create({
+            data: {
+              questionId: answer.questionId,
+              ans: answer.ans,
+              userId: userId,
+              userFeedbackUserId: userFeedback.userId,
+              userFeedbackFeedbackTemplateId: userFeedback.feedbackTemplateId,
+            },
+          });
+        }
+
+        return { success: true };
+      } catch (error) {
+        console.error('Submit Feedback Error:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Something went wrong while submitting feedback',
+          cause: error,
+        });
+      }
+    }),
   // Submit an answer to a question
   submitAnswerToQuestion: protectedProcedure
     .input(createAnswerSchema)

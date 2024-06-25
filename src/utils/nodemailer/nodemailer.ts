@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer";
 
+
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 587,
@@ -8,6 +9,7 @@ const transporter = nodemailer.createTransport({
     user: process.env.SMTP_GMAIL,
     pass: process.env.SMTP_PASSWORD,
   },
+
 });
 
 export const sendVerificationEmail = async (
@@ -51,19 +53,33 @@ export const sendPasswordResetEmail = async (
     throw error;
   });
 };
+
+
 export const sendCertificationIsuueForEmail = async (
   email: string,
-  certificationType:string,
+  certificationType: string,
   eventName: string,
   name: string,
+  // should take certification type parameter 
 ) => {
-  async function main() {
+ 
+
+ // here we should acess that  templete file add that certification type for that templete and 
+ //convert it  into the image , then send that image as a attachment below while sending email 
+
+ async function main() {
+   
     await transporter.sendMail({
       from: '"Finite Loop Club" <flc@nmamit.in>',
       to: email,
       subject: "Flc Certification",
       text: `Hi ${name}`,
-      html: `<p>Your ${certificationType} certification for ${eventName} has been isuued</p>`,
+      html: `
+          <p>Congratulations! Your <strong>${certificationType}</strong> certification for the event <strong>${eventName}</strong> has been issued.</p>
+          <p>Thank you for your participation and effort.You can downlode your certificate from Flc-dashboard</p>
+          <p>Best regards,</p>
+          <p>Finite Loop Club</p>`,
+         
     });
   }
 

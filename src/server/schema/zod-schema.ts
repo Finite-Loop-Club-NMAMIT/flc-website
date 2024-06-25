@@ -79,6 +79,15 @@ const publishFeedbackTempleteSchema = z.object({
 const getQuestionsByFeedbackTemplateIdSchema = z.object({
   feedbackTemplateId: z.string(),
 });
+const submitFeedbackSchema = z.object({
+  feedbackTemplateId: z.string(),
+  answers: z.array(
+    z.object({
+      questionId: z.string(),
+      ans: z.string(),
+    })
+  ),
+});
 // attendence mangement
 const markTeamAttendanceSchema = z.object({
   teamId: z.string(),
@@ -245,6 +254,11 @@ const editWinnerTypeZ = z.object({
 const issueCertificateByEventIdZ = z.object({
   eventId: z.string(),
 });
+const getCertificationDetailsByIdZ = z.object({
+  certificateId: z.string(),
+});
+
+
 
 export {
   updateEventSchema,
@@ -256,6 +270,7 @@ export {
   createQuestionSchema,
   updateQuestionSchema,
   createAnswerSchema,
+  submitFeedbackSchema ,
   publishFeedbackTempleteSchema,
   getQuestionsByFeedbackTemplateIdSchema,
   markTeamAttendanceSchema,
@@ -267,7 +282,7 @@ export {
   getUserTeamsInput,
   LoginSchema,
   RegisterSchema,
-  SendPasswordResetSchema ,
+  SendPasswordResetSchema,
   ResetPasswordSchema,
   SendVerifyEmailSchema,
   VerifyEmailSchema,
@@ -275,5 +290,7 @@ export {
   createWinnerZ,
   getWinnersByEventIdZ,
   editWinnerTypeZ,
-  issueCertificateByEventIdZ
+  issueCertificateByEventIdZ,
+  getCertificationDetailsByIdZ,
+
 }

@@ -37,7 +37,7 @@ const Test = () => {
     },
   });
   const manuvalAttendence =
-    api.attendence. manuallyMarkUserAttendanceForConfirmedTeams.useMutation({
+    api.attendence.manuallyMarkUserAttendanceForConfirmedTeams.useMutation({
       onSuccess: async () => {
         console.log("s");
       },
@@ -62,6 +62,14 @@ const Test = () => {
   // const { data: winners } = api.winner.getWinnersByEventId.useQuery(
   //   "clxo9upup000361cin6jb9y7b",
   // );
+  const { data: certificate } =
+    api.certificate.getCertificationDetailsById.useQuery({
+      certificateId: "clxtw9xt20007ec4afjgu89xm",
+    });
+  const { data: Usercertificate } =
+    api.certificate.getAllCertificationsByUserId.useQuery({
+      userId: "clxoa6va3000444vdpr89m38v",
+    });
   // const { data: info } = api.team.getTeamsByUserId.useQuery();
   const markwinner = api.winner.createWinner.useMutation({
     onSuccess: async () => {
@@ -110,11 +118,10 @@ const Test = () => {
   };
 
   return (
-    
-    <div className="flex flex-col  gap-3  items-center font-bold">
+    <div className="flex flex-col  items-center  gap-3 font-bold">
       <div>
         <button
-          className="bg-black p-2 text-white rounded-md "
+          className="rounded-md bg-black p-2 text-white "
           onClick={handleCalculateAndUpdate}
         >
           Calculate and Update Total Activity Points
@@ -146,6 +153,12 @@ const Test = () => {
       {/* <div>
         <pre> {JSON.stringify(info)}</pre>
       </div> */}
+      <div>
+        <pre>certificate: {JSON.stringify(certificate, null, 2)}</pre>
+      </div>
+      <div>
+        <pre>certificate: {JSON.stringify(Usercertificate, null, 2)}</pre>
+      </div>
       <div>
         <button
           className="rounded-md bg-black p-2 text-white  "
@@ -204,7 +217,6 @@ const Test = () => {
             await manuvalAttendence.mutateAsync({
               eventId: "clxo9upup000361cin6jb9y7b",
               userId: "clxoa6va3000444vdpr89m38v",
-             
             });
           }}
         >
@@ -215,10 +227,9 @@ const Test = () => {
         <button
           className="rounded-md bg-black p-2 text-white  "
           onClick={async () => {
-            await markTeam .mutateAsync({
+            await markTeam.mutateAsync({
               eventId: "clxo9upup000361cin6jb9y7b",
               teamId: "clxoee8190001333kejqr9a89",
-              
             });
           }}
         >

@@ -258,6 +258,9 @@ const getCertificationDetailsByIdZ = z.object({
   certificateId: z.string(),
 });
 
+const getAllCertificationsByUserIdZ = z.object({
+  userId: z.string(),
+});
 
 
 export {
@@ -292,5 +295,6 @@ export {
   editWinnerTypeZ,
   issueCertificateByEventIdZ,
   getCertificationDetailsByIdZ,
+  getAllCertificationsByUserIdZ
 
 }

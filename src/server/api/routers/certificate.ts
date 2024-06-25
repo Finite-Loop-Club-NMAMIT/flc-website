@@ -1,6 +1,6 @@
-import { createTRPCRouter, protectedProcedure, } from "../trpc"
+import { createTRPCRouter, protectedProcedure, publicProcedure, } from "../trpc"
 import { TRPCError } from '@trpc/server';
-import { issueCertificateByEventIdZ } from '~/server/schema/zod-schema';
+import { getAllCertificationsByUserIdZ, getCertificationDetailsByIdZ, issueCertificateByEventIdZ } from '~/server/schema/zod-schema';
 import { sendCertificate } from "~/utils/certificationEmail/email";
 import { findEventIfExistById } from "~/utils/helper/findEventById";
 import { checkOrganiser } from "~/utils/helper/organiserCheck";
@@ -140,7 +140,68 @@ export const certificateRouter = createTRPCRouter({
                     });
                 }
             }
-        })
+        }),
+    // Endpoint to get certification details by certification ID
+    getCertificationDetailsById: publicProcedure
+        .input(getCertificationDetailsByIdZ)
+        .query(async ({ input, ctx }) => {
+            const { certificateId } = input;
+
+            try {
+                const certificate = await ctx.db.certificate.findUnique({
+                    where: { id: certificateId },
+                    include:{Event:true,User:true}
+                });
+
+                if (!certificate) {
+                    throw new TRPCError({
+                        code: 'NOT_FOUND',
+                        message: 'Certificate not found',
+                    });
+                }
+                return certificate;
+            } catch (error) {
+                if (error instanceof TRPCError) {
+                    throw error;
+                } else {
+                    throw new TRPCError({
+                        code: 'INTERNAL_SERVER_ERROR',
+                        message: 'An error occurred while fetching the certificate details',
+                    });
+                }
+            }
+        }),
+
+    // Endpoint to get all certifications of a particular user
+    getAllCertificationsByUserId: publicProcedure
+        .input(getAllCertificationsByUserIdZ)
+        .query(async ({ input, ctx }) => {
+            const { userId } = input;
+
+            try {
+                const certificates = await ctx.db.certificate.findMany({
+                    where: { userId },
+                    include:{Event:true}
+                });
+
+                if (certificates.length === 0) {
+                    throw new TRPCError({
+                        code: 'NOT_FOUND',
+                        message: 'No certificates found for this user',
+                    });
+                }
+                return certificates;
+            } catch (error) {
+                if (error instanceof TRPCError) {
+                    throw error;
+                } else {
+                    throw new TRPCError({
+                        code: 'INTERNAL_SERVER_ERROR',
+                        message: 'An error occurred while fetching the certificates',
+                    });
+                }
+            }
+        }),
 });
 
 

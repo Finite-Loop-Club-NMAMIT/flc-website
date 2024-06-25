@@ -256,7 +256,7 @@ const Test = () => {
           className="rounded-md bg-black p-2 text-white  "
           onClick={async () => {
             await issuecertificate.mutateAsync({
-              eventId: "clxo9upup000361cin6jb9y7b",
+              eventId: "clxoac4vp000013uqr2ne64ff",
             });
           }}
         >

@@ -76,7 +76,7 @@ export const certificateRouter = createTRPCRouter({
                     if (teams.length === 0) {
                         throw new TRPCError({
                             code: 'NOT_FOUND',
-                            message: 'No participants found for this event',
+                            message: 'No participants found for this event But winners certification are isuued',
                         });
                     }
 

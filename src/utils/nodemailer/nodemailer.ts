@@ -55,31 +55,40 @@ export const sendPasswordResetEmail = async (
 };
 
 
-export const sendCertificationIsuueForEmail = async (
+export const sendAttendenceStatusForEmail = async (
   email: string,
-  certificationType: string,
   eventName: string,
   name: string,
-  // should take certification type parameter 
+  hasAttended: boolean
 ) => {
- 
 
- // here we should acess that  templete file add that certification type for that templete and 
- //convert it  into the image , then send that image as a attachment below while sending email 
+  async function main() {
+    let subject;
+    let htmlContent;
 
- async function main() {
-   
+    if (hasAttended) {
+      subject = `Thank You for Attending ${eventName}`;
+      htmlContent = `
+        <p>Thanks for attending <strong>${eventName}</strong>.</p>
+        <p>Your event <strong>certificate</strong> will be sent via email. Please keep an eye on your inbox.</p>
+        <p>Best regards,</p>
+        <p>Finite Loop Club</p>`;
+    } else {
+      subject = `We Missed You at ${eventName}`;
+      htmlContent = `
+        <p>Hi ${name},</p>
+        <p>We noticed that you were unable to attend <strong>${eventName}</strong>.</p>
+        <p>We hope to see you at our future events!</p>
+        <p>Best regards,</p>
+        <p>Finite Loop Club</p>`;
+    }
+
     await transporter.sendMail({
       from: '"Finite Loop Club" <flc@nmamit.in>',
       to: email,
-      subject: "Flc Certification",
+      subject: subject,
       text: `Hi ${name}`,
-      html: `
-          <p>Congratulations! Your <strong>${certificationType}</strong> certification for the event <strong>${eventName}</strong> has been issued.</p>
-          <p>Thank you for your participation and effort.You can downlode your certificate from Flc-dashboard</p>
-          <p>Best regards,</p>
-          <p>Finite Loop Club</p>`,
-         
+      html: htmlContent
     });
   }
 

@@ -4,6 +4,7 @@ import { TRPCError } from '@trpc/server';
 import { markTeamAttendanceSchema } from '~/server/schema/zod-schema';
 import { findEventIfExistById } from '~/utils/helper/findEventById';
 import { checkOrganiser } from '~/utils/helper/organiserCheck';
+import { sendAttendenceStatusForEmail } from '~/utils/nodemailer/nodemailer';
 
 export const attendanceRouter = createTRPCRouter({
 
@@ -56,6 +57,21 @@ export const attendanceRouter = createTRPCRouter({
                         message: 'Team must have at least one member',
                     });
                 }
+                // Check if attendance is already marked for the team
+                const teamAttendance = await ctx.db.team.findFirst({
+                    where: {
+                        id: input.teamId,
+                        hasAttended: true,
+                    },
+                });
+
+                if (teamAttendance) {
+                    throw new TRPCError({
+                        code: 'BAD_REQUEST',
+                        message: 'Attendance has already been marked for this team',
+                    });
+                }
+
                 // Mark attendance for the team
                 await ctx.db.team.update({
                     where: {
@@ -83,9 +99,32 @@ export const attendanceRouter = createTRPCRouter({
                                 hasAttended: true,
                             },
                         });
+                        await sendAttendenceStatusForEmail(member.email, event.name, member.name, true);
+                    } else {
+                        await ctx.db.attendence.update({
+                            where: { id: existingAttendance.id },
+                            data: {
+                                hasAttended: true,
+                            },
+                        });
+                        await sendAttendenceStatusForEmail(member.email, event.name, member.name, true);
                     }
                 }
 
+                // Check for members who didn't attend
+                const allMembers = team.Members;
+                for (const member of allMembers) {
+                    const existingAttendance = await ctx.db.attendence.findFirst({
+                        where: {
+                            userId: member.id,
+                            eventId: input.eventId,
+                        },
+                    });
+
+                    if (!(existingAttendance?.hasAttended)) {
+                        await sendAttendenceStatusForEmail(member.email, event.name, member.name, false);
+                    }
+                }
                 return { success: true };
             } catch (error) {
                 console.error('Mark Solo Attendance Error:', error);
@@ -95,6 +134,7 @@ export const attendanceRouter = createTRPCRouter({
                 });
             }
         }),
+
 
     // this endpoint renders the user info of the team which iscomfrimed for perticular event 
     manuallyRenderUsersOfConfirmedTeams: protectedProcedure
@@ -205,6 +245,11 @@ export const attendanceRouter = createTRPCRouter({
                         },
                     });
                 }
+                const user = userTeam.Members.find(member => member.id === input.userId);
+                if (user) {
+                    await sendAttendenceStatusForEmail(user.email, event.name, user.name, input.hasAttended);
+                }
+
 
                 return { success: true };
             } catch (error) {

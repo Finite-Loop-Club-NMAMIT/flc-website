@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { adminProcedure, createTRPCRouter, protectedProcedure } from '../trpc';
 import { TRPCError } from "@trpc/server";
-import { createAnswerSchema, createFeedbackTemplateSchema, createQuestionSchema, getQuestionsByFeedbackTemplateIdSchema, publishFeedbackTempleteSchema, submitFeedbackSchema, updateQuestionSchema } from '~/server/schema/zod-schema';
+import {  createFeedbackTemplateSchema, createQuestionSchema, getQuestionsByFeedbackTemplateIdSchema, publishFeedbackTempleteSchema, submitFeedbackSchema, updateQuestionSchema } from '~/server/schema/zod-schema';
 import { findTemplateAndCheckQuestions } from '~/utils/helper/findTemplateAndQuestions';
 
 
@@ -191,32 +191,6 @@ export const feedbackTemplateRouter = createTRPCRouter({
         });
       }
     }),
-  // Submit an answer to a question
-  submitAnswerToQuestion: protectedProcedure
-    .input(createAnswerSchema)
-    .mutation(async ({ input, ctx }) => {
-      try {
-        const userId = ctx.session.user.id;
-
-        const answer = await ctx.db.answer.create({
-          data: {
-            questionId: input.questionId,
-            ans: input.ans,
-            userId: userId,
-          },
-        });
-        return answer;
-      } catch (error) {
-        console.error('Submit Answer Error:', error);
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Something went wrong while submitting answer',
-          cause: error,
-        });
-      }
-    }),
-
-
 
   // View all feedback templates for an event ()check
   viewUserFeedbackResponceForEvent: adminProcedure

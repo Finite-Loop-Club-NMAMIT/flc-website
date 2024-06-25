@@ -249,7 +249,7 @@ const Test = () => {
           participent certificate
         </button>
       </div>
-      <SubmitFeedback />
+      <SubmitFeedback feedbackTemplateId="clxsyluc50000fzyton0xq0q7" />
     </div>
   );
 };

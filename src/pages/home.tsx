@@ -20,7 +20,7 @@ function Home() {
   console.log("session.accessToken", session);
 
   return (
-    <div>
+    <div className="">
       <h1>Welcome to the home page</h1>
       <p>Hi {JSON.stringify(session?.data)}</p>
       {/* <form

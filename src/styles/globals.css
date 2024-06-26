@@ -1,3 +1,27 @@
+body {
+    overflow: visible !important;
+    margin-right: 0 !important;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    :root {
+        --primary: 50 98% 64%;
+        --primary-foreground: 0 0% 8%;
+        --secondary: 0 84% 60%;
+        --secondary-foreground: 0 0% 98%;
+        --radius: 0.5rem;
+        /* }
+    .dark { */
+        --background: 0 0% 8%;
+        --foreground: 0 0% 98%;
+        --card: 0 0% 13%;
+        --border: 0 0% 19%;
+
+        --accent: 0 0% 14.9%;
+        --accent-foreground: 0 0% 98%;
+    }
+}

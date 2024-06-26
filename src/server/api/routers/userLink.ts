@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "../trpc";
+import { createTRPCRouter, publicProcedure,protectedProcedure } from "../trpc";
 import type { Prisma } from "@prisma/client";
 
 const createType= z.object({
@@ -20,15 +20,14 @@ const updateType = z.object({
 //switch to protectedProcedure after auth is done
 export const userLinkRouter = createTRPCRouter({
   create: publicProcedure.input(createType).mutation(async ({ ctx, input }) => {
-    
     const duplicate = await ctx.db.userLink.findFirst({
-      where:{
-        ...input
-      }
-    })
+      where: {
+        ...input,
+      },
+    });
 
-    if(duplicate){
-      throw new Error(`This link alreadty exist with id: ${duplicate.id}`)
+    if (duplicate) {
+      throw new Error(`This link alreadty exist with id: ${duplicate.id}`);
     }
     const newUserLink = await ctx.db.userLink.create({
       data: {
@@ -57,37 +56,35 @@ export const userLinkRouter = createTRPCRouter({
       });
     }),
 
-  update: publicProcedure
-  .input(updateType)
-  .mutation(async({ctx,input})=>{
-    const userUrl= await ctx.db.userLink.findFirst({
-      where:{id:input.id}
-    })
-    if(!userUrl){
-      throw new Error("No such UserUrl entity")
+  update: protectedProcedure
+    .input(updateType)
+    .mutation(async ({ ctx, input }) => {
+      const userUrl = await ctx.db.userLink.findFirst({
+        where: { id: input.id },
+      });
+      if (!userUrl) {
+        throw new Error("No such UserUrl entity");
+      }
 
-    }
-    
-    return await ctx.db.userLink.update({
-      where: {
-        id: input.id,
-      },
-      data: {
-        url:input.newUrl??userUrl.url,
-        linkName:input.newLinkName??userUrl.linkName,
-        userId:input.newUserId??userUrl.userId,
-      },
-    });
-  }),
+      return await ctx.db.userLink.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          url: input.newUrl ?? userUrl.url,
+          linkName: input.newLinkName ?? userUrl.linkName,
+          userId: input.newUserId ?? userUrl.userId,
+        },
+      });
+    }),
 
-  delete: publicProcedure
-  .input(z.object({id:z.string(),url:z.string().optional(),}))
-  .mutation(async({ctx,input})=>{
- 
-    return await ctx.db.userLink.delete({
-      where: {
-        ...input
-      } as Prisma.UserLinkWhereUniqueInput,
-    });
-  })
+  delete: protectedProcedure
+    .input(z.object({ id: z.string(), url: z.string().optional() }))
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.userLink.delete({
+        where: {
+          ...input,
+        } as Prisma.UserLinkWhereUniqueInput,
+      });
+    }),
 });

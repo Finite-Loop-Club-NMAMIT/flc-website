@@ -16,7 +16,7 @@ export default function Home() {
   // const test = api.test.test.useMutation();
 
   return (
-    <main className=" flex h-screen w-full flex-col items-center justify-center gap-10">
+    <main className="mt-24 flex h-screen w-full flex-col items-center justify-center gap-10">
       <h1>hello this is titile</h1>
 
       <button

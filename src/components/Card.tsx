@@ -4,7 +4,7 @@ function Card() {
   return (
     <>
       <div className="card">
-        <div className="relative mb-4 h-80">
+        <div className="relative mb-4 h-80 ">
           <Image
             src="/assets/sample.png"
             alt="Example Image"

@@ -27,7 +27,7 @@ const index = () => {
 
       </div>
 
-      <main className='w-[95%] sm:w-4/5 md:w-4/5 h-[30rem]  border-border mx-auto space-y-2 '>
+      <main className='w-[95%] lg:w-4/5 h-[30rem]  border-border mx-auto space-y-2 '>
 
         {/*below div Grid banner */}
         <div className='w-full flex border-2 border-border rounded-lg bg-accent'>

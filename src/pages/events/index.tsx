@@ -1,6 +1,6 @@
 import React from "react";
-import Card from "~/components/Card";
-import RadioButtons from "~/components/RadioButtons";
+import Card from "~/components/card";
+import RadioButtons from "~/components/radioButtons";
 function page() {
   return (
     <>

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure,protectedProcedure } from "../trpc";
+import { createTRPCRouter,protectedProcedure } from "../trpc";
 import type { Prisma } from "@prisma/client";
 
 const createType= z.object({
@@ -19,31 +19,33 @@ const updateType = z.object({
 
 //switch to protectedProcedure after auth is done
 export const userLinkRouter = createTRPCRouter({
-  create: publicProcedure.input(createType).mutation(async ({ ctx, input }) => {
-    const duplicate = await ctx.db.userLink.findFirst({
-      where: {
-        ...input,
-      },
-    });
+  create: protectedProcedure
+    .input(createType)
+    .mutation(async ({ ctx, input }) => {
+      const duplicate = await ctx.db.userLink.findFirst({
+        where: {
+          ...input,
+        },
+      });
 
-    if (duplicate) {
-      throw new Error(`This link alreadty exist with id: ${duplicate.id}`);
-    }
-    const newUserLink = await ctx.db.userLink.create({
-      data: {
-        url: input.url,
-        linkName: input.linkName,
-        userId: input.userId,
-      },
-    });
-    return newUserLink;
-  }),
+      if (duplicate) {
+        throw new Error(`This link alreadty exist with id: ${duplicate.id}`);
+      }
+      const newUserLink = await ctx.db.userLink.create({
+        data: {
+          url: input.url,
+          linkName: input.linkName,
+          userId: input.userId,
+        },
+      });
+      return newUserLink;
+    }),
 
-  getAll: publicProcedure.query(async ({ ctx }) => {
+  getAll: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.db.userLink.findMany();
   }),
 
-  getOne: publicProcedure
+  getOne: protectedProcedure
     .input(z.object({ userId: z.string() }))
     .query(async ({ ctx, input }) => {
       return await ctx.db.userLink.findFirst({

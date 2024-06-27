@@ -24,11 +24,11 @@ const getOneType = z.object({
 });
 
 export const organisorRouter = createTRPCRouter({
-  getAll: publicProcedure.query(async ({ ctx }) => {
+  getAll: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.db.organiser.findMany();
   }),
 
-  create: publicProcedure
+  create: protectedProcedure
     .input(createType)
     .mutation(async ({ ctx, input }) => {
       if (!input.userId || !input.eventId) {
@@ -49,24 +49,23 @@ export const organisorRouter = createTRPCRouter({
       return await ctx.db.organiser.create({
         data: { userId: input.userId, eventId: input.eventId },
       });
+    }),
+
+  //publicProcedure might be needed for users who want to get Organiser details without loggin in...i.e if in hurry
+  getOne: publicProcedure.input(getOneType).query(async ({ ctx, input }) => {
+    if (!input.userId && !input.eventId) {
+      throw new Error("Either userId or eventId is needed as input");
+    }
+    const { userId, eventId } = input;
+    return await ctx.db.organiser.findMany({
+      where: {
+        ...(userId && { userId }),
+        ...(eventId && { eventId }),
+      },
+    });
   }),
 
-  getOne: publicProcedure
-    .input(getOneType)
-    .query(async ({ ctx, input }) => {
-      if (!input.userId && !input.eventId) {
-        throw new Error("Either userId or eventId is needed as input");
-      }
-      const { userId, eventId } = input;
-      return await ctx.db.organiser.findMany({
-        where: {
-          ...(userId && { userId }),
-          ...(eventId && { eventId }),
-        },
-      });
-  }),
-
-  update: publicProcedure
+  update: protectedProcedure
     .input(updateType)
     .mutation(async ({ ctx, input }) => {
       const { userId, eventId, newUserId, newEventId } = input;
@@ -81,15 +80,16 @@ export const organisorRouter = createTRPCRouter({
           ...(newEventId && { newEventId }),
         } as Prisma.OrganiserUpdateInput,
       });
-  }),
+    }),
 
   delete: protectedProcedure
-  .input(createType)
-  .mutation(async ({ctx,input})=>{
-
-    return await ctx.db.organiser.delete({where:{
-      userId:input.userId,
-      eventId:input.eventId
-    }as Prisma.OrganiserWhereUniqueInput })
-  })
+    .input(createType)
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.organiser.delete({
+        where: {
+          userId: input.userId,
+          eventId: input.eventId,
+        } as Prisma.OrganiserWhereUniqueInput,
+      });
+    }),
 });

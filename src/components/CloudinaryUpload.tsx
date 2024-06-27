@@ -31,7 +31,7 @@ export default function CloudinaryUpload({ linkName, userId, eventId, type }: Cl
 
   const addImageToUserLink = api.userLink.create.useMutation();
   // const addImageToUser = api.user.update.useMutaion();
-  // const addImageToEvent = api.userLink.updateEvent.useMutaion()
+  // const addImageToEvent = api.event.updateEvent.useMutaion()
  
   async function addImageToDB(secure_url:string) {
     if (type == uploadTypeEnum.userLink) {
@@ -41,6 +41,7 @@ export default function CloudinaryUpload({ linkName, userId, eventId, type }: Cl
         linkName: linkName ?? "Name of link", //from prop
       });
     }
+    
     else if(type == uploadTypeEnum.userPicture){
       // addImageToUser.mutate({
       //   userId: userId ?? "clxikjroh00003bzlqsg5znhd", //from the auth
@@ -68,7 +69,6 @@ export default function CloudinaryUpload({ linkName, userId, eventId, type }: Cl
   return (
     <div>
       <div className="m-auto my-12 w-fit rounded-md bg-slate-200 p-3">
-
         <CldUploadWidget
           signatureEndpoint="/api/cloudinary/sign"
           onSuccess={(result) => {
@@ -81,7 +81,11 @@ export default function CloudinaryUpload({ linkName, userId, eventId, type }: Cl
         </CldUploadWidget>
       </div>
 
-      {url && <div className="mt-26 text-center">{url}</div>}
+      {url && (
+        <div className="mt-26 text-center">
+          {url} <p className="m-12 text-blue-700">refresh the page</p>{" "}
+        </div>
+      )}
     </div>
   );
 }

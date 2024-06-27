@@ -42,6 +42,7 @@ export default async function handler(
 
   const body = req.body as RequestBody;
   const { amount, currency, receipt } = body;
+  console.log(amount);
 
   const options = {
     amount: amount ?? 100, // amount in the smallest currency unit

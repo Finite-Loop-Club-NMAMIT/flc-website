@@ -35,7 +35,7 @@ function Home() {
       </form> */}
       <button
         onClick={() => {
-          signOut({ callbackUrl: "/" });
+          void signOut({ callbackUrl: "/" });
           router.push("/");
         }}
       >

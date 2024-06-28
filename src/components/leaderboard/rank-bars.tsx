@@ -1,7 +1,6 @@
 'use client'
 
 import React from 'react'
-import * as Avatar from '@radix-ui/react-avatar';
 import AvatarCustom from '../avatar';
 
 const RankBars = ({ className, rank }: { className:string, size: number, rank: number }) => {

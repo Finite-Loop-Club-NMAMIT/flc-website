@@ -1,5 +1,5 @@
 
-import { createTRPCRouter,protectedProcedure, adminProcedure } from "../trpc";
+import { createTRPCRouter,protectedProcedure } from "../trpc";
 import {z} from "zod"
 
 
@@ -12,7 +12,7 @@ const createType = z.object({
 });
 
 export const payment = createTRPCRouter({
-  getAllPayments: adminProcedure.query(async ({ ctx }) => {
+  getAllPayments: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.db.payment.findMany();
   }),
 

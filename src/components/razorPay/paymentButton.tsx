@@ -3,11 +3,10 @@ import { type RazorpayOrderResponse } from "~/pages/api/payment/create";
 import { api } from "~/utils/api";
 import { checkoutOptions } from "~/utils/razorPay";
 
-
 type PropType = {
   amount: number;
-  userId:string;
-  name:string;
+  userId: string;
+  name: string;
 };
 
 function loadScript(src: string) {
@@ -24,13 +23,11 @@ function loadScript(src: string) {
   });
 }
 
-export default function Payment({ amount, userId ,name}: PropType) {
-    const [isRazorpayLoaded, setIsRazorpayLoaded] = useState(false);
-    const savePayment = api.payment.createPayment.useMutation();
-  
+export default function Payment({ amount, userId, name }: PropType) {
+  const [isRazorpayLoaded, setIsRazorpayLoaded] = useState(false);
+  const savePayment = api.payment.createPayment.useMutation();
 
   async function displayRazorpay() {
-    
     if (!isRazorpayLoaded) {
       const res = await loadScript(
         "https://checkout.razorpay.com/v1/checkout.js",
@@ -41,7 +38,7 @@ export default function Payment({ amount, userId ,name}: PropType) {
       }
       setIsRazorpayLoaded(true);
     }
-    
+
     // creating order in server
     const response = await fetch("http://localhost:3000/api/payment/create", {
       method: "POST",
@@ -57,9 +54,11 @@ export default function Payment({ amount, userId ,name}: PropType) {
 
     const paymentOrderData = (await response.json()) as RazorpayOrderResponse;
     const { order } = paymentOrderData;
-    
-    //creating checkout Option
-    const paymentObject = new window.Razorpay(checkoutOptions(order, savePayment,name,userId));
+
+    // creating checkout Option
+    const paymentObject = new window.Razorpay(
+      checkoutOptions(order, savePayment, name, userId) 
+    );
     paymentObject.open();
   }
 
@@ -71,5 +70,3 @@ export default function Payment({ amount, userId ,name}: PropType) {
     </div>
   );
 }
-
-

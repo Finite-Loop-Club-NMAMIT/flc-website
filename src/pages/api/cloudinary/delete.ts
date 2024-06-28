@@ -1,4 +1,4 @@
-import { v2 as cloudinary } from "cloudinary";
+import { v2 as cloudinary, type DeleteApiResponse } from "cloudinary";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 // Configure Cloudinary
@@ -16,7 +16,7 @@ export default async function handler(
   res: NextApiResponse,
 ) {
   try {
-    const { url } = req.body;
+    const { url } = req.body as {url:string};
 
     // Function to extract public_id from Cloudinary URL
     const getPublicIdFromUrl = (url: string) => {
@@ -32,9 +32,11 @@ export default async function handler(
     }
 
     // Destroy the image on Cloudinary
-    const result = await cloudinary.uploader.destroy(public_id);
+    const result = (await cloudinary.uploader.destroy(
+      public_id,
+    )) as DeleteApiResponse;
 
-    if (result.result !== "ok") {
+    if (result?.http_code !== 200) {
       console.error("Cloudinary deletion error:", result);
       return res.status(500).json({ error: "Failed to delete image", result });
     }
@@ -45,6 +47,6 @@ export default async function handler(
     console.error("Error in handler:", error);
     res
       .status(500)
-      .json({ error: "Internal Server Error", details: error.message });
+      .json({ error: "Internal Server Error", details: error });
   }
 }

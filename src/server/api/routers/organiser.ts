@@ -24,11 +24,11 @@ const getOneType = z.object({
 });
 
 export const organisorRouter = createTRPCRouter({
-  getAll: protectedProcedure.query(async ({ ctx }) => {
+  getAllOrganiser: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.db.organiser.findMany();
   }),
 
-  create: protectedProcedure
+  createOrganiser: protectedProcedure
     .input(createType)
     .mutation(async ({ ctx, input }) => {
       if (!input.userId || !input.eventId) {
@@ -52,20 +52,22 @@ export const organisorRouter = createTRPCRouter({
     }),
 
   //publicProcedure might be needed for users who want to get Organiser details without loggin in...i.e if in hurry
-  getOne: publicProcedure.input(getOneType).query(async ({ ctx, input }) => {
-    if (!input.userId && !input.eventId) {
-      throw new Error("Either userId or eventId is needed as input");
-    }
-    const { userId, eventId } = input;
-    return await ctx.db.organiser.findMany({
-      where: {
-        ...(userId && { userId }),
-        ...(eventId && { eventId }),
-      },
-    });
-  }),
+  getOneOrganiser: publicProcedure
+    .input(getOneType)
+    .query(async ({ ctx, input }) => {
+      if (!input.userId && !input.eventId) {
+        throw new Error("Either userId or eventId is needed as input");
+      }
+      const { userId, eventId } = input;
+      return await ctx.db.organiser.findMany({
+        where: {
+          ...(userId && { userId }),
+          ...(eventId && { eventId }),
+        },
+      });
+    }),
 
-  update: protectedProcedure
+  updateOrganiser: protectedProcedure
     .input(updateType)
     .mutation(async ({ ctx, input }) => {
       const { userId, eventId, newUserId, newEventId } = input;
@@ -82,7 +84,7 @@ export const organisorRouter = createTRPCRouter({
       });
     }),
 
-  delete: protectedProcedure
+  deleteOrganiser: protectedProcedure
     .input(createType)
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.organiser.delete({

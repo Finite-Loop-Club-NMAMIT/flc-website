@@ -1,7 +1,7 @@
 import React from "react";
-import CloudinaryUpload from "~/components/CloudinaryUpload";
-import CloudinaryDelete from "~/components/CloudinaryDelete";
-import { uploadTypeEnum } from "~/components/CloudinaryUpload";
+import CloudinaryUpload from "~/components/cloudinary/cloudinaryUpload";
+import CloudinaryDelete from "~/components/cloudinary/cloudinaryDelete";
+import { uploadTypeEnum } from "~/components/cloudinary/cloudinaryUpload";
 export default function Index() {
  
   return (

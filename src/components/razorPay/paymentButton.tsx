@@ -24,9 +24,9 @@ function loadScript(src: string) {
   });
 }
 
-function Payment({ amount, userId ,name}: PropType) {
+export default function Payment({ amount, userId ,name}: PropType) {
     const [isRazorpayLoaded, setIsRazorpayLoaded] = useState(false);
-    const savePayment = api.payment.create.useMutation();
+    const savePayment = api.payment.createPayment.useMutation();
   
 
   async function displayRazorpay() {
@@ -72,4 +72,4 @@ function Payment({ amount, userId ,name}: PropType) {
   );
 }
 
-export default Payment;
+

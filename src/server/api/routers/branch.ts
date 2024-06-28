@@ -6,12 +6,11 @@ import type { Prisma } from "@prisma/client";
 
 //switch to protectedProcedure after auth is done
 export const branchRouter = createTRPCRouter({
-
-  getAll: publicProcedure.query(async ({ ctx }) => {
+  getAllBranch: publicProcedure.query(async ({ ctx }) => {
     return await ctx.db.branch.findMany({});
   }),
 
-  create: protectedProcedure
+  createBranch: protectedProcedure
     .input(z.object({ name: z.string() }))
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.branch.create({
@@ -21,7 +20,7 @@ export const branchRouter = createTRPCRouter({
       });
     }),
 
-  delete: protectedProcedure
+  deleteBranch: protectedProcedure
     .input(z.object({ name: z.string() }))
     .mutation(async ({ ctx, input }) => {
       const { id: branchId } = (await ctx.db.branch.findFirst({
@@ -36,7 +35,7 @@ export const branchRouter = createTRPCRouter({
       });
     }),
 
-  getOnePopulated: protectedProcedure
+  getOnePopulatedBranch: protectedProcedure
     .input(z.object({ branchId: z.string() }))
     .query(async ({ ctx, input }) => {
       return await ctx.db.branch.findUniqueOrThrow({
@@ -48,9 +47,8 @@ export const branchRouter = createTRPCRouter({
         },
       });
     }),
-  
-     
-  update: protectedProcedure //can add AdminProcedure if needed
+
+  updateBranch: protectedProcedure //can add AdminProcedure if needed
     .input(
       z.object({
         id: z.string().optional(),
@@ -59,7 +57,6 @@ export const branchRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-
       const branch = await ctx.db.branch.findFirst({
         where: {
           name: input.name,
@@ -67,7 +64,7 @@ export const branchRouter = createTRPCRouter({
         } as Prisma.BranchWhereInput,
       });
       console.log(branch);
-      
+
       const whereClause: Prisma.BranchWhereUniqueInput = {
         id: input.id ?? branch?.id,
         name: input.name ?? branch?.name,

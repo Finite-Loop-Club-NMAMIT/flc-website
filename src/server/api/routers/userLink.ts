@@ -19,7 +19,7 @@ const updateType = z.object({
 
 //switch to protectedProcedure after auth is done
 export const userLinkRouter = createTRPCRouter({
-  create: protectedProcedure
+  createUserLink: protectedProcedure
     .input(createType)
     .mutation(async ({ ctx, input }) => {
       const duplicate = await ctx.db.userLink.findFirst({
@@ -41,11 +41,11 @@ export const userLinkRouter = createTRPCRouter({
       return newUserLink;
     }),
 
-  getAll: protectedProcedure.query(async ({ ctx }) => {
+  getAllUserLinks: protectedProcedure.query(async ({ ctx }) => {
     return await ctx.db.userLink.findMany();
   }),
 
-  getOne: protectedProcedure
+  getOneUserLink: protectedProcedure
     .input(z.object({ userId: z.string() }))
     .query(async ({ ctx, input }) => {
       return await ctx.db.userLink.findFirst({
@@ -58,7 +58,7 @@ export const userLinkRouter = createTRPCRouter({
       });
     }),
 
-  update: protectedProcedure
+  updateUserLink: protectedProcedure
     .input(updateType)
     .mutation(async ({ ctx, input }) => {
       const userUrl = await ctx.db.userLink.findFirst({
@@ -80,7 +80,7 @@ export const userLinkRouter = createTRPCRouter({
       });
     }),
 
-  delete: protectedProcedure
+  deleteUserLink: protectedProcedure
     .input(z.object({ id: z.string(), url: z.string().optional() }))
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.userLink.delete({

@@ -12,11 +12,11 @@ const createType = z.object({
 });
 
 export const payment = createTRPCRouter({
-  getAll: adminProcedure.query(async ({ ctx }) => {
+  getAllPayments: adminProcedure.query(async ({ ctx }) => {
     return await ctx.db.payment.findMany();
   }),
 
-  create: protectedProcedure
+  createPayment: protectedProcedure
     .input(createType)
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.payment.create({

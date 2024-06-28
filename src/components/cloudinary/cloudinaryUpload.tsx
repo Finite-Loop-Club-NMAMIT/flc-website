@@ -29,7 +29,7 @@ export default function CloudinaryUpload({ linkName, userId, eventId, type }: Cl
 
   // let addImageTouserLink: UseTRPCMutationResult<{ id: string; linkName: string; url: string; userId: string | null; updatedAt: Date; createdAt: Date; }, TRPCClientErrorLike<{ input: { linkName: string; userId: string; url: string; }; output: { id: string; linkName: string; url: string; userId: string | null; updatedAt: Date; createdAt: Date; }; transformer: true; errorShape: { data: { zodError: z.typeToFlattenedError<any, string> | null; code: TRPC_ERROR_CODE_KEY; httpStatus: number; path?: string; stack?: string; }; message: string; code: TRPC_ERROR_CODE_NUMBER; }; }>, { linkName: string; userId: string; url: string; }, unknown>;
 
-  const addImageToUserLink = api.userLink.create.useMutation();
+  const addImageToUserLink = api.userLink.createUserLink.useMutation();
   // const addImageToUser = api.user.update.useMutaion();
   // const addImageToEvent = api.event.updateEvent.useMutaion()
  

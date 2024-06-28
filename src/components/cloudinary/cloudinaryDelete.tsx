@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 
 export default function CloudinaryDelete() {
     const router = useRouter();
-  const mutation = api.userLink.delete.useMutation();
-  const userLinks = api.userLink.getAll.useQuery();
+  const mutation = api.userLink.deleteUserLink.useMutation();
+  const userLinks = api.userLink.getAllUserLinks.useQuery();
   
   console.log(userLinks);
 

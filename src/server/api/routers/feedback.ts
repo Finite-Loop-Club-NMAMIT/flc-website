@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { adminProcedure, createTRPCRouter, protectedProcedure } from '../trpc';
 import { TRPCError } from "@trpc/server";
-import {  createFeedbackTemplateSchema, createQuestionSchema, getQuestionsByFeedbackTemplateIdSchema, publishFeedbackTempleteSchema, submitFeedbackSchema, updateQuestionSchema } from '~/server/schema/zod-schema';
-import { findTemplateAndCheckQuestions } from '~/utils/helper/findTemplateAndQuestions';
+import {  createFeedbackTemplateSchema, createQuestionSchema, getQuestionsByFeedbackTemplateIdSchema, publishFeedbackTempleteSchema, submitFeedbackSchema, updateQuestionSchema } from '~/zod/feedbackZ';
+import { findTemplateAndCheckQuestions } from '~/utils/helper';
 
 
 export const feedbackTemplateRouter = createTRPCRouter({

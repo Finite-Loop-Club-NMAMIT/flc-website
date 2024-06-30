@@ -1,10 +1,10 @@
 
 import { TRPCError } from "@trpc/server";
 import { adminProcedure, createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc"
-import { EVENT_STATE } from "@prisma/client";
 import { z } from "zod";
-import { findEventIfExistById } from "~/utils/helper/findEventById";
-import { createEventSchema, setEventLegacySchema, setEventStateSchema, updateEventSchema } from "~/server/schema/zod-schema";
+
+import { createEventSchema, getEventByStateSchema, setEventLegacySchema, setEventStateSchema, updateEventSchema } from "~/zod/eventZ";
+import { findEventIfExistById } from "~/utils/helper";
 
 
 
@@ -36,7 +36,7 @@ export const eventRouter = createTRPCRouter({
         .mutation(async ({ ctx, input }) => {
             try {
                 const existingEvent = await findEventIfExistById(input.eventId ?? '')
-                if (existingEvent.state === EVENT_STATE.PUBLISHED) { //IT can be edited if it's in DRAFT and COMPLETED state
+                if (existingEvent.state === "PUBLISHED") { //IT can be edited if it's in DRAFT and COMPLETED state
                     throw new TRPCError({
                         code: 'BAD_REQUEST',
                         message: 'Cannot update event when it is in "PUBLISHED" state',
@@ -64,13 +64,13 @@ export const eventRouter = createTRPCRouter({
         }),
 
     //Delete Event By Its ID(Admin)--->   
-    DeleteEvent: adminProcedure
+    deleteEvent: adminProcedure
         .input(z.object({ eventId: z.string() }))
         .mutation(async ({ ctx, input }) => {
             try {
-                const eventexists = await  findEventIfExistById(input.eventId)
-            
-                if (eventexists.state === EVENT_STATE.PUBLISHED) {
+                const eventexists = await findEventIfExistById(input.eventId)
+
+                if (eventexists.state === "PUBLISHED") {
                     throw new Error("Event  can't be deleted when it's in Published state")
                 }
 
@@ -108,7 +108,7 @@ export const eventRouter = createTRPCRouter({
             }
         }),
     // Set Event Legacy to True Or flase (Admin)-->
-    setEventLegacy:adminProcedure
+    setEventLegacy: adminProcedure
         .input(setEventLegacySchema)
         .mutation(async ({ input, ctx }) => {
             try {
@@ -146,7 +146,7 @@ export const eventRouter = createTRPCRouter({
         .query(async ({ ctx }) => {
             try {
                 const publishedEvents = await ctx.db.event.findMany({
-                    where: { state: EVENT_STATE.PUBLISHED },
+                    where: { state: "PUBLISHED" },
                 });
                 return publishedEvents;
             } catch (error) {
@@ -163,7 +163,7 @@ export const eventRouter = createTRPCRouter({
             try {
                 // Fetch all draft events
                 const draftEvents = await ctx.db.event.findMany({
-                    where: { state: EVENT_STATE.DRAFT },
+                    where: { state: "DRAFT" },
                 });
 
                 // Return the fetched draft events
@@ -177,12 +177,12 @@ export const eventRouter = createTRPCRouter({
             }
         }),
     //Get all Completed events(All) -->
-    getAllCompletedEvents:protectedProcedure
+    getAllCompletedEvents: protectedProcedure
         .query(async ({ ctx }) => {
             try {
                 // Fetch all completed events
                 const completedEvents = await ctx.db.event.findMany({
-                    where: { state: EVENT_STATE.COMPLETED },
+                    where: { state: "COMPLETED" },
                 });
 
                 // Return the fetched completed events
@@ -212,12 +212,12 @@ export const eventRouter = createTRPCRouter({
             }
         }),
     // get all sorted "PUBLISHED" events-->
-    getSortedPublishedEvents:publicProcedure
+    getSortedPublishedEvents: publicProcedure
         .query(async ({ ctx }) => {
             try {
                 // Fetch published events sorted by date
                 const publishedEvents = await ctx.db.event.findMany({
-                    where: { state: EVENT_STATE.PUBLISHED },
+                    where: { state: "PUBLISHED" },
                     orderBy: { fromDate: 'asc' }, // Sort by fromDate (date wise)
                 });
 
@@ -238,14 +238,14 @@ export const eventRouter = createTRPCRouter({
                 // Fetch published and legacy events sorted by date
                 const publishedAndLegacyEvents = await ctx.db.event.findMany({
                     where: {
-                      state: EVENT_STATE.PUBLISHED,
-                      isLegacy: true, // check-->
+                        state: "PUBLISHED",
+                        isLegacy: true, // check-->
                     },
                     orderBy: [
-                      { isLegacy: 'desc' }, 
-                      { fromDate: 'asc' }, 
+                        { isLegacy: 'desc' },
+                        { fromDate: 'asc' },
                     ],
-                  });
+                });
                 // Return the fetched published and legacy events
                 return publishedAndLegacyEvents;
             } catch (error) {
@@ -257,8 +257,8 @@ export const eventRouter = createTRPCRouter({
             }
         }),
     //get all events by its State by input--->
-    getEventByState:protectedProcedure
-        .input(setEventStateSchema)
+    getEventByState: protectedProcedure
+        .input(getEventByStateSchema)
         .query(async ({ input, ctx }) => {
             try {
                 // Fetch events based on the specified state
@@ -266,7 +266,7 @@ export const eventRouter = createTRPCRouter({
                     where: { state: input.state },
                 });
 
-              
+
                 return events;
             } catch (error) {
                 console.error('Get Event By State Error:', error);
@@ -276,6 +276,6 @@ export const eventRouter = createTRPCRouter({
                 });
             }
         }),
-    
-    
+
+
 });

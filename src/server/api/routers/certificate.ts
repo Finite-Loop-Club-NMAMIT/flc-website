@@ -1,9 +1,8 @@
 import { createTRPCRouter, protectedProcedure, publicProcedure, } from "../trpc"
 import { TRPCError } from '@trpc/server';
-import { getAllCertificationsByUserIdZ, getCertificationDetailsByIdZ, issueCertificateByEventIdZ } from '~/server/schema/zod-schema';
 import { sendCertificate } from "~/utils/certificationEmail/email";
-import { findEventIfExistById } from "~/utils/helper/findEventById";
-import { checkOrganiser } from "~/utils/helper/organiserCheck";
+import { checkOrganiser, findEventIfExistById } from "~/utils/helper";
+import { getAllCertificationsByUserIdZ, getCertificationDetailsByIdZ, issueCertificateByEventIdZ } from "~/zod/certificateZ";
 
 
 export const certificateRouter = createTRPCRouter({
@@ -150,7 +149,7 @@ export const certificateRouter = createTRPCRouter({
             try {
                 const certificate = await ctx.db.certificate.findUnique({
                     where: { id: certificateId },
-                    include:{Event:true,User:true}
+                    include: { Event: true, User: true }
                 });
 
                 if (!certificate) {
@@ -181,7 +180,7 @@ export const certificateRouter = createTRPCRouter({
             try {
                 const certificates = await ctx.db.certificate.findMany({
                     where: { userId },
-                    include:{Event:true}
+                    include: { Event: true }
                 });
 
                 if (certificates.length === 0) {

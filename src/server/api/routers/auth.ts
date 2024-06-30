@@ -5,7 +5,7 @@ import {
   SendPasswordResetSchema,
   SendVerifyEmailSchema,
   VerifyEmailSchema,
-} from "~/server/schema/zod-schema";
+} from "~/zod/authZ";
 import { v4 as uuidv4 } from "uuid";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";

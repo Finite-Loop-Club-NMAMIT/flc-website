@@ -7,7 +7,7 @@ import { hashToken } from "./hashToken";
 import { getUserById } from "./auth";
 import { v4 as uuidv4 } from "uuid";
 import { addRefreshTokenToWhitelist } from "~/services/auth.service";
-import { RefreshTokenSchema } from "~/server/schema/zod-schema";
+import { RefreshTokenSchema } from "~/zod/authZ";
 
 const AUTH_SECRET = process.env.AUTH_SECRET!;
 

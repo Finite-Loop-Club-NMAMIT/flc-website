@@ -1,10 +1,9 @@
 import { z } from 'zod';
 import { adminProcedure, createTRPCRouter, protectedProcedure, } from '../trpc';
 import { TRPCError } from '@trpc/server';
-import { markTeamAttendanceSchema } from '~/server/schema/zod-schema';
-import { findEventIfExistById } from '~/utils/helper/findEventById';
-import { checkOrganiser } from '~/utils/helper/organiserCheck';
+import { markTeamAttendanceSchema } from '~/zod/attendenceZ';
 import { sendAttendenceStatusForEmail } from '~/utils/nodemailer/nodemailer';
+import { findEventIfExistById, checkOrganiser } from "~/utils/helper";
 
 export const attendanceRouter = createTRPCRouter({
 
@@ -130,7 +129,7 @@ export const attendanceRouter = createTRPCRouter({
             try {
                 const userId = ctx.session.user.id;
 
-                await checkOrganiser(userId, input.eventId); 
+                await checkOrganiser(userId, input.eventId);
                 const event = await ctx.db.event.findUnique({
                     where: { id: input.eventId },
                 });
@@ -172,7 +171,7 @@ export const attendanceRouter = createTRPCRouter({
             try {
                 const userId = ctx.session.user.id;
 
-                await checkOrganiser(userId, input.eventId); 
+                await checkOrganiser(userId, input.eventId);
                 // Check if the event exists
                 const event = await ctx.db.event.findUnique({
                     where: { id: input.eventId },
@@ -184,6 +183,13 @@ export const attendanceRouter = createTRPCRouter({
                         message: 'Event not found',
                     });
                 }
+                if (event.state !== 'PUBLISHED') {
+                    throw new TRPCError({
+                        code: 'BAD_REQUEST',
+                        message: 'Cannot mark attendance for an event that is not PUBLISHED or COMPLETED',
+                    });
+                }
+
 
                 // Fetch all teams for the event that are confirmed and include members
                 const teams = await ctx.db.team.findMany({
@@ -272,6 +278,13 @@ export const attendanceRouter = createTRPCRouter({
                         message: 'Event not found',
                     });
                 }
+                if (event.state !== 'PUBLISHED') {
+                    throw new TRPCError({
+                        code: 'BAD_REQUEST',
+                        message: 'Cannot mark attendance for an event that is not PUBLISHED or COMPLETED',
+                    });
+                }
+
 
                 // Fetch all teams for the event that are confirmed and include members
                 const teams = await ctx.db.team.findMany({
@@ -345,7 +358,7 @@ export const attendanceRouter = createTRPCRouter({
             try {
                 const userId = ctx.session.user.id;
 
-                await checkOrganiser(userId, input.eventId); 
+                await checkOrganiser(userId, input.eventId);
                 // Find the event
                 const event = await ctx.db.event.findUnique({
                     where: { id: input.eventId },
@@ -357,6 +370,13 @@ export const attendanceRouter = createTRPCRouter({
                         message: 'Event not found',
                     });
                 }
+                if (event.state !== 'PUBLISHED') {
+                    throw new TRPCError({
+                        code: 'BAD_REQUEST',
+                        message: 'Cannot mark attendance for an event that is not PUBLISHED or COMPLETED',
+                    });
+                }
+
 
                 // Fetch all confirmed teams for the event and include members
                 const teams = await ctx.db.team.findMany({

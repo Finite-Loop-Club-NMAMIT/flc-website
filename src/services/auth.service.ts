@@ -6,7 +6,8 @@ import { hashToken } from "~/utils/auth/hashToken";
 import { v4 as uuidv4 } from "uuid";
 import { generateTokens } from "~/utils/auth/jwt";
 import * as cron from "node-cron";
-import { LoginSchema } from "~/server/schema/zod-schema";
+import { LoginSchema } from "~/zod/authZ";
+
 
 const addVerificationTokenToWhitelist = async ({
   userId,

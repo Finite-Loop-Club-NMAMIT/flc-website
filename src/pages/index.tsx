@@ -24,7 +24,7 @@ export default function Home() {
         onClick={() => {
           signUp.mutate({
             branchId: "clxo9upud000161ci3havtfke",
-            email: "sathwikhh@gmail.com",
+            email: "nnm22is144@nmamit.in",
             name: "sathwik",
             password: "password",
             confirmPassword: "password",

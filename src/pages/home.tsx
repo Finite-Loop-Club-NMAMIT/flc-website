@@ -2,7 +2,6 @@ import { signOut, useSession } from "next-auth/react";
 import { getServerAuthSession } from "../server/auth";
 import { InferGetServerSidePropsType, type GetServerSideProps } from "next";
 import { useRouter } from "next/navigation";
-import Test from "~/components/Test";
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   const session = await getServerAuthSession(ctx);
@@ -43,7 +42,7 @@ function Home() {
       >
         Sign Out
       </button>
-      <Test />
+    
     </main>
   );
 }

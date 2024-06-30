@@ -1,8 +1,8 @@
 import { z } from 'zod';
 import { createTRPCRouter, protectedProcedure } from '../trpc';
 import { TRPCError } from '@trpc/server';
-import { findEventIfExistById } from '~/utils/helper/findEventById';
-import { createTeamZ, joinTeamZ, leaveTeamSchema, searchTeamForEventz } from '~/server/schema/zod-schema';
+import { findEventIfExistById } from '~/utils/helper';
+import { createTeamZ, joinTeamZ, leaveTeamSchema, searchTeamForEventz } from '~/zod/teamZ';
 
 
 

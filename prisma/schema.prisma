@@ -140,14 +140,14 @@ model Event {
   description String?
   venue       String?
 
-    type        EVENT_TYPE
-    minTeamSize Int           @default(1)
-    maxTeamSize Int
-    maxTeams    Int           @default(0) // 0 means infinity
-    category   EVENT_CATEGORY
-    amount      Int           @default(0)
-    state       EVENT_STATE  @default(DRAFT)
-    isLegacy    Boolean       @default(false)
+  type        EventType
+  minTeamSize Int           @default(1)
+  maxTeamSize Int
+  maxTeams    Int           @default(0) // 0 means infinity
+  category    EventCategory
+  amount      Int           @default(0)
+  state       EventState    @default(DRAFT)
+  isLegacy    Boolean       @default(false)
 
   ActivityPoint ActivityPoint[]
   Team          Team[]
@@ -207,15 +207,15 @@ model Attendence {
   eventId String
   Event   Event  @relation(fields: [eventId], references: [id])
 
-    updatedAt DateTime @updatedAt()
-    createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+  createdAt DateTime @default(now())
 
-   @@unique([userId, eventId])
+  @@unique([userId, eventId])
 }
 
 model Winner {
-    id         String     @id @default(cuid())
-    winnerType WINNER_TYPE
+  id         String      @id @default(cuid())
+  winnerType WinnerType
 
   eventId String
   Event   Event  @relation(fields: [eventId], references: [id])
@@ -230,9 +230,9 @@ model Winner {
 }
 
 model Certificate {
-    id              String          @id @default(cuid())
-    issuedOn        DateTime
-    certificateType  CERTIFICATE_TYPE
+  id              String           @id @default(cuid())
+  issuedOn        DateTime
+  certificateType CertificateType
 
   userId String
   User   User   @relation(fields: [userId], references: [id])
@@ -247,9 +247,9 @@ model Certificate {
 }
 
 model Question {
-    id         String     @id @default(cuid())
-    qs         String
-    answerType  ANSWER_TYPE
+  id         String      @id @default(cuid())
+  qs         String
+  answerType AnswerType
 
   Answer Answer[]
 
@@ -279,8 +279,8 @@ model Answer {
 }
 
 model FeedbackTemplate {
-    id            String                   @id @default(cuid())
-    templateState FEEEDBACK_TEMPLATE_STATE @default(DRAFT)
+  id            String                   @id @default(cuid())
+  templateState FeedbackTemplateState @default(DRAFT)
 
   eventId String
   Event   Event  @relation(fields: [eventId], references: [id])
@@ -311,16 +311,16 @@ model UserFeedback {
 }
 
 model Payment {
-  id     String @id @default(cuid())
-  userId String
-  User   User   @relation(fields: [userId], references: [id])
-  paymentName String
+  id                String   @id @default(cuid())
+  userId            String
+  User              User     @relation(fields: [userId], references: [id])
+  paymentName       String
   razorpayPaymentId String
-  razorpayOrderId  String
+  razorpayOrderId   String
   razorpaySignature String
-  createdAt DateTime @default(now())
+  createdAt         DateTime @default(now())
 
-  @@unique([userId,razorpayPaymentId])
+  @@unique([userId, razorpayPaymentId])
 }
 
 // Enumerations
@@ -331,49 +331,49 @@ enum Role {
   ADMIN
 }
 
-enum EVENT_TYPE {
-    SOLO
-    TEAM
+enum EventType {
+  SOLO
+  TEAM
 }
 
-enum EVENT_CATEGORY {
-    // TODO: add more
-    WORKSHOP
-    COMPETITION
-    HACKATHON
-    SPECIAL
-}
-enum EVENT_STATE {
-    DRAFT
-    PUBLISHED
-    COMPLETED
+enum EventCategory {
+  // TODO: add more
+  WORKSHOP
+  COMPETITION
+  HACKATHON
+  SPECIAL
 }
 
-
-
-enum  WINNER_TYPE {
-    WINNER
-    RUNNER_UP
-    SECOND_RUNNER_UP
+enum EventState {
+  DRAFT
+  PUBLISHED
+  COMPLETED
 }
 
-enum CERTIFICATE_TYPE {
-    WINNER
-    RUNNER_UP
-    SECOND_RUNNER_UP
-    PARTICIPATION
+enum WinnerType {
+  WINNER
+  RUNNER_UP
+  SECOND_RUNNER_UP
 }
 
-enum ANSWER_TYPE {
-    BOOLEAN
-    RATING
-    COMMENT
+enum CertificateType {
+  WINNER
+  RUNNER_UP
+  SECOND_RUNNER_UP
+  PARTICIPATION
 }
 
-enum FEEEDBACK_TEMPLATE_STATE {
-    DRAFT
-    PUBLISHED
+enum AnswerType {
+  BOOLEAN
+  RATING
+  COMMENT
 }
+
+enum FeedbackTemplateState {
+  DRAFT
+  PUBLISHED
+}
+
 enum VerificationType {
   PASSWORD_RESET
   EMAIL_VERIFICATION

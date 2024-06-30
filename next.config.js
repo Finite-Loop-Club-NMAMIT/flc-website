@@ -18,6 +18,17 @@ const config = {
     defaultLocale: "en",
   },
   transpilePackages: ["geist"],
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+       
+        
+      },
+    ],
+  },
+
 };
 
 export default config;

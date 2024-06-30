@@ -136,7 +136,7 @@ const RegisterSchema = z
       })
       .refine(
         (email) => {
-          if (email.endsWith("@nmamit.in") || email.endsWith("@gmail.com")) {
+          if (email.endsWith("@nmamit.in") ) {
             return true;
           }
           return false;
@@ -178,7 +178,7 @@ const LoginSchema = z.object({
     })
     .refine(
       (email) => {
-        if (email.endsWith("@nmamit.in") || email.endsWith("@gmail.com")) {
+        if (email.endsWith("@nmamit.in") ) {
           return true;
         }
         return false;
@@ -198,7 +198,7 @@ const SendVerifyEmailSchema = z.object({
     })
     .refine(
       (email) => {
-        if (email.endsWith("@nmamit.in") || email.endsWith("@gmail.com")) {
+        if (email.endsWith("@nmamit.in") ) {
           return true;
         }
         return false;

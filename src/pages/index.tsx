@@ -4,6 +4,7 @@ import { signIn, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { api } from "~/utils/api";
 
+
 export default function Home() {
   const router = useRouter();
 

@@ -1,11 +1,14 @@
+/* eslint-disable */
 import { error } from "console";
 import { db } from "~/server/db";
 import { compareHashedPassword, getUserByEmail } from "~/utils/auth/auth";
 import { hashToken } from "~/utils/auth/hashToken";
-import { LoginSchema } from "~/zod/authZ";
+
 import { v4 as uuidv4 } from "uuid";
 import { generateTokens } from "~/utils/auth/jwt";
 import * as cron from "node-cron";
+import { LoginSchema } from "~/zod/authZ";
+
 
 const addVerificationTokenToWhitelist = async ({
   userId,

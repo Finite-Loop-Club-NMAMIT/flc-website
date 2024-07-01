@@ -20,9 +20,10 @@ function Home() {
   console.log("session.accessToken", session);
 
   return (
-    <div>
+    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
       <h1>Welcome to the home page</h1>
       <p>Hi {JSON.stringify(session?.data)}</p>
+
       {/* <form
         action={async () => {
           "use server";
@@ -41,7 +42,8 @@ function Home() {
       >
         Sign Out
       </button>
-    </div>
+    
+    </main>
   );
 }
 export default Home;

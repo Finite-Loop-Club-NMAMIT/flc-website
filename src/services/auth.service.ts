@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { error } from "console";
 import { db } from "~/server/db";
 import { compareHashedPassword, getUserByEmail } from "~/utils/auth/auth";

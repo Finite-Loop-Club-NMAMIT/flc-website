@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { type GetServerSidePropsContext } from "next";
 import bcrypt from "bcryptjs";
@@ -37,7 +38,7 @@ declare module "next-auth" {
     name?: string | null;
     email?: string | null;
     image?: string | null;
-    role?: Role | null;
+    role: Role;
   }
 
   interface AdapterUser {
@@ -47,7 +48,7 @@ declare module "next-auth" {
     name?: string | null;
     email?: string | null;
     image?: string | null;
-    role?: Role | null;
+    role: Role;
   }
 
   interface Session extends DefaultSession {
@@ -95,7 +96,7 @@ export const authOptions: NextAuthOptions = {
           sub: user.id,
           name: user.name,
           email: user.email,
-          role: user.role!,
+          role: user.role,
           accessToken: user.accessToken,
           refreshToken: user.refreshToken,
           iat: Math.floor(Date.now() / 1000),
@@ -163,7 +164,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.sub;
         session.user.name = token.name;
         session.user.email = token.email!;
-        session.user.role = token.role!; 
+        session.user.role = token.role; 
         session.accessToken = token.accessToken;
       }
 

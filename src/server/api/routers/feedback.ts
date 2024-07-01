@@ -5,7 +5,7 @@ import {  createFeedbackTemplateSchema, createQuestionSchema, getQuestionsByFeed
 import { findTemplateAndCheckQuestions } from '~/utils/helper';
 
 
-export const feedbackTemplateRouter = createTRPCRouter({
+export const feedbackRouter = createTRPCRouter({
 
   // Create a feedback template for a specific event(amind)
   createFeedbackTemplate: adminProcedure

@@ -141,6 +141,31 @@ export const eventRouter = createTRPCRouter({
                 });
             }
         }),
+
+    getEventById: adminProcedure
+        .input(z.string())
+        .query(async ({ ctx, input }) => {
+            try {
+                const event = await ctx.db.event.findUnique({
+                    where: { id: input },
+                });
+                if (!event) {
+                    throw new TRPCError({
+                        code: 'NOT_FOUND',
+                        message: 'Event not found',
+                    });
+                }
+                return event;
+            } catch (error) {
+                console.error('Get Event By ID Error:', error);
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: 'Something went wrong while fetching the event by ID',
+                });
+            }
+        }),
+
+
     //get all Published events(All)--->
     getAllPublishedEvents: publicProcedure
         .query(async ({ ctx }) => {

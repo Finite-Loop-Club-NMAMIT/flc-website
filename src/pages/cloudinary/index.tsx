@@ -1,3 +1,5 @@
+'use client'
+
 import React from "react";
 import CloudinaryUpload from "~/components/cloudinary/cloudinaryUpload";
 import CloudinaryDelete from "~/components/cloudinary/cloudinaryDelete";

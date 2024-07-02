@@ -128,7 +128,7 @@ export const eventRouter = createTRPCRouter({
             }
         }),
     // Get all events(All)--->
-    getAllEvents: adminProcedure
+    getAllEvents: adminProcedure 
         .query(async ({ ctx }) => {
             try {
                 const events = await ctx.db.event.findMany();

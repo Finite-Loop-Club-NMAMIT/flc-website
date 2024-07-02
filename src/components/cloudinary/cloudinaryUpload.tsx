@@ -31,12 +31,12 @@ export default function CloudinaryUpload({ linkName, userId, eventId, type }: Cl
 
   const addImageToUserLink = api.userLink.createUserLink.useMutation();
   // const addImageToUser = api.user.update.useMutaion();
-  // const addImageToEvent = api.event.updateEvent.useMutaion()
+   const addImageToEvent = api.event.updateEvent.useMutation()
  
   async function addImageToDB(secure_url:string) {
     if (type == uploadTypeEnum.userLink) {
       addImageToUserLink.mutate({
-        userId: userId ?? "clxikjroh00003bzlqsg5znhd", //from the auth
+        userId: userId ?? "cly1kgq9p0000btju40xmt8q0", //from the auth
         url: secure_url,
         linkName: linkName ?? "Name of link", //from prop
       });
@@ -49,10 +49,10 @@ export default function CloudinaryUpload({ linkName, userId, eventId, type }: Cl
       // });
     }
     else if(type == uploadTypeEnum.eventPicture){
-      //  addImageToEvent.mutate({
-      //    eventId: eventId ?? "clxgbokx4000ewc828rix4mxn", //from the auth
-      //    imgSrc: secure_url,
-      //  });
+        addImageToEvent.mutate({
+          eventId: eventId ?? "cly358cjt0000whuimrz5so25", //from the auth
+          imgSrc: secure_url,
+        });
     }
   }
 

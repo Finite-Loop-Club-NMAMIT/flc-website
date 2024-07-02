@@ -3,17 +3,21 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 
+interface EventCardProps{
+  src : string | null | undefined
+}
 
-function Card() {
+function Card({src} : EventCardProps) {
 
 
   return (
     <>
+    {src ? 
       <Link href={`/event/${1555}`} >
       <div className="card">
         <div className="relative mb-4 h-80 ">
           <Image
-            src="/assets/sample.png"
+            src={src}
             alt="Example Image"
             layout="fill"
             objectFit="cover"
@@ -35,6 +39,7 @@ function Card() {
         </div>
       </div>
       </Link>
+ : null}
     </>
   );
 }

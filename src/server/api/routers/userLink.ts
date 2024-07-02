@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { createTRPCRouter,protectedProcedure } from "../trpc";
+import { createTRPCRouter,protectedProcedure, publicProcedure } from "../trpc";
 import type { Prisma } from "@prisma/client";
 
 const createType= z.object({
@@ -19,7 +19,7 @@ const updateType = z.object({
 
 //switch to protectedProcedure after auth is done
 export const userLinkRouter = createTRPCRouter({
-  createUserLink: protectedProcedure
+  createUserLink: protectedProcedure /* change it back to protectedProcedure once auth is integrated */
     .input(createType)
     .mutation(async ({ ctx, input }) => {
       const duplicate = await ctx.db.userLink.findFirst({

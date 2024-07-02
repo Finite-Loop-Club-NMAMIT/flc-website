@@ -24,11 +24,29 @@ export default function Index() {
     <div>
       {/*@FrontEnd use the component in any form - image will be uploaded to DB as userLink  */}
 
+      {/*1. Uploading images to userLink*/}
+
       <CloudinaryUpload
-        linkName="Deletion test"
+        uploadName="upload image to userLink schema"
         userId={userId}
         type={uploadTypeEnum.userLink}
       />
+
+      {/*2. Uploading images for Events*/}
+
+      <CloudinaryUpload
+        uploadName="upload image to Event schema"
+        eventId={"cly358cjt0000whuimrz5so25"}
+        type={uploadTypeEnum.eventPicture}
+      />
+
+      {/*3. Uploading images to user*/}
+
+      {/* <CloudinaryUpload
+        linkName="Deletion test"
+        userId={userId}
+        type={uploadTypeEnum.userPicture}
+      /> */}
 
       {/* #props 
              linkName : for the userLink schema

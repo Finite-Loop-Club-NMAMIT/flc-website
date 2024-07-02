@@ -50,7 +50,7 @@ export default function CloudinaryUpload({ linkName, userId, eventId, type }: Cl
     }
     else if(type == uploadTypeEnum.eventPicture){
         addImageToEvent.mutate({
-          eventId: eventId ?? "cly358cjt0000whuimrz5so25", //from the auth
+          eventId: eventId ?? "cly4df38o000146ht9z1quoz9", //from the auth
           imgSrc: secure_url,
         });
     }

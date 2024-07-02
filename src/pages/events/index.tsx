@@ -33,7 +33,7 @@ function page() {
         {events && events.length > 0 ? (
           <>
             {events.map((event, index) => (
-              <Card key={index} src={event.imgSrc} />
+              <Card key={index} event={event} />
             ))}
           </>
         ) : (

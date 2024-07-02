@@ -42,7 +42,7 @@ export default function CloudinaryDelete() {
     <div>
       <p>delete component</p>
       <br />
-      <p className="text-center">all the images in db: </p>
+      <p className="text-center">all the images in userLink schema: </p>
       <br />
       <div className="m-auto flex justify-center">
         {userLinks.data?.map((link) => (

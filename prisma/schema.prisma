@@ -209,10 +209,12 @@ model Attendence {
 
   updatedAt DateTime @updatedAt()
   createdAt DateTime @default(now())
+
+  @@unique([userId, eventId])
 }
 
 model Winner {
-  id         String     @id @default(cuid())
+  id         String      @id @default(cuid())
   winnerType WinnerType
 
   eventId String
@@ -228,7 +230,7 @@ model Winner {
 }
 
 model Certificate {
-  id              String          @id @default(cuid())
+  id              String           @id @default(cuid())
   issuedOn        DateTime
   certificateType CertificateType
 
@@ -245,7 +247,7 @@ model Certificate {
 }
 
 model Question {
-  id         String     @id @default(cuid())
+  id         String      @id @default(cuid())
   qs         String
   answerType AnswerType
 
@@ -277,7 +279,8 @@ model Answer {
 }
 
 model FeedbackTemplate {
-  id String @id @default(cuid())
+  id            String                   @id @default(cuid())
+  templateState FeedbackTemplateState @default(DRAFT)
 
   eventId String
   Event   Event  @relation(fields: [eventId], references: [id])
@@ -308,16 +311,16 @@ model UserFeedback {
 }
 
 model Payment {
-  id     String @id @default(cuid())
-  userId String
-  User   User   @relation(fields: [userId], references: [id])
-  paymentName String
+  id                String   @id @default(cuid())
+  userId            String
+  User              User     @relation(fields: [userId], references: [id])
+  paymentName       String
   razorpayPaymentId String
-  razorpayOrderId  String
+  razorpayOrderId   String
   razorpaySignature String
-  createdAt DateTime @default(now())
+  createdAt         DateTime @default(now())
 
-  @@unique([userId,razorpayPaymentId])
+  @@unique([userId, razorpayPaymentId])
 }
 
 // Enumerations
@@ -364,6 +367,11 @@ enum AnswerType {
   BOOLEAN
   RATING
   COMMENT
+}
+
+enum FeedbackTemplateState {
+  DRAFT
+  PUBLISHED
 }
 
 enum VerificationType {

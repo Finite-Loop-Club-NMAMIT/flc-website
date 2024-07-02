@@ -23,12 +23,12 @@ export default function Home() {
       <button
         onClick={() => {
           signUp.mutate({
-            branchId: "clxiirynf00014vz8ayf6zotf",
-            email: "nnm22cs094@nmamit.in",
-            name: "Omkar Prabhu",
+            branchId: "cly1kesbp00004bj8a2twttca",
+            email: "nnm22is144@nmamit.in",
+            name: "sathwik",
             password: "password",
             confirmPassword: "password",
-            phone: "9448846524",
+            phone: "9902130645",
             year: "2023",
           });
         }}
@@ -39,7 +39,7 @@ export default function Home() {
       <button
         onClick={() => {
           sendVerificationEmail.mutate({
-            email: "nnm22cs094@nmamit.in",
+            email: "nnm22is144@nmamit.in",
           });
         }}
       >
@@ -48,7 +48,7 @@ export default function Home() {
       <button
         onClick={() => {
           sendPasswordResetEmail.mutate({
-            email: "nnm22cs094@nmamit.in",
+            email: "nnm22is144@nmamit.in",
           });
         }}
       >
@@ -59,7 +59,7 @@ export default function Home() {
         onClick={() => {
           verifyEmail.mutate({
             token:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbHhpa2pyb2gwMDAwM2J6bHFzZzV6bmhkIiwianRpIjoiY2x4aWwybWwxMDAwNDNiemxtdzF5MXE3bCIsImlhdCI6MTcxODYwNTA0OCwiZXhwIjoxNzE4NjkxNDQ4fQ.PxCSSYpXn2XFUQeJVPb0O95ZKEJKsIMKxmVH9ceXOfI",
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbHkxa2dxOXAwMDAwYnRqdTQweG10OHEwIiwianRpIjoiY2x5MWtoMjN2MDAwMmJ0anVycjl1NTJsOCIsImlhdCI6MTcxOTc1Mjg5OSwiZXhwIjoxNzE5ODM5Mjk5fQ.IF9bWSTN4_dpVTbQl0CzXSS37uKXGrX6TbW60yPdFXQ",
           });
         }}
       >
@@ -69,9 +69,9 @@ export default function Home() {
       <button
         onClick={() => {
           resetPassword.mutate({
-            newPassword: "password2",
+            newPassword: "password3",
             token:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbHhpa2pyb2gwMDAwM2J6bHFzZzV6bmhkIiwianRpIjoiY2x4cHNwMjVkMDAwM2Uxd2Roc2ljNTR1eiIsImlhdCI6MTcxOTA0MTExNSwiZXhwIjoxNzE5MTI3NTE1fQ.CLpTdZUn74b6BmBYr8o19hjVwnbq9u8g_f184xvxSU4",
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbHhvYTZ2YTMwMDA0NDR2ZHByODltMzh2IiwianRpIjoiY2x4cmxuZzBwMDAwMW02MzBpN253bzF3MiIsImlhdCI6MTcxOTE1MDIxNSwiZXhwIjoxNzE5MjM2NjE1fQ.wzcqtyqnGpdxVMCdNqGob1Faz8AWef9SQunoVbReWcc",
           });
         }}
       >
@@ -81,8 +81,8 @@ export default function Home() {
       <button
         onClick={async () => {
           const res = signIn("credentials", {
-            email: "nnm22cs094@nmamit.in",
-            password: "password2",
+            email: "nnm22is144@nmamit.in",
+            password: "password",
             redirect: false,
           });
           res

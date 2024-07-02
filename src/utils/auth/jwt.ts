@@ -2,11 +2,12 @@ import { type RefreshToken, type VerificationToken } from "@prisma/client";
 import { error } from "console";
 import jwt from "jsonwebtoken";
 import { db } from "~/server/db";
-import { RefreshTokenSchema } from "~/zod/authZ";
+
 import { hashToken } from "./hashToken";
 import { getUserById } from "./auth";
 import { v4 as uuidv4 } from "uuid";
 import { addRefreshTokenToWhitelist } from "~/services/auth.service";
+import { RefreshTokenSchema } from "~/zod/authZ";
 
 const AUTH_SECRET = process.env.AUTH_SECRET!;
 

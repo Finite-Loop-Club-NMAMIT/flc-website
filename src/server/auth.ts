@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { type GetServerSidePropsContext } from "next";
 import bcrypt from "bcryptjs";
@@ -18,8 +19,10 @@ import {
   rotateTokens,
 } from "~/utils/auth/jwt";
 import { login } from "~/services/auth.service";
+
+import { User, Role } from "@prisma/client";
 import { LoginSchema } from "~/zod/authZ";
-import { User } from "@prisma/client";
+
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -35,6 +38,7 @@ declare module "next-auth" {
     name?: string | null;
     email?: string | null;
     image?: string | null;
+    role: Role;
   }
 
   interface AdapterUser {
@@ -44,13 +48,14 @@ declare module "next-auth" {
     name?: string | null;
     email?: string | null;
     image?: string | null;
+    role: Role;
   }
 
   interface Session extends DefaultSession {
     user: DefaultSession["user"] & {
       id: string;
       // ...other properties
-      // role: UserRole;
+      role: Role;
     };
     accessToken: string;
   }
@@ -67,6 +72,7 @@ declare module "next-auth/jwt" {
   interface JWT {
     iat: number;
     exp: number;
+    role: Role; 
     accessToken: string;
     refreshToken: string;
   }
@@ -90,6 +96,7 @@ export const authOptions: NextAuthOptions = {
           sub: user.id,
           name: user.name,
           email: user.email,
+          role: user.role,
           accessToken: user.accessToken,
           refreshToken: user.refreshToken,
           iat: Math.floor(Date.now() / 1000),
@@ -157,7 +164,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.sub;
         session.user.name = token.name;
         session.user.email = token.email!;
-
+        session.user.role = token.role; 
         session.accessToken = token.accessToken;
       }
 

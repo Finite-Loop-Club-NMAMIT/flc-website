@@ -5,35 +5,22 @@ import { sendActivityPointsUpdateEmail } from "~/utils/nodemailer/nodemailer";
 
 
 export const activityPointsRouter = createTRPCRouter({
+    //remove activy points
     addActivityPointsForEvent: adminProcedure
         .input(z.object({
+            name: z.string(),
             eventId: z.string(),
             points: z.number(),
         }))
         .mutation(async ({ input, ctx }) => {
             try {
-                const { eventId, points } = input;
-
-                // Check if there's already an ActivityPoint record for this event
-                let activityPoint = await ctx.db.activityPoint.findFirst({
-                    where: {
-                        eventId: eventId,
-                    },
-                });
-
-                if (activityPoint) {
-                    throw new TRPCError({
-                        code: 'BAD_REQUEST',
-                        message: `Activity points already exist for event ${eventId}`,
-                    });
-                }
-
+                const { eventId, points, name } = input;
                 // Create new activity point record
-                activityPoint = await ctx.db.activityPoint.create({
+                const activityPoint = await ctx.db.activityPoint.create({
                     data: {
                         eventId: eventId,
                         point: points,
-                        name: eventId, // Adjust based on your schema
+                        name: name, 
                     },
                 });
 
@@ -47,20 +34,22 @@ export const activityPointsRouter = createTRPCRouter({
                 });
             }
         }),
-
+    //update activyPoints
     updateActivityPointsForEvent: adminProcedure
         .input(z.object({
-            eventId: z.string(),
-            points: z.number(),
+            id: z.string(),
+            name: z.string().optional(),
+            eventId: z.string().optional(),
+            points: z.number().optional(),
         }))
         .mutation(async ({ input, ctx }) => {
             try {
-                const { eventId, points } = input;
+                const { id, name, eventId, points } = input;
 
                 // Check if there's already an ActivityPoint record for this event
                 let activityPoint = await ctx.db.activityPoint.findFirst({
                     where: {
-                        eventId: eventId,
+                        id: id,
                     },
                 });
 
@@ -77,6 +66,8 @@ export const activityPointsRouter = createTRPCRouter({
                         id: activityPoint.id,
                     },
                     data: {
+                        name: name,
+                        eventId: eventId,
                         point: {
                             increment: points,
                         },
@@ -89,6 +80,143 @@ export const activityPointsRouter = createTRPCRouter({
                 throw new TRPCError({
                     code: 'INTERNAL_SERVER_ERROR',
                     message: 'Something went wrong while updating activity points',
+                    cause: error,
+                });
+            }
+        }),
+    //here   the users passed , will be connect to perticulae activitypoint model , and update there totalacitivy points
+    manuallyAddUsersToActivityPoint: adminProcedure
+        .input(z.object({
+            activityPointId: z.string(),
+            userIds: z.array(z.string()),
+        }))
+        .mutation(async ({ input, ctx }) => {
+            try {
+                const { activityPointId, userIds } = input;
+
+                // Fetch the activity point to validate existence
+                const activityPoint = await ctx.db.activityPoint.findUnique({
+                    where: { id: activityPointId },
+                    include: { User: true }, // Include users connected to this activity point
+                });
+
+                if (!activityPoint) {
+                    throw new TRPCError({
+                        code: 'NOT_FOUND',
+                        message: `Activity point with ID ${activityPointId} not found`,
+                    });
+                }
+
+                // Loop through user IDs and connect each to the activity point
+                for (const userId of userIds) {
+                    // Check if user is already connected to this activity point
+                    const isUserConnected = activityPoint.User.some(user => user.id === userId);
+
+                    if (!isUserConnected) {
+                        // Connect the user to the activity point
+                        await ctx.db.activityPoint.update({
+                            where: { id: activityPointId },
+                            data: {
+                                User: {
+                                    connect: { id: userId },
+                                },
+                            },
+                        });
+
+                        // Fetch user to update totalActivityPoints
+                        const user = await ctx.db.user.findUnique({
+                            where: { id: userId },
+                        });
+
+                        if (user) {
+                            // Add points to user's totalActivityPoints
+                            await ctx.db.user.update({
+                                where: { id: userId },
+                                data: {
+                                    totalActivityPoints: user.totalActivityPoints + activityPoint.point,
+                                },
+                            });
+                        }
+                    }
+                }
+
+                return true; // Success
+            } catch (error) {
+                console.error('Add Users to Activity Point Error:', error);
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: 'Something went wrong while adding users to activity point',
+                    cause: error,
+                });
+            }
+        }),
+    //when this hits , it removes all users from activy points and then add the users that r passed
+    updateUsersActivityPointsForActivityPoint: adminProcedure
+        .input(z.object({
+            activityPointId: z.string(),
+            userIds: z.array(z.string()),
+        }))
+        .mutation(async ({ input, ctx }) => {
+            try {
+                const { activityPointId, userIds } = input;
+
+                // Fetch the activity point to validate existence
+                const activityPoint = await ctx.db.activityPoint.findUnique({
+                    where: { id: activityPointId },
+                    include: { User: true }, // Include users connected to this activity point
+                });
+
+                if (!activityPoint) {
+                    throw new TRPCError({
+                        code: 'NOT_FOUND',
+                        message: `Activity point with ID ${activityPointId} not found`,
+                    });
+                }
+
+                // Disconnect all existing users from this activity point
+                await ctx.db.activityPoint.update({
+                    where: { id: activityPointId },
+                    data: {
+                        User: {
+                            disconnect: activityPoint.User.map(user => ({ id: user.id })),
+                        },
+                    },
+                });
+
+                // Connect the new list of users to the activity point
+                for (const userId of userIds) {
+                    // Connect the user to the activity point
+                    await ctx.db.activityPoint.update({
+                        where: { id: activityPointId },
+                        data: {
+                            User: {
+                                connect: { id: userId },
+                            },
+                        },
+                    });
+
+                    // Fetch user to update totalActivityPoints
+                    const user = await ctx.db.user.findUnique({
+                        where: { id: userId },
+                    });
+
+                    if (user) {
+                        // Subtract points from user's totalActivityPoints
+                        await ctx.db.user.update({
+                            where: { id: userId },
+                            data: {
+                                totalActivityPoints: user.totalActivityPoints - activityPoint.point,
+                            },
+                        });
+                    }
+                }
+
+                return true; // Success
+            } catch (error) {
+                console.error('Update Users Activity Points for Activity Point Error:', error);
+                throw new TRPCError({
+                    code: 'INTERNAL_SERVER_ERROR',
+                    message: 'Something went wrong while updating users activity points for activity point',
                     cause: error,
                 });
             }

@@ -6,7 +6,8 @@ generator client {
 }
 
 datasource db {
-  provider = "cockroachdb"
+  // provider = "cockroachdb"
+  provider = "postgresql"
   // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
   // Further reading:
   // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
@@ -50,6 +51,8 @@ model User {
   Certificate  Certificate[]
   Answer       Answer[]
   UserFeedback UserFeedback[]
+
+  UserQuizResponses UserQuizResponse[]
 
   updatedAt         DateTime            @updatedAt()
   createdAt         DateTime            @default(now())
@@ -214,7 +217,7 @@ model Attendence {
 }
 
 model Winner {
-  id         String      @id @default(cuid())
+  id         String     @id @default(cuid())
   winnerType WinnerType
 
   eventId String
@@ -230,7 +233,7 @@ model Winner {
 }
 
 model Certificate {
-  id              String           @id @default(cuid())
+  id              String          @id @default(cuid())
   issuedOn        DateTime
   certificateType CertificateType
 
@@ -247,7 +250,7 @@ model Certificate {
 }
 
 model Question {
-  id         String      @id @default(cuid())
+  id         String     @id @default(cuid())
   qs         String
   answerType AnswerType
 
@@ -279,7 +282,7 @@ model Answer {
 }
 
 model FeedbackTemplate {
-  id            String                   @id @default(cuid())
+  id            String                @id @default(cuid())
   templateState FeedbackTemplateState @default(DRAFT)
 
   eventId String
@@ -321,6 +324,86 @@ model Payment {
   createdAt         DateTime @default(now())
 
   @@unique([userId, razorpayPaymentId])
+}
+
+
+//quize
+model QuizTemplate {
+  id        String @id @default(cuid())
+  title     String
+  timeLimit Int
+
+  quizState    QuizState      @default(DRAFT)
+  QuizQuestion QuizQuestion[]
+
+  UserQuizResponse UserQuizResponse[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+}
+
+model QuizQuestion {
+  id String @id @default(cuid())
+
+  text              String
+  correctAnswerText String?
+
+  answerType QuizAnswerType
+
+  QuizeQuestionOption  QuizeQuestionOption[]
+  correctOptionId String?
+
+  UserQuizeAnswer UserQuizeAnswer[]
+
+  quizTemplateId String
+  QuizTemplate   QuizTemplate @relation(fields: [quizTemplateId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+}
+
+model QuizeQuestionOption {
+  id   String @id @default(cuid())
+  text String
+
+  quizQuestionId String
+  QuizQuestion   QuizQuestion @relation(fields: [quizQuestionId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+}
+
+model UserQuizeAnswer {
+  id         String  @id @default(cuid())
+  answerText String?
+
+  selectedOptionId String?
+
+  quizQuestionId String
+  QuizQuestion   QuizQuestion @relation(fields: [quizQuestionId], references: [id])
+
+  userQuizResponseId String
+  UserQuizResponse   UserQuizResponse @relation(fields: [userQuizResponseId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
+}
+
+model UserQuizResponse {
+  id String @id @default(cuid())
+
+  quizTemplateId String
+  QuizTemplate   QuizTemplate @relation(fields: [quizTemplateId], references: [id])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  score Int @default(0)
+
+  UserQuizeAnswer UserQuizeAnswer[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt()
 }
 
 // Enumerations
@@ -377,4 +460,15 @@ enum FeedbackTemplateState {
 enum VerificationType {
   PASSWORD_RESET
   EMAIL_VERIFICATION
+}
+
+enum QuizState {
+  DRAFT
+  LIVE
+  COMPLETED
+}
+
+enum QuizAnswerType {
+  TEXT
+  MCQ
 }

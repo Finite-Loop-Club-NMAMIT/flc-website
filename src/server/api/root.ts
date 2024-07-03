@@ -26,12 +26,12 @@ export const appRouter = createTRPCRouter({
   auth: authRouter,
   winner: winnerRouter,
   certificate: certificateRouter,
-  activitypoints:activityPointsRouter,
+  activitypoints: activityPointsRouter,
   organiser: organisorRouter,
   branch: branchRouter,
   userLink: userLinkRouter,
   payment: payment,
-  quiz:quizRouter
+  quiz: quizRouter
 });
 
 // export type definition of API

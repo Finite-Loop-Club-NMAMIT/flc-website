@@ -15,7 +15,7 @@ import {
 
 export const quizRouter = createTRPCRouter({
   // Create a quiz template
-  createQuizTemplate: protectedProcedure
+  createQuizTemplate: adminProcedure
     .input(createQuizTemplateSchema)
     .mutation(async ({ input, ctx }) => {
       try {
@@ -58,7 +58,7 @@ export const quizRouter = createTRPCRouter({
     }),
 
   // Add a question to a quiz template
-  addQuestionToQuizTemplate: protectedProcedure
+  addQuestionToQuizTemplate: adminProcedure
     .input(createQuizQuestionSchema)
     .mutation(async ({ input, ctx }) => {
       try {
@@ -131,7 +131,7 @@ export const quizRouter = createTRPCRouter({
     }),
 
   //updates the question /mcqs/correct-options
-  updateQuestionInQuizTemplate: protectedProcedure
+  updateQuestionInQuizTemplate: adminProcedure
     .input(updateQuizQuestionSchema)
     .mutation(async ({ input, ctx }) => {
       try {
@@ -198,7 +198,7 @@ export const quizRouter = createTRPCRouter({
     }),
 
   // Change state of a quiz template (DRAFT, LIVE, COMPLETED)
-  changeQuizTemplateState: protectedProcedure
+  changeQuizTemplateState: adminProcedure
     .input(changeQuizTemplateStateSchema)
     .mutation(async ({ input, ctx }) => {
       try {
@@ -221,7 +221,7 @@ export const quizRouter = createTRPCRouter({
 
 
   // Get all questions of a quiz template
-  getQuestionsByQuizTemplateId: protectedProcedure
+  getQuestionsByQuizTemplateId: adminProcedure
     .input(getQuestionsByQuizTemplateIdSchema)
     .query(async ({ input, ctx }) => {
       try {

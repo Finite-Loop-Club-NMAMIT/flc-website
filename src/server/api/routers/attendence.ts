@@ -98,7 +98,6 @@ export const attendanceRouter = createTRPCRouter({
                                 hasAttended: true,
                             },
                         });
-                        await sendAttendenceStatusForEmail(member.email, event.name, member.name, true);
                     } else {
                         await ctx.db.attendence.update({
                             where: { id: existingAttendance.id },
@@ -106,7 +105,6 @@ export const attendanceRouter = createTRPCRouter({
                                 hasAttended: true,
                             },
                         });
-                        await sendAttendenceStatusForEmail(member.email, event.name, member.name, true);
                     }
                 }
                 return { success: true };
@@ -239,11 +237,6 @@ export const attendanceRouter = createTRPCRouter({
                     });
                 }
 
-                // Find the user's details
-                const user = userTeam.Members.find(member => member.id === input.userId);
-                if (user) {
-                    await sendAttendenceStatusForEmail(user.email, event.name, user.name, true);
-                }
 
                 return { success: true };
             } catch (error) {
@@ -333,10 +326,7 @@ export const attendanceRouter = createTRPCRouter({
                         },
                     });
                 }
-                const user = userTeam.Members.find(member => member.id === input.userId);
-                if (user) {
-                    await sendAttendenceStatusForEmail(user.email, event.name, user.name, input.hasAttended);
-                }
+
 
 
                 return { success: true };

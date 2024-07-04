@@ -38,7 +38,7 @@ export const quizRouter = createTRPCRouter({
     }),
 
   // Update quiz template name
-  updateQuizTemplateName: protectedProcedure
+  updateQuizTemplateName: adminProcedure
     .input(updateQuizTemplateNameSchema)
     .mutation(async ({ input, ctx }) => {
       try {
@@ -59,7 +59,7 @@ export const quizRouter = createTRPCRouter({
       }
     }),
 
-  // Add a question to a quiz template
+  // Add a question to a quiz template , all values along with option, correctoption is passed together
   addQuestionToQuizTemplate: adminProcedure
     .input(createQuizQuestionSchema)
     .mutation(async ({ input, ctx }) => {
@@ -344,19 +344,6 @@ export const quizRouter = createTRPCRouter({
               scoreRewared = question.score;
             }
           }
-
-          // if (question.answerType === 'MCQ') {
-          //   const selectedOption = question.QuizeQuestionOption.find(option => option.id === answer.selectedOptionId);
-          //   if (selectedOption && 'isCorrect' in selectedOption && selectedOption.isCorrect) {
-          //     scoreRewared = question.score;
-          //   }
-          // } else if (question.answerType === 'TEXT') {
-          //   const correctAnswer = question.correctAnswerText?.trim().toLowerCase();
-          //   const userAnswer = answer.answerText?.trim().toLowerCase();
-          //   if (correctAnswer === userAnswer) {
-          //     scoreRewared = question.score;
-          //   }
-          // }
           totalScore += scoreRewared;
 
           // Collect user's answers for bulk creation
@@ -393,7 +380,7 @@ export const quizRouter = createTRPCRouter({
       }
     }),
 
-  // Retrieve detailed user quiz results for a specific quiz
+  // Retrieve detailed user quiz results for a specific quiz (quize review after quize is complted)
   getQuizResultsReviewForUser: protectedProcedure
     .input(getQuizResultsForUserSchema) // Define your input schema if needed
     .query(async ({ input, ctx }) => {
@@ -499,8 +486,8 @@ export const quizRouter = createTRPCRouter({
       }
     }),
 
-  //retrive all users text answer to review 
-  getTextAnswersForQuiz: protectedProcedure
+  //retrive all users text answer to review  and add score manuvaly by verifing
+  getTextAnswersForQuiz: adminProcedure
     .input(getTextAnswersForQuiz)
     .query(async ({ input, ctx }) => {
       const { quizTemplateId } = input;
@@ -543,101 +530,126 @@ export const quizRouter = createTRPCRouter({
       }
     }),
 
-  // adding score manuvally for text answers after reviewing 
-  addScoreManually: protectedProcedure.input(addScoreManually).mutation(async ({ input, ctx }) => {
-    const { userId, quizTemplateId, userQuizAnswer } = input;
+  // adding score manually for text answers after reviewing 
+  addScoreManually: adminProcedure
+    .input(addScoreManually)
+    .mutation(async ({ input, ctx }) => {
+      const { userId, quizTemplateId, userQuizAnswer } = input;
 
-    try {
-      // Find all user quiz answers for the specific quiz template and user
-      const userQuizAnswers = await ctx.db.userQuizeAnswer.findMany({
-        where: {
-          UserQuizResponse: {
-            userId,
-            quizTemplateId,
+      try {
+        // Find all user quiz answers for the specific quiz template and user
+        const userQuizAnswers = await ctx.db.userQuizeAnswer.findMany({
+          where: {
+            UserQuizResponse: {
+              userId,
+              quizTemplateId,
+            },
           },
-        },
-      });
-
-      if (!userQuizAnswers || userQuizAnswers.length === 0) {
-        throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'User quiz answers not found',
         });
-      }
 
-      // Update each userQuizAnswer with the provided score
-      await Promise.all(userQuizAnswer.map(async answer => {
-        const existingAnswer = userQuizAnswers.find(ans => ans.quizQuestionId === answer.quizQuestionId);
-
-        if (!existingAnswer) {
+        if (!userQuizAnswers || userQuizAnswers.length === 0) {
           throw new TRPCError({
             code: 'NOT_FOUND',
-            message: `User quiz answer not found for question id ${answer.quizQuestionId}`,
+            message: 'User quiz answers not found',
           });
         }
 
-        // Update the score for the specific question
-        await ctx.db.userQuizeAnswer.update({
+        // Update each userQuizAnswer with the provided score
+        await Promise.all(userQuizAnswer.map(async answer => {
+          const existingAnswer = userQuizAnswers.find(ans => ans.quizQuestionId === answer.quizQuestionId);
+
+          if (!existingAnswer) {
+            throw new TRPCError({
+              code: 'NOT_FOUND',
+              message: `User quiz answer not found for question id ${answer.quizQuestionId}`,
+            });
+          }
+
+          // Ensure scoreRewared does not exceed the score of the quiz question
+          const quizQuestion = await ctx.db.quizQuestion.findFirst({
+            where: {
+              id: answer.quizQuestionId,
+            },
+          });
+
+          if (!quizQuestion) {
+            throw new TRPCError({
+              code: 'NOT_FOUND',
+              message: `Quiz question not found with id ${answer.quizQuestionId}`,
+            });
+          }
+
+          const maxScore = quizQuestion.score;
+
+          if (answer.score > maxScore) {
+            throw new TRPCError({
+              code: 'PARSE_ERROR',
+              message: `Score (${answer.score}) exceeds maximum allowed score (${maxScore}) for question id ${answer.quizQuestionId}`,
+            });
+          }
+
+          // Update the score for the specific question
+          await ctx.db.userQuizeAnswer.update({
+            where: {
+              id: existingAnswer.id,
+            },
+            data: {
+              scoreRewared: answer.score,
+            },
+          });
+        }));
+
+        // Calculate totalScore for all userQuizAnswers of the specific quiz template and user
+        const userQuizResponse = await ctx.db.userQuizResponse.findFirst({
           where: {
-            id: existingAnswer.id,
-          },
-          data: {
-            scoreRewared: answer.score,
-          },
-        });
-      }));
-
-
-      // Calculate totalScore for all userQuizAnswers of the specific quiz template and user
-      const user = await ctx.db.userQuizeAnswer.findMany({
-        where: {
-          UserQuizResponse: {
             userId,
             quizTemplateId,
           },
-        },
-      });
+        });
 
-      // Calculate totalScore manually
-      let totalScore = 0;
-      user.forEach(answer => {
-        totalScore += answer.scoreRewared ?? 0;
-      });
+        if (!userQuizResponse) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'User quiz response not found',
+          });
+        }
 
-      // Update totalScore in userQuizResponse
-      const userQuizResponse = await ctx.db.userQuizResponse.findFirst({
-        where: {
-          userId,
-          quizTemplateId,
-        },
-      });
+        const user = await ctx.db.userQuizeAnswer.findMany({
+          where: {
+            UserQuizResponse: {
+              userId,
+              quizTemplateId,
+            },
+          },
+        });
 
-      if (!userQuizResponse) {
+        // Calculate totalScore manually
+        let totalScore = 0;
+        user.forEach(answer => {
+          totalScore += answer.scoreRewared ?? 0;
+        });
+
+        // Update totalScore in userQuizResponse
+        const updatedUserQuizResponse = await ctx.db.userQuizResponse.update({
+          where: {
+            id: userQuizResponse.id,
+          },
+          data: {
+            totalScore,
+          },
+        });
+
+        return updatedUserQuizResponse;
+      } catch (error) {
+        console.error('Error updating user score:', error);
         throw new TRPCError({
-          code: 'NOT_FOUND',
-          message: 'User quiz response not found',
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to update user score',
+          cause: error,
         });
       }
+    }),
 
-      const updatedUserQuizResponse = await ctx.db.userQuizResponse.update({
-        where: {
-          id: userQuizResponse.id,
-        },
-        data: {
-          totalScore,
-        },
-      });
-
-      return updatedUserQuizResponse;
-    } catch (error) {
-      console.error('Error updating user score:', error);
-      throw new TRPCError({
-        code: 'INTERNAL_SERVER_ERROR',
-        message: 'Failed to update user score',
-        cause: error,
-      });
-    }
-  }),
   // Retrieve quiz scores in descending order
   getQuizScores: protectedProcedure
     .input(getQuizScoresSchema)

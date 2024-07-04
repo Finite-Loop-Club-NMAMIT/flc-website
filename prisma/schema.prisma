@@ -326,7 +326,6 @@ model Payment {
   @@unique([userId, razorpayPaymentId])
 }
 
-
 //quize
 model QuizTemplate {
   id        String @id @default(cuid())
@@ -350,8 +349,10 @@ model QuizQuestion {
 
   answerType QuizAnswerType
 
-  QuizeQuestionOption  QuizeQuestionOption[]
-  correctOptionId String?
+  QuizeQuestionOption QuizeQuestionOption[]
+  correctOptionId     String?
+
+  score Int @default(0)
 
   UserQuizeAnswer UserQuizeAnswer[]
 
@@ -382,6 +383,8 @@ model UserQuizeAnswer {
   quizQuestionId String
   QuizQuestion   QuizQuestion @relation(fields: [quizQuestionId], references: [id])
 
+  scoreRewared Int @default(0)
+
   userQuizResponseId String
   UserQuizResponse   UserQuizResponse @relation(fields: [userQuizResponseId], references: [id])
 
@@ -398,7 +401,7 @@ model UserQuizResponse {
   userId String
   user   User   @relation(fields: [userId], references: [id])
 
-  score Int @default(0)
+  totalScore Int @default(0)
 
   UserQuizeAnswer UserQuizeAnswer[]
 

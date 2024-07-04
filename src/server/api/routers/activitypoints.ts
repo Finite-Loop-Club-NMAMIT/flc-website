@@ -20,7 +20,7 @@ export const activityPointsRouter = createTRPCRouter({
                     data: {
                         eventId: eventId,
                         point: points,
-                        name: name, 
+                        name: name,
                     },
                 });
 
@@ -151,7 +151,7 @@ export const activityPointsRouter = createTRPCRouter({
             }
         }),
     //when this hits , it removes all users from activy points and then add the users that r passed
-    updateUsersActivityPointsForActivityPoint: adminProcedure
+    manuallyUpdateUsersActivityPointsForActivityPoint: adminProcedure
         .input(z.object({
             activityPointId: z.string(),
             userIds: z.array(z.string()),

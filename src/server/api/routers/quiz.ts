@@ -11,7 +11,9 @@ import {
   getAllQuizTemplatesByStateSchema,
   submitQuizSchema,
   getQuizScoresSchema,
-} from '~/zod/quizeZ'; // Adjust the import path based on your project structure
+  getTextAnswersForQuiz,
+  addScoreManually,
+} from '~/zod/quizeZ';
 
 export const quizRouter = createTRPCRouter({
   // Create a quiz template
@@ -91,6 +93,7 @@ export const quizRouter = createTRPCRouter({
             correctAnswerText: validatedInput.correctAnswerText,
             answerType: validatedInput.answerType,
             quizTemplateId: validatedInput.quizTemplateId,
+            score: validatedInput.score,
             QuizeQuestionOption: {
               create: (validatedInput.options ?? []).map(option => ({
                 text: option,
@@ -157,6 +160,7 @@ export const quizRouter = createTRPCRouter({
             text: validatedInput.text ?? existingQuestion.text,
             correctAnswerText: validatedInput.correctAnswerText ?? existingQuestion.correctAnswerText,
             answerType: validatedInput.answerType ?? existingQuestion.answerType,
+            score: validatedInput.score ?? existingQuestion.score,
             QuizeQuestionOption: {
               deleteMany: {}, // Remove existing options
               create: (validatedInput.options ?? []).map(option => ({
@@ -290,16 +294,14 @@ export const quizRouter = createTRPCRouter({
         });
       }
     }),
-  //user's quize result
-  userSubmitQuiz: protectedProcedure
+  // Submit quiz answers passing all data at onetime 
+  submitQuizAnswers: protectedProcedure
     .input(submitQuizSchema)
     .mutation(async ({ input, ctx }) => {
-      const { quizTemplateId, answers } = input;
-      const userId = ctx.session.user.id;
-
       try {
+        // Fetch the quiz template and its questions
         const quizTemplate = await ctx.db.quizTemplate.findUnique({
-          where: { id: quizTemplateId },
+          where: { id: input.quizTemplateId },
           include: { QuizQuestion: { include: { QuizeQuestionOption: true } } },
         });
 
@@ -313,53 +315,84 @@ export const quizRouter = createTRPCRouter({
         if (quizTemplate.quizState !== 'LIVE') {
           throw new TRPCError({
             code: 'FORBIDDEN',
-            message: 'Quiz is not in a live state',
+            message: 'Quiz is not live',
           });
         }
 
-        let score = 0;
+        let totalScore = 0;
+        const userAnswers: { quizQuestionId: string; selectedOptionId: string; answerText: string | undefined; scoreRewared: number; }[] = [];
 
+        // Process each answer in parallel for efficiency
+        await Promise.all(input.answers.map(async answer => {
+          const question = quizTemplate.QuizQuestion.find(q => q.id === answer.questionId);
+
+          if (!question) {
+            throw new TRPCError({
+              code: 'BAD_REQUEST',
+              message: `Question with id ${answer.questionId} not found in quiz template`,
+            });
+          }
+
+          let scoreRewared = 0;
+
+          if (question.answerType === 'MCQ') {
+            if (answer.selectedOptionId === question.correctOptionId) {
+              scoreRewared = question.score;
+            }
+          } else if (question.answerType === 'TEXT') {
+            if (answer.answerText && answer.answerText.trim().toLowerCase() === question.correctAnswerText?.trim().toLowerCase()) {
+              scoreRewared = question.score;
+            }
+          }
+
+          // if (question.answerType === 'MCQ') {
+          //   const selectedOption = question.QuizeQuestionOption.find(option => option.id === answer.selectedOptionId);
+          //   if (selectedOption && 'isCorrect' in selectedOption && selectedOption.isCorrect) {
+          //     scoreRewared = question.score;
+          //   }
+          // } else if (question.answerType === 'TEXT') {
+          //   const correctAnswer = question.correctAnswerText?.trim().toLowerCase();
+          //   const userAnswer = answer.answerText?.trim().toLowerCase();
+          //   if (correctAnswer === userAnswer) {
+          //     scoreRewared = question.score;
+          //   }
+          // }
+          totalScore += scoreRewared;
+
+          // Collect user's answers for bulk creation
+          userAnswers.push({
+            quizQuestionId: answer.questionId,
+            selectedOptionId: answer.selectedOptionId,
+            answerText: answer.answerText,
+            scoreRewared: scoreRewared,
+          });
+        }));
+
+        // Create user quiz response with calculated total score and user answers
         const userQuizResponse = await ctx.db.userQuizResponse.create({
           data: {
-            quizTemplateId,
-            userId,
+            quizTemplateId: input.quizTemplateId,
+            userId: ctx.session.user.id,
+            totalScore: totalScore,
             UserQuizeAnswer: {
-              create: answers.map(answer => {
-                const question = quizTemplate.QuizQuestion.find(q => q.id === answer.questionId);
-                let isCorrect = false;
-
-                if (question) {
-                  if (question.answerType === 'MCQ') {
-                    isCorrect = question.correctOptionId === answer.selectedOptionId;
-                  } else if (question.answerType === 'TEXT') {
-                    isCorrect = question.correctAnswerText?.toLowerCase() === answer.answerText?.toLowerCase();
-                  }
-                }
-
-                if (isCorrect) {
-                  score += 1; // Assuming each correct answer gives 1 point
-                }
-
-                return {
-                  quizQuestionId: answer.questionId,
-                  selectedOptionId: answer.selectedOptionId,
-                  answerText: answer.answerText,
-                };
-              }),
+              createMany: {
+                data: userAnswers,
+              },
             },
-            score,
           },
+          include: { UserQuizeAnswer: true },
         });
 
         return userQuizResponse;
       } catch (error) {
-        console.error('User Submit Quiz Error:', error);
+        console.error('Submit Quiz Answers Error:', error);
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
-          message: 'Something went wrong while submitting the quiz',
+          message: 'Something went wrong while submitting quiz answers',
         });
       }
     }),
+
   // Retrieve detailed user quiz results for a specific quiz
   getQuizResultsReviewForUser: protectedProcedure
     .input(getQuizResultsForUserSchema) // Define your input schema if needed
@@ -419,6 +452,17 @@ export const quizRouter = createTRPCRouter({
             quizTemplateId: response.quizTemplateId,
             question: response.UserQuizeAnswer.map(answer => {
               const question = answer.QuizQuestion;
+              let scoreRewared = 0;
+
+              if (question.answerType === 'MCQ') {
+                if (answer.selectedOptionId === question.correctOptionId) {
+                  scoreRewared = question.score;
+                }
+              } else if (question.answerType === 'TEXT') {
+                if (answer.answerText && answer.answerText.trim().toLowerCase() === question.correctAnswerText?.trim().toLowerCase()) {
+                  scoreRewared = question.score;
+                }
+              }
 
               // Handle potential undefined cases
               const formattedAnswer = {
@@ -426,6 +470,8 @@ export const quizRouter = createTRPCRouter({
                 selectedOptionId: answer.selectedOptionId ?? '',
                 correctOptionId: question.correctOptionId ?? '',
                 answerText: answer.answerText ?? null,
+                score: question.score,
+                scoreRewared: scoreRewared,
                 options: question.QuizeQuestionOption.map(option => ({
                   optionId: option.id,
                   text: option.text,
@@ -434,12 +480,10 @@ export const quizRouter = createTRPCRouter({
 
               return formattedAnswer;
             }),
-
           };
         });
-
-
-        const totalScore = userResponses.reduce((acc, response) => acc + response.score, 0);
+        // Calculate totalScore for the user's quiz response
+        const totalScore = userResponses.reduce((acc, response) => acc + (response.totalScore ?? 0), 0);
 
         return {
           quizTemplateId,
@@ -455,10 +499,148 @@ export const quizRouter = createTRPCRouter({
       }
     }),
 
+  //retrive all users text answer to review 
+  getTextAnswersForQuiz: protectedProcedure
+    .input(getTextAnswersForQuiz)
+    .query(async ({ input, ctx }) => {
+      const { quizTemplateId } = input;
 
+      try {
+
+        const userQuizResponses = await ctx.db.userQuizResponse.findMany({
+          where: { quizTemplateId },
+          include: {
+            UserQuizeAnswer: {
+              include: {
+                QuizQuestion: true
+              },
+            },
+            user: true,
+          },
+        });
+
+        // Filter out answers with text type questions
+        const textAnswers = userQuizResponses.flatMap(userQuizResponse =>
+          userQuizResponse.UserQuizeAnswer.filter(answer =>
+            answer.QuizQuestion.answerType === 'TEXT'
+          ).map(answer => ({
+            userId: userQuizResponse.userId,
+            userName: userQuizResponse.user.name,
+            questionId: answer.quizQuestionId,
+            questionText: answer.QuizQuestion.text,
+            answerText: answer.answerText,
+          }))
+        );
+
+        return textAnswers;
+      } catch (error) {
+        console.error('Error fetching text answers:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to fetch text answers',
+          cause: error,
+        });
+      }
+    }),
+
+  // adding score manuvally for text answers after reviewing 
+  addScoreManually: protectedProcedure.input(addScoreManually).mutation(async ({ input, ctx }) => {
+    const { userId, quizTemplateId, userQuizAnswer } = input;
+
+    try {
+      // Find all user quiz answers for the specific quiz template and user
+      const userQuizAnswers = await ctx.db.userQuizeAnswer.findMany({
+        where: {
+          UserQuizResponse: {
+            userId,
+            quizTemplateId,
+          },
+        },
+      });
+
+      if (!userQuizAnswers || userQuizAnswers.length === 0) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'User quiz answers not found',
+        });
+      }
+
+      // Update each userQuizAnswer with the provided score
+      await Promise.all(userQuizAnswer.map(async answer => {
+        const existingAnswer = userQuizAnswers.find(ans => ans.quizQuestionId === answer.quizQuestionId);
+
+        if (!existingAnswer) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: `User quiz answer not found for question id ${answer.quizQuestionId}`,
+          });
+        }
+
+        // Update the score for the specific question
+        await ctx.db.userQuizeAnswer.update({
+          where: {
+            id: existingAnswer.id,
+          },
+          data: {
+            scoreRewared: answer.score,
+          },
+        });
+      }));
+
+
+      // Calculate totalScore for all userQuizAnswers of the specific quiz template and user
+      const user = await ctx.db.userQuizeAnswer.findMany({
+        where: {
+          UserQuizResponse: {
+            userId,
+            quizTemplateId,
+          },
+        },
+      });
+
+      // Calculate totalScore manually
+      let totalScore = 0;
+      user.forEach(answer => {
+        totalScore += answer.scoreRewared ?? 0;
+      });
+
+      // Update totalScore in userQuizResponse
+      const userQuizResponse = await ctx.db.userQuizResponse.findFirst({
+        where: {
+          userId,
+          quizTemplateId,
+        },
+      });
+
+      if (!userQuizResponse) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'User quiz response not found',
+        });
+      }
+
+      const updatedUserQuizResponse = await ctx.db.userQuizResponse.update({
+        where: {
+          id: userQuizResponse.id,
+        },
+        data: {
+          totalScore,
+        },
+      });
+
+      return updatedUserQuizResponse;
+    } catch (error) {
+      console.error('Error updating user score:', error);
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to update user score',
+        cause: error,
+      });
+    }
+  }),
   // Retrieve quiz scores in descending order
   getQuizScores: protectedProcedure
-    .input(getQuizScoresSchema) // Define your input schema if needed
+    .input(getQuizScoresSchema)
     .query(async ({ input, ctx }) => {
       const { quizTemplateId } = input;
 
@@ -466,10 +648,10 @@ export const quizRouter = createTRPCRouter({
         const quizScores = await ctx.db.userQuizResponse.findMany({
           where: { quizTemplateId },
           orderBy: {
-            score: 'desc',
+            totalScore: 'desc',
           },
           include: {
-            user: true, // Assuming you want to include user details with scores
+            user: true,
           },
         });
 

@@ -20,6 +20,7 @@ const createQuizQuestionSchema = z.object({
   quizTemplateId: z.string(),
   options: z.array(z.string()).optional(),
   correctOptionIndex: z.number().optional(),
+  score: z.number().min(0)
 });
 const updateQuizQuestionSchema = z.object({
   questionId: z.string(),
@@ -28,6 +29,7 @@ const updateQuizQuestionSchema = z.object({
   answerType: z.enum(['MCQ', 'TEXT']).optional(),
   options: z.array(z.string()).optional(),
   correctOptionIndex: z.number().optional(),
+  score: z.number().min(0).optional()
 });
 
 
@@ -64,8 +66,36 @@ const getQuizResultsForUserSchema = z.object({
   quizTemplateId: z.string(),
 
 });
+const getTextAnswersForQuiz = z.object({
+  quizTemplateId: z.string(),
+})
+const addScoreManually = z.object({
+  userId: z.string(),
+  quizTemplateId: z.string(),
+  userQuizAnswer: z.array(
+    z.object({
+      quizQuestionId: z.string(),
+      score: z.number().min(0),
+    })
+  )
+})
 
-export { createQuizTemplateSchema, updateQuizTemplateNameSchema, createQuizQuestionSchema, updateQuizQuestionSchema, changeQuizTemplateStateSchema, getQuestionsByQuizTemplateIdSchema, deleteQuestionFromQuizTemplateSchema, getAllQuizTemplatesByStateSchema, submitQuizSchema, getQuizScoresSchema, getQuizResultsForUserSchema };
+export {
+  addScoreManually,
+  getTextAnswersForQuiz,
+  createQuizTemplateSchema,
+  updateQuizTemplateNameSchema,
+  createQuizQuestionSchema,
+  updateQuizQuestionSchema,
+  changeQuizTemplateStateSchema,
+  getQuestionsByQuizTemplateIdSchema,
+  deleteQuestionFromQuizTemplateSchema,
+  getAllQuizTemplatesByStateSchema,
+  submitQuizSchema,
+  getQuizScoresSchema,
+  getQuizResultsForUserSchema
+};
+
 
 
 

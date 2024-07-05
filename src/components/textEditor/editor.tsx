@@ -9,12 +9,15 @@ const ReactQuill = dynamic(() => import("react-quill"), {
 });
 
 
+
 export default function Editor({ eventId }: { eventId?: string }) {
   const [text, setText] = useState("");
   const addEventDescription = api.event.updateEvent.useMutation();
 
   const [displayWidth, setDisplayWidth] = useState(0);
   const [displayHeight, setDisplayHeight] = useState(0);
+
+  const [preview, setPreview] = useState(false);
 
   const onChange = (text: string) => {
     setText(text);
@@ -66,38 +69,60 @@ export default function Editor({ eventId }: { eventId?: string }) {
     });
   };
 
+  const handleToggle = () => {
+    setPreview(!preview);
+  };
+
   return (
     <>
-      <ReactQuill
-        theme="snow"
-        placeholder="Type here"
-        value={text}
-        onChange={onChange}
-        modules={modules}
-      />
-      <div className="m-auto">
-        <button
-          onClick={onConfirmEdit}
-          className="m-2 content-center rounded-md bg-slate-200 p-3"
-        >
-          Confirm Edit
-        </button>
+      <div className="mt-12 ">
+        <ReactQuill
+          theme="snow"
+          placeholder="Type here"
+          value={text}
+          onChange={onChange}
+          modules={modules}
+          className=" md:2/3 m-3 w-full sm:m-3 sm:mx-3   md:m-auto lg:m-auto lg:w-1/2"
+        />
+        <div className="md:2/3 flex w-full justify-between  mx-3 md:m-auto lg:m-auto  lg:w-1/2 ">
+          <form className="md m-3 ml-0 rounded bg-slate-200 p-3">
+            <label htmlFor="toggle">Preview content in other devices</label>
+            <input
+              type="checkbox"
+              name="toggle"
+              onClick={handleToggle}
+              id="toggle"
+              className="m-2 bg-slate-800"
+            />
+          </form>
+          <button
+            onClick={onConfirmEdit}
+            className="m-3 mr-0 content-center rounded-md bg-slate-200 p-3"
+          >
+            Confirm Edit
+          </button>
+        </div>
       </div>
 
-      <div className="m-auto mb-6 flex h-fit w-fit justify-center rounded-md bg-slate-200 p-4">
-        <div>
-          <select name="device" id="device" onChange={handleChange}>
-            {devices.map((device, index) => (
-              <option value={device[0]} key={index}>
-                {device[0]}
-              </option>
-            ))}
-          </select>
+      {preview && (
+        <div className="m-auto mb-6 flex h-fit w-fit justify-center rounded-md bg-slate-200 p-4">
+          <div>
+            <select name="device" id="device" onChange={handleChange}>
+              {devices.map((device, index) => (
+                <option value={device[0]} key={index}>
+                  {device[0]}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <p className="ms-6">
+              w*h = {displayWidth} * {displayHeight}
+            </p>
+          </div>
         </div>
-        <p className="ms-6">
-          w*h = {displayWidth} * {displayHeight}
-        </p>
-      </div>
+      )}
 
       <Helmet>
         <link
@@ -106,15 +131,13 @@ export default function Editor({ eventId }: { eventId?: string }) {
         />
       </Helmet>
 
-      {true && (
-        <div>
-          <div
-            dangerouslySetInnerHTML={{ __html: text }}
-            id="display"
-            className="ql-editor m-auto mb-16 h-screen w-4/5 resize overflow-auto rounded-sm border border-4"
-            onMouseDown={setSizeOfDisplay}
-          ></div>
-        </div>
+      {preview && (
+        <div
+          dangerouslySetInnerHTML={{ __html: text }}
+          id="display"
+          className="ql-editor m-auto mb-16 h-screen w-4/5 resize overflow-auto rounded-sm border border-4"
+          onMouseDown={setSizeOfDisplay}
+        ></div>
       )}
     </>
   );

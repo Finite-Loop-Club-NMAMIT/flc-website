@@ -6,8 +6,8 @@ generator client {
 }
 
 datasource db {
-  // provider = "cockroachdb"
-  provider = "postgresql"
+  provider = "cockroachdb"
+  // provider = "postgresql"
   // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
   // Further reading:
   // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
@@ -52,7 +52,6 @@ model User {
   Answer       Answer[]
   UserFeedback UserFeedback[]
 
-  UserQuizResponses UserQuizResponse[]
 
   updatedAt         DateTime            @updatedAt()
   createdAt         DateTime            @default(now())
@@ -326,88 +325,7 @@ model Payment {
   @@unique([userId, razorpayPaymentId])
 }
 
-//quize
-model QuizTemplate {
-  id        String @id @default(cuid())
-  title     String
-  timeLimit Int
 
-  quizState    QuizState      @default(DRAFT)
-  QuizQuestion QuizQuestion[]
-
-  UserQuizResponse UserQuizResponse[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt()
-}
-
-model QuizQuestion {
-  id String @id @default(cuid())
-
-  text              String
-  correctAnswerText String?
-
-  answerType QuizAnswerType
-
-  QuizeQuestionOption QuizeQuestionOption[]
-  correctOptionId     String?
-
-  score Int @default(0)
-
-  UserQuizeAnswer UserQuizeAnswer[]
-
-  quizTemplateId String
-  QuizTemplate   QuizTemplate @relation(fields: [quizTemplateId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt()
-}
-
-model QuizeQuestionOption {
-  id   String @id @default(cuid())
-  text String
-
-  quizQuestionId String
-  QuizQuestion   QuizQuestion @relation(fields: [quizQuestionId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt()
-}
-
-model UserQuizeAnswer {
-  id         String  @id @default(cuid())
-  answerText String?
-
-  selectedOptionId String?
-
-  quizQuestionId String
-  QuizQuestion   QuizQuestion @relation(fields: [quizQuestionId], references: [id])
-
-  scoreRewared Int @default(0)
-
-  userQuizResponseId String
-  UserQuizResponse   UserQuizResponse @relation(fields: [userQuizResponseId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt()
-}
-
-model UserQuizResponse {
-  id String @id @default(cuid())
-
-  quizTemplateId String
-  QuizTemplate   QuizTemplate @relation(fields: [quizTemplateId], references: [id])
-
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
-
-  totalScore Int @default(0)
-
-  UserQuizeAnswer UserQuizeAnswer[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt()
-}
 
 // Enumerations
 enum Role {
@@ -465,13 +383,3 @@ enum VerificationType {
   EMAIL_VERIFICATION
 }
 
-enum QuizState {
-  DRAFT
-  LIVE
-  COMPLETED
-}
-
-enum QuizAnswerType {
-  TEXT
-  MCQ
-}

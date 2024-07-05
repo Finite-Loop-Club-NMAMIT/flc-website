@@ -11,7 +11,6 @@ import { organisorRouter } from "./routers/organiser";
 import { branchRouter } from "./routers/branch";
 import { userLinkRouter } from "./routers/userLink";
 import { payment } from "./routers/payment";
-import { quizRouter } from "./routers/quiz";
 
 /**
  * This is the primary router for your server.
@@ -31,7 +30,7 @@ export const appRouter = createTRPCRouter({
   branch: branchRouter,
   userLink: userLinkRouter,
   payment: payment,
-  quiz: quizRouter
+
 });
 
 // export type definition of API

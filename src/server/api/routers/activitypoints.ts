@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { adminProcedure, createTRPCRouter, protectedProcedure, } from "../trpc";
 import { TRPCError } from "@trpc/server";
-import { sendActivityPointsUpdateEmail } from "~/utils/nodemailer/nodemailer";
 
 
 export const activityPointsRouter = createTRPCRouter({
@@ -125,11 +124,6 @@ export const activityPointsRouter = createTRPCRouter({
                             select: {
                                 id: true,
                                 point: true,
-                                Event: {
-                                    select: {
-                                        name: true,
-                                    },
-                                },
                                 User: {
                                     select: {
                                         id: true,
@@ -158,7 +152,6 @@ export const activityPointsRouter = createTRPCRouter({
                                         },
                                     },
                                 });
-                                await sendActivityPointsUpdateEmail(user.email, user.name, activityPoint.point, activityPoint.Event?.name ?? "");
                             }
 
                             // Add activity points to totalActivityPoints
@@ -166,8 +159,8 @@ export const activityPointsRouter = createTRPCRouter({
                         }
 
                     }
-                    console.log(totalActivityPoints);
-
+                               console.log(totalActivityPoints);
+                               
                     // Update the user's totalActivityPoints
                     await ctx.db.user.update({
                         where: {

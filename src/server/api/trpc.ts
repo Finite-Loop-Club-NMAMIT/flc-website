@@ -139,8 +139,11 @@ export const adminProcedure = t.procedure.use(({ ctx, next }) => {
     throw new TRPCError({ code: "UNAUTHORIZED" });
   }
 
-  if (ctx.session.user.role !== 'ADMIN') {
-    throw new TRPCError({ code: "FORBIDDEN", message: "You do not have sufficient privileges to access this resource." });
+  if (ctx.session.user.role !== "ADMIN") {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "You do not have sufficient privileges to access this resource.",
+    });
   }
 
   return next({

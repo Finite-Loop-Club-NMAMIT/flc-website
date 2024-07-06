@@ -1,23 +1,9 @@
-
-import { createTRPCRouter,protectedProcedure } from "../trpc";
-import {z} from "zod"
-
-
-const createType = z.object({
-  userId: z.string(),  
-  razorpay_payment_id: z.string(),
-  razorpay_order_id: z.string(),
-  razorpay_signature:z.string(),
-  payment_name: z.string(),
-});
+import { createPaymentZ } from "~/zod/paymentZ";
+import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const payment = createTRPCRouter({
-  getAllPayments: protectedProcedure.query(async ({ ctx }) => {
-    return await ctx.db.payment.findMany();
-  }),
-
   createPayment: protectedProcedure
-    .input(createType)
+    .input(createPaymentZ)
     .mutation(async ({ ctx, input }) => {
       return await ctx.db.payment.create({
         data: {

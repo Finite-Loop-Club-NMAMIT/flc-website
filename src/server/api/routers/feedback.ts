@@ -1,254 +1,127 @@
-import { z } from 'zod';
-import { adminProcedure, createTRPCRouter, protectedProcedure } from '../trpc';
-import { TRPCError } from "@trpc/server";
-import {  createFeedbackTemplateSchema, createQuestionSchema, getQuestionsByFeedbackTemplateIdSchema, publishFeedbackTempleteSchema, submitFeedbackSchema, updateQuestionSchema } from '~/zod/feedbackZ';
-import { findTemplateAndCheckQuestions } from '~/utils/helper';
-
+import {
+  createFeedbackTemplateZ,
+  deleteFeedbackTemplateZ,
+  editFeedbackTemplateZ,
+  getFeedbackTemplateZ,
+  responseForEventZ,
+  submitFeedbackZ,
+  toggleTemplateStateZ,
+} from "~/zod/feedbackZ";
+import { createTRPCRouter, protectedProcedure } from "../trpc";
+import { checkOrganiser } from "~/utils/helper";
 
 export const feedbackRouter = createTRPCRouter({
+  createFeedbackTemplate: protectedProcedure
+    .input(createFeedbackTemplateZ)
+    .mutation(async ({ ctx, input }) => {
+      await checkOrganiser(
+        ctx.session.user.id,
+        input.eventId,
+        ctx.session.user.role,
+      );
 
-  // Create a feedback template for a specific event(amind)
-  createFeedbackTemplate: adminProcedure
-    .input(createFeedbackTemplateSchema)
-    .mutation(async ({ input, ctx }) => {
-      try {
-        const feedbackTemplate = await ctx.db.feedbackTemplate.create({
-          data: {
-            eventId: input.eventId,
-          },
-        });
-        return feedbackTemplate;
-      } catch (error) {
-        console.error('Create FeedbackTemplate Error:', error);
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Something went wrong while creating feedback template',
-        });
-      }
+      return await ctx.db.feedbackTemplate.create({
+        data: {
+          ...input,
+        },
+      });
     }),
 
-
-  // Add a question to a feedback template
-  addQuestionToFeedbackTemplate: adminProcedure
-    .input(createQuestionSchema)
-    .mutation(async ({ input, ctx }) => {
-      try {
-        const question = await ctx.db.question.create({
-          data: {
-            qs: input.qs,
-            answerType: input.answerType,
-            feedbackTemplateId: input.feedbackTemplateId,
-          },
-        });
-        return question;
-      } catch (error) {
-        console.error('Add Question Error:', error);
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Something went wrong while adding question',
-        });
-      }
+  editFeedbackTemplate: protectedProcedure
+    .input(editFeedbackTemplateZ)
+    .mutation(async ({ ctx, input }) => {
+      await checkOrganiser(
+        ctx.session.user.id,
+        input.eventId,
+        ctx.session.user.role,
+      );
+      return await ctx.db.feedbackTemplate.update({
+        where: {
+          id: input.id,
+        },
+        data: {
+          ...input,
+        },
+      });
     }),
 
-  // Update a question in a feedback template
-  updateQuestionInFeedbackTemplate: adminProcedure
-    .input(updateQuestionSchema)
-    .mutation(async ({ input, ctx }) => {
-      try {
-        const updatedQuestion = await ctx.db.question.update({
-          where: { id: input.questionId },
-          data: {
-            qs: input.qs,
-            answerType: input.answerType,
-          },
-        });
-        return updatedQuestion;
-      } catch (error) {
-        console.error('Update Question Error:', error);
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Something went wrong while updating question',
-        });
-      }
+  deleteFeedbackTemplate: protectedProcedure
+    .input(deleteFeedbackTemplateZ)
+    .mutation(async ({ ctx, input }) => {
+      await checkOrganiser(
+        ctx.session.user.id,
+        input.eventId,
+        ctx.session.user.role,
+      );
+
+      return await ctx.db.feedbackTemplate.delete({
+        where: {
+          id: input.templateId,
+        },
+      });
     }),
 
+  toggleTemplateState: protectedProcedure
+    .input(toggleTemplateStateZ)
+    .mutation(async ({ ctx, input }) => {
+      await checkOrganiser(
+        ctx.session.user.id,
+        input.eventId,
+        ctx.session.user.role,
+      );
 
-  // Delete a question from a feedback template
-  deleteQuestionFromFeedbackTemplate: adminProcedure
-    .input(z.string())
-    .mutation(async ({ input, ctx }) => {
-      try {
-        await ctx.db.question.delete({
-          where: { id: input },
-        });
-        return { success: true };
-      } catch (error) {
-        console.error('Delete Question Error:', error);
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Something went wrong while deleting question',
-        });
-      }
+      return await ctx.db.feedbackTemplate.update({
+        where: {
+          id: input.templateId,
+        },
+        data: {
+          templateState: input.state,
+        },
+      });
     }),
 
-  //get all question of perticular FeedbackTemplete
-  getQuestionsByFeedbackTemplateId: adminProcedure
-    .input(getQuestionsByFeedbackTemplateIdSchema)
-    .query(async ({ input, ctx }) => {
-      try {
-        const questions = await ctx.db.question.findMany({
-          where: { feedbackTemplateId: input.feedbackTemplateId },
-        });
-        return questions;
-      } catch (error) {
-        console.error('Get Questions Error:', error);
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Something went wrong while fetching questions',
-        });
-      }
+  getFeedbackTemplate: protectedProcedure
+    .input(getFeedbackTemplateZ)
+    .query(async ({ ctx, input }) => {
+      return await ctx.db.feedbackTemplate.findUnique({
+        where: {
+          id: input.templateId,
+        },
+      });
     }),
 
-
-  //Publish and Draft FeedbackTemplete of perticular event
-  publishAndDraftFeedbackTemplete: adminProcedure.input(publishFeedbackTempleteSchema).mutation(async ({ input, ctx }) => {
-    const { id, templateState } = input;
-    await findTemplateAndCheckQuestions(id); //checking  if question exists in Templete or not
-    const updatedTemplate = await ctx.db.feedbackTemplate.update({
-      where: { id },
-      data: { templateState },
-    });
-
-    return updatedTemplate;
-  }),
-
-
-  //get All Published FeedbackTemplets with questions 
-  getAllPublishedFeedbackTemplatesWithQuestions: protectedProcedure
-    .query(async ({ ctx }) => {
-      try {
-        const feedbackTemplates = await ctx.db.feedbackTemplate.findMany({
-          where: { templateState: 'PUBLISHED' },
-          include: {
-            Questions: true,
-          },
-        });
-        return feedbackTemplates;
-      } catch (error) {
-        console.error('Get All Feedback Templates Error:', error);
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Something went wrong while fetching feedback templates',
-        });
-      }
+  submitFeedback: protectedProcedure
+    .input(submitFeedbackZ)
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.userFeedback.create({
+        data: {
+          Answers: input.answers,
+          userId: input.userId,
+          feedbackTemplateId: input.templateId,
+        },
+      });
     }),
-  // submit user feedback with there answers
-  submitUserFeedback: protectedProcedure
-    .input(submitFeedbackSchema)
-    .mutation(async ({ input, ctx }) => {
-      try {
-        const userId = ctx.session.user.id;
-        const { feedbackTemplateId, answers } = input;
 
-        // Check if UserFeedback already exists
-        let userFeedback = await ctx.db.userFeedback.findFirst({
-          where: {
-            userId: userId,
-            feedbackTemplateId: feedbackTemplateId,
-          },
-        });
+  getResponseForTemplate: protectedProcedure
+    .input(responseForEventZ)
+    .query(async ({ ctx, input }) => {
+      await checkOrganiser(
+        ctx.session.user.id,
+        input.eventId,
+        ctx.session.user.role,
+      );
 
-        // Create UserFeedback entry if it doesn't exist
-        if (!userFeedback) {
-          userFeedback = await ctx.db.userFeedback.create({
-            data: {
-              userId: userId,
-              feedbackTemplateId: feedbackTemplateId,
+      return await ctx.db.feedbackTemplate.findUnique({
+        where: {
+          id: input.templateId,
+        },
+        include: {
+          UserFeedback: {
+            include: {
+              User: true,
             },
-          });
-        }
-
-        // Create or update Answer entries and link them to UserFeedback
-        for (const answer of answers) {
-          await ctx.db.answer.create({
-            data: {
-              questionId: answer.questionId,
-              ans: answer.ans,
-              userId: userId,
-              userFeedbackUserId: userFeedback.userId,
-              userFeedbackFeedbackTemplateId: userFeedback.feedbackTemplateId,
-            },
-          });
-        }
-
-        return { success: true };
-      } catch (error) {
-        console.error('Submit Feedback Error:', error);
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Something went wrong while submitting feedback',
-          cause: error,
-        });
-      }
-    }),
-
-  // View all feedback templates for an event ()check
-  viewUserFeedbackResponceForEvent: adminProcedure
-    .input(z.string())
-    .query(async ({ input, ctx }) => {
-      try {
-        const feedbackTemplates = await ctx.db.feedbackTemplate.findMany({
-          where: { eventId: input },
-          include: {
-            Questions: {
-              include: {
-                Answer: true
-              }
-            },
-          }
-        });
-        return feedbackTemplates;
-      } catch (error) {
-        console.error('View FeedbackTemplates Error:', error);
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Something went wrong while fetching feedback templates',
-        });
-      }
-    }),
-
-
-
-  //  Delete a feedback template
-  deleteFeedbackTemplate: adminProcedure
-    .input(z.string())
-    .mutation(async ({ input, ctx }) => {
-      try {
-        const templateToDelete = await ctx.db.feedbackTemplate.delete({
-          where: { id: input },
-        });
-        if (!templateToDelete) {
-          throw new TRPCError({
-            code: 'NOT_FOUND',
-            message: 'FeedbackTemplate not found',
-          });
-        }
-
-        if (templateToDelete.templateState === 'PUBLISHED') {
-          throw new TRPCError({
-            code: 'BAD_REQUEST',
-            message: 'Cannot delete a template in "PUBLISHED" state',
-          });
-        }
-        return { success: true };
-      } catch (error) {
-        console.error('Delete FeedbackTemplate Error:', error);
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'Something went wrong while deleting feedback template',
-        });
-      }
+          },
+        },
+      });
     }),
 });
-
-

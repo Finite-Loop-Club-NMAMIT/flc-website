@@ -1,211 +1,215 @@
-import { createTRPCRouter, protectedProcedure, publicProcedure, } from "../trpc"
-import { TRPCError } from '@trpc/server';
-import { sendCertificate } from "~/utils/certificationEmail/email";
+/*eslint-disable*/
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import { TRPCError } from "@trpc/server";
+import {
+  getAllCertificationsByUserIdZ,
+  getCertificationDetailsByIdZ,
+  issueCertificateByEventIdZ,
+} from "~/server/schema/zod-schema";
 import { checkOrganiser, findEventIfExistById } from "~/utils/helper";
-import { getAllCertificationsByUserIdZ, getCertificationDetailsByIdZ, issueCertificateByEventIdZ } from "~/zod/certificateZ";
-
+import { sendCertificationIsuueForEmail } from "~/utils/nodemailer/nodemailer";
 
 export const certificateRouter = createTRPCRouter({
-    // when this endpoint hits , it will search for  winners of that event , and create certificate for then , issuedate is now() ,
-    //  and certificate type=winnertype    and also issuess certificate for participents
-    issueCertificatesForWinnersAndParticipants: protectedProcedure
-        .input(issueCertificateByEventIdZ)
-        .mutation(async ({ input, ctx }) => {
-            const { eventId } = input;
-            const userId = ctx.session.user.id;
+  // when this endpoint hits , it will search for  winners of that event , and create certificate for then , issuedate is now() ,
+  //  and certificate type=winnertype    and also issues certificate for participents
+  issueCertificatesForWinnersAndParticipants: protectedProcedure
+    .input(issueCertificateByEventIdZ)
+    .mutation(async ({ input, ctx }) => {
+      const { eventId } = input;
+      const userId = ctx.session.user.id;
 
-            await checkOrganiser(userId, input.eventId);
-            try {
-                // Check if the event exists
-                const event = await findEventIfExistById(eventId);
+      await checkOrganiser(userId, input.eventId, ctx.session.user.role);
+      try {
+        // Check if the event exists
+        const event = await findEventIfExistById(eventId);
 
-                // Fetch winners of the event
-                const winners = await ctx.db.winner.findMany({
-                    where: { eventId },
-                    include: {
-                        Team: {
-                            include: { Members: { select: { id: true, name: true, email: true } } }, // include email
-                        },
-                    },
+        // Fetch winners of the event
+        const winners = await ctx.db.winner.findMany({
+          where: { eventId },
+          include: {
+            Team: {
+              include: {
+                Members: { select: { id: true, name: true, email: true } },
+              }, // include email
+            },
+          },
+        });
+
+        if (winners.length === 0) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "No winners found for this event",
+          });
+        }
+
+        // Create certificates for each winner and send email
+        await Promise.all(
+          winners.map(async (winner) => {
+            const certificates = await ctx.db.certificate.createMany({
+              data: winner.Team.Members.map((member) => ({
+                issuedOn: new Date(),
+                certificateType: winner.winnerType,
+                userId: member.id,
+                eventId: event.id,
+              })),
+            });
+
+            // Send email to each team member
+            await Promise.all(
+              winner.Team.Members.map((member) =>
+                sendCertificationIsuueForEmail(
+                  member.email,
+                  winner.winnerType,
+                  event.name,
+                  member.name,
+                ),
+              ),
+            );
+
+            return certificates;
+          }),
+        );
+
+        try {
+          // Fetch teams that are confirmed and have attended
+          const teams = await ctx.db.team.findMany({
+            where: { eventId, isConfirmed: true, hasAttended: true },
+            include: {
+              Members: { select: { id: true, name: true, email: true } },
+            }, // include email
+          });
+
+          if (teams.length === 0) {
+            throw new TRPCError({
+              code: "NOT_FOUND",
+              message: "No participants found for this event",
+            });
+          }
+
+          // Get all existing certificates for this event
+          const existingCertificates = await ctx.db.certificate.findMany({
+            where: { eventId },
+          });
+          // Extract userIds from existing certificates
+          const existingUserEventIds = existingCertificates.map(
+            (cert) => cert.userId,
+          );
+
+          // Create certificates for each participant who does not have one yet
+          const certificates = [];
+
+          // Iterate through each team and its members
+          for (const team of teams) {
+            for (const member of team.Members) {
+              // Check if the member already has a certificate for this event
+              if (!existingUserEventIds.includes(member.id)) {
+                // If member does not have a certificate, create one
+                const certificate = await ctx.db.certificate.create({
+                  data: {
+                    issuedOn: new Date(),
+                    certificateType: "PARTICIPATION",
+                    userId: member.id,
+                    eventId: event.id,
+                  },
                 });
+                certificates.push(certificate);
 
-                if (winners.length === 0) {
-                    throw new TRPCError({
-                        code: 'NOT_FOUND',
-                        message: 'No winners found for this event',
-                    });
-                }
-
-                // Create certificates for each winner and send email
-                await Promise.all(
-                    winners.map(async (winner) => {
-                        const certificates = await ctx.db.certificate.createMany({
-                            data: winner.Team.Members.map((member) => ({
-                                issuedOn: new Date(),
-                                certificateType: winner.winnerType,
-                                userId: member.id,
-                                eventId: event.id,
-                            })),
-                        });
-
-                        // Send email to each winners(alltype)team member
-                        await Promise.all(
-                            winner.Team.Members.map((member) =>
-                                sendCertificate(
-                                    member.name,
-                                    event.name,
-                                    member.email,
-                                    "Topperformer",
-                                    winner.winnerType,
-                                )
-                            )
-                        );
-
-                        return certificates;
-                    })
+                // Send email to the participant
+                await sendCertificationIsuueForEmail(
+                  member.email,
+                  "PARTICIPATION",
+                  event.name,
+                  member.name,
                 );
-
-                try {
-                    // Fetch teams that are confirmed and have attended
-                    const teams = await ctx.db.team.findMany({
-                        where: { eventId, isConfirmed: true, hasAttended: true },
-                        include: { Members: { select: { id: true, name: true, email: true } } }, // include email
-                    });
-
-                    if (teams.length === 0) {
-                        throw new TRPCError({
-                            code: 'NOT_FOUND',
-                            message: 'No participants found for this event But winners certification are isuued',
-                        });
-                    }
-
-                    // Get all existing certificates for this event
-                    const existingCertificates = await ctx.db.certificate.findMany({
-                        where: { eventId },
-                    });
-
-                    // Extract userIds from existing certificates
-                    const existingUserEventIds = existingCertificates.map(cert => cert.userId);
-
-                    // Create certificates for each participant who does not have one yet
-                    const certificates = [];
-
-                    // Iterate through each team and its members
-                    for (const team of teams) {
-                        for (const member of team.Members) {
-                            // Check if the member already has a certificate for this event
-                            if (!existingUserEventIds.includes(member.id)) {
-                                // If member does not have a certificate, create one
-                                const certificate = await ctx.db.certificate.create({
-                                    data: {
-                                        issuedOn: new Date(),
-                                        certificateType: 'PARTICIPATION',
-                                        userId: member.id,
-                                        eventId: event.id,
-                                    },
-                                });
-                                certificates.push(certificate);
-
-                                // Send email to the participant team
-                                await sendCertificate(
-                                    member.name,
-                                    event.name,
-                                    member.email,
-                                    "Participation",
-
-                                )
-                            }
-                        }
-                    }
-                } catch (error) {
-                    if (error instanceof TRPCError) {
-                        throw error;
-                    } else {
-                        throw new TRPCError({
-                            code: 'INTERNAL_SERVER_ERROR',
-                            message: 'An error occurred while issuing Participation certificates',
-                        });
-                    }
-                }
-
-                return { success: true };
-            } catch (error) {
-                if (error instanceof TRPCError) {
-                    throw error;
-                } else {
-                    throw new TRPCError({
-                        code: 'INTERNAL_SERVER_ERROR',
-                        message: 'An error occurred while issuing certificates',
-                    });
-                }
+              }
             }
-        }),
-    // Endpoint to get certification details by certification ID
-    getCertificationDetailsById: publicProcedure
-        .input(getCertificationDetailsByIdZ)
-        .query(async ({ input, ctx }) => {
-            const { certificateId } = input;
+          }
+        } catch (error) {
+          if (error instanceof TRPCError) {
+            throw error;
+          } else {
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message:
+                "An error occurred while issuing Participation certificates",
+            });
+          }
+        }
 
-            try {
-                const certificate = await ctx.db.certificate.findUnique({
-                    where: { id: certificateId },
-                    include: { Event: true, User: true }
-                });
+        return { success: true };
+      } catch (error) {
+        if (error instanceof TRPCError) {
+          throw error;
+        } else {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "An error occurred while issuing certificates",
+          });
+        }
+      }
+    }),
+  // Endpoint to get certification details by certification ID
+  getCertificationDetailsById: publicProcedure
+    .input(getCertificationDetailsByIdZ)
+    .query(async ({ input, ctx }) => {
+      const { certificateId } = input;
 
-                if (!certificate) {
-                    throw new TRPCError({
-                        code: 'NOT_FOUND',
-                        message: 'Certificate not found',
-                    });
-                }
-                return certificate;
-            } catch (error) {
-                if (error instanceof TRPCError) {
-                    throw error;
-                } else {
-                    throw new TRPCError({
-                        code: 'INTERNAL_SERVER_ERROR',
-                        message: 'An error occurred while fetching the certificate details',
-                    });
-                }
-            }
-        }),
+      try {
+        const certificate = await ctx.db.certificate.findUnique({
+          where: { id: certificateId },
+          include: { Event: true, User: true },
+        });
 
-    // Endpoint to get all certifications of a particular user
-    getAllCertificationsByUserId: publicProcedure
-        .input(getAllCertificationsByUserIdZ)
-        .query(async ({ input, ctx }) => {
-            const { userId } = input;
+        if (!certificate) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "Certificate not found",
+          });
+        }
+        return certificate;
+      } catch (error) {
+        if (error instanceof TRPCError) {
+          throw error;
+        } else {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "An error occurred while fetching the certificate details",
+          });
+        }
+      }
+    }),
 
-            try {
-                const certificates = await ctx.db.certificate.findMany({
-                    where: { userId },
-                    include: { Event: true }
-                });
+  // Endpoint to get all certifications of a particular user
+  getAllCertificationsByUserId: publicProcedure
+    .input(getAllCertificationsByUserIdZ)
+    .query(async ({ input, ctx }) => {
+      const { userId } = input;
 
-                if (certificates.length === 0) {
-                    throw new TRPCError({
-                        code: 'NOT_FOUND',
-                        message: 'No certificates found for this user',
-                    });
-                }
-                return certificates;
-            } catch (error) {
-                if (error instanceof TRPCError) {
-                    throw error;
-                } else {
-                    throw new TRPCError({
-                        code: 'INTERNAL_SERVER_ERROR',
-                        message: 'An error occurred while fetching the certificates',
-                    });
-                }
-            }
-        }),
+      try {
+        const certificates = await ctx.db.certificate.findMany({
+          where: { userId },
+          include: { Event: true },
+        });
+
+        if (certificates.length === 0) {
+          throw new TRPCError({
+            code: "NOT_FOUND",
+            message: "No certificates found for this user",
+          });
+        }
+        return certificates;
+      } catch (error) {
+        if (error instanceof TRPCError) {
+          throw error;
+        } else {
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "An error occurred while fetching the certificates",
+          });
+        }
+      }
+    }),
 });
-
-
-
-
 
 // issueCertificatesForParticipants:---> code logic
 
@@ -240,4 +244,3 @@ export const certificateRouter = createTRPCRouter({
 
 // Add the newly created certificates to the certificates array
 // Example: After processing all teams and members, certificates array will contain the newly created certificates
-

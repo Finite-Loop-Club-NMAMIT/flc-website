@@ -1,309 +1,205 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "cockroachdb"
-  // NOTE: When using mysql or sqlserver, uncomment the @db.Text annotations in model Account below
-  // Further reading:
-  // https://next-auth.js.org/adapters/prisma#create-the-prisma-schema
-  // https://www.prisma.io/docs/reference/api-reference/prisma-schema-reference#string
+  provider = "postgres"
   url      = env("DATABASE_URL")
 }
 
-// Necessary for Next auth
-// Authentication
 model User {
-  id            String    @id @default(cuid())
-  name          String
-  // College email will allow for verification
-  email         String    @unique
-  emailVerified DateTime?
-  image         String?
-
-  // Manually Added
-  password String
-  phone    String
-  bio      String?
-  year     String
-
-  role     Role    @default(USER)
-  position String?
-
-  branchId String
-  Branch   Branch @relation(fields: [branchId], references: [id])
-
-  UserLink UserLink[]
-
-  totalActivityPoints Int             @default(0)
-  ActivityPoint       ActivityPoint[]
-
-  Organiser Organiser[]
-
-  Team Team[]
-
-  Attendence Attendence[]
-
-  Certificate  Certificate[]
-  Answer       Answer[]
-  UserFeedback UserFeedback[]
-
-  updatedAt         DateTime            @updatedAt()
-  createdAt         DateTime            @default(now())
-  RefreshToken      RefreshToken[]
-  VerificationToken VerificationToken[]
-  Payment           Payment[]
+  id                  String              @id @default(cuid())
+  name                String
+  email               String              @unique
+  emailVerified       DateTime?
+  image               String?
+  password            String
+  phone               String
+  bio                 String?
+  year                String
+  role                Role                @default(USER)
+  position            String?
+  branchId            String
+  totalActivityPoints Int                 @default(0)
+  updatedAt           DateTime            @updatedAt
+  createdAt           DateTime            @default(now())
+  Attendance          Attendance[]
+  Certificate         Certificate[]
+  Organiser           Organiser[]
+  Payment             Payment[]
+  RefreshToken        RefreshToken[]
+  Branch              Branch              @relation(fields: [branchId], references: [id])
+  UserFeedback        UserFeedback[]
+  UserLink            UserLink[]
+  VerificationToken   VerificationToken[]
+  ActivityPoint       ActivityPoint[]     @relation("ActivityPointToUser")
+  Team                Team[]              @relation("TeamToUser")
 }
 
 model VerificationToken {
-  id String @id @unique @default(cuid())
-
-  revoked Boolean          @default(false)
-  type    VerificationType @default(EMAIL_VERIFICATION)
-
-  userId String
-  User   User   @relation(fields: [userId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id        String           @id @unique @default(cuid())
+  revoked   Boolean          @default(false)
+  type      VerificationType @default(EMAIL_VERIFICATION)
+  userId    String
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  User      User             @relation(fields: [userId], references: [id])
 }
 
 model RefreshToken {
-  id          String  @id @unique
+  id          String   @id @unique
   hashedToken String
-  revoked     Boolean @default(false)
-
-  userId String
-  User   User   @relation(fields: [userId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  revoked     Boolean  @default(false)
+  userId      String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  User        User     @relation(fields: [userId], references: [id])
 
   @@index([userId])
 }
 
-// End of NextAuth
-
-// Models
-
-// User related models
 model UserLink {
-  id       String @id @default(cuid())
-  linkName String
-  url      String
-
-  userId String?
-  User   User?   @relation(fields: [userId], references: [id])
-
-  updatedAt DateTime @updatedAt()
+  id        String   @id @default(cuid())
+  linkName  String
+  url       String
+  userId    String?
+  updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
+  User      User?    @relation(fields: [userId], references: [id])
 }
 
 model Branch {
-  id   String @id @default(cuid())
-  name String
-
-  User User[]
-
-  updatedAt DateTime @updatedAt()
+  id        String   @id @default(cuid())
+  name      String
+  updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
+  User      User[]
 }
 
 model ActivityPoint {
-  id    String  @id @default(cuid())
-  point Int
-  name  String? @default("Event")
-
-  eventId String?
-  Event   Event?  @relation(fields: [eventId], references: [id])
-
-  User User[]
-
-  updatedAt DateTime @updatedAt()
+  id        String   @id @default(cuid())
+  point     Int
+  name      String?  @default("Event")
+  eventId   String?
+  updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
+  Event     Event?   @relation(fields: [eventId], references: [id])
+  User      User[]   @relation("ActivityPointToUser")
 }
 
-// Event management
-
 model Event {
-  id     String  @id @default(cuid())
-  name   String
-  imgSrc String?
-
-  deadline DateTime?
-  fromDate DateTime
-  toDate   DateTime
-
-  description String?
-  venue       String?
-
-  type        EventType
-  minTeamSize Int           @default(1)
-  maxTeamSize Int
-  maxTeams    Int           @default(0) // 0 means infinity
-  category    EventCategory
-  amount      Int           @default(0)
-  state       EventState    @default(DRAFT)
-  isLegacy    Boolean       @default(false)
-
-  ActivityPoint ActivityPoint[]
-  Team          Team[]
-
-  Organiser Organiser[]
-
-  Attendence Attendence[]
-  Winner     Winner[]
-
-  Certificate Certificate[]
-
+  id               String             @id @default(cuid())
+  name             String
+  imgSrc           String?
+  deadline         DateTime?
+  fromDate         DateTime
+  toDate           DateTime
+  description      String?
+  venue            String?
+  type             EventType
+  minTeamSize      Int                @default(1)
+  maxTeamSize      Int
+  maxTeams         Int                @default(0)
+  category         EventCategory
+  amount           Int                @default(0)
+  state            EventState         @default(DRAFT)
+  isLegacy         Boolean            @default(false)
+  updatedAt        DateTime           @updatedAt
+  createdAt        DateTime           @default(now())
+  ActivityPoint    ActivityPoint[]
+  Attendance       Attendance[]
+  Certificate      Certificate[]
   FeedbackTemplate FeedbackTemplate[]
-
-  updatedAt DateTime @updatedAt()
-  createdAt DateTime @default(now())
+  Organiser        Organiser[]
+  Team             Team[]
+  Winner           Winner[]
 }
 
 model Organiser {
-  id String @id @default(cuid())
-
-  eventId String
-  Event   Event  @relation(fields: [eventId], references: [id])
-
-  userId String
-  User   User   @relation(fields: [userId], references: [id])
-
-  updatedAt DateTime @updatedAt()
+  id        String   @id @default(cuid())
+  eventId   String
+  userId    String
+  updatedAt DateTime @updatedAt
   createdAt DateTime @default(now())
+  Event     Event    @relation(fields: [eventId], references: [id])
+  User      User     @relation(fields: [userId], references: [id])
 
   @@unique([userId, eventId])
 }
 
 model Team {
-  id          String  @id @default(cuid())
+  id          String   @id @default(cuid())
   name        String
-  isConfirmed Boolean @default(false)
-  hasAttended Boolean @default(false)
-
-  Members User[]
-
-  eventId String
-  Event   Event  @relation(fields: [eventId], references: [id])
-
-  Winner Winner?
-
-  updatedAt DateTime @updatedAt()
-  createdAt DateTime @default(now())
+  isConfirmed Boolean  @default(false)
+  hasAttended Boolean  @default(false)
+  eventId     String
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+  Event       Event    @relation(fields: [eventId], references: [id])
+  Winner      Winner?
+  Members     User[]   @relation("TeamToUser")
 }
 
-model Attendence {
-  id          String  @id @default(cuid())
-  hasAttended Boolean @default(false)
-
-  userId String
-  User   User   @relation(fields: [userId], references: [id])
-
-  eventId String
-  Event   Event  @relation(fields: [eventId], references: [id])
-
-  updatedAt DateTime @updatedAt()
-  createdAt DateTime @default(now())
+model Attendance {
+  id          String   @id @default(cuid())
+  hasAttended Boolean  @default(false)
+  userId      String
+  eventId     String
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+  Event       Event    @relation(fields: [eventId], references: [id])
+  User        User     @relation(fields: [userId], references: [id])
 
   @@unique([userId, eventId])
 }
 
 model Winner {
-  id         String      @id @default(cuid())
+  id         String     @id @default(cuid())
   winnerType WinnerType
-
-  eventId String
-  Event   Event  @relation(fields: [eventId], references: [id])
-
-  teamId String @unique
-  Team   Team   @relation(fields: [teamId], references: [id])
-
-  updatedAt DateTime @updatedAt()
-  createdAt DateTime @default(now())
+  eventId    String
+  teamId     String     @unique
+  updatedAt  DateTime   @updatedAt
+  createdAt  DateTime   @default(now())
+  Event      Event      @relation(fields: [eventId], references: [id])
+  Team       Team       @relation(fields: [teamId], references: [id])
 
   @@unique([eventId, teamId])
 }
 
 model Certificate {
-  id              String           @id @default(cuid())
+  id              String          @id @default(cuid())
   issuedOn        DateTime
   certificateType CertificateType
-
-  userId String
-  User   User   @relation(fields: [userId], references: [id])
-
-  eventId String
-  Event   Event  @relation(fields: [eventId], references: [id])
-
-  updatedAt DateTime @updatedAt()
-  createdAt DateTime @default(now())
+  userId          String
+  eventId         String
+  updatedAt       DateTime        @updatedAt
+  createdAt       DateTime        @default(now())
+  Event           Event           @relation(fields: [eventId], references: [id])
+  User            User            @relation(fields: [userId], references: [id])
 
   @@unique([eventId, userId])
 }
 
-model Question {
-  id         String      @id @default(cuid())
-  qs         String
-  answerType AnswerType
-
-  Answer Answer[]
-
-  feedbackTemplateId String
-  FeedbackTemplate   FeedbackTemplate @relation(fields: [feedbackTemplateId], references: [id])
-
-  updatedAt DateTime @updatedAt()
-  createdAt DateTime @default(now())
-}
-
-model Answer {
-  id  String @id @default(cuid())
-  ans String
-
-  questionId String
-  Question   Question @relation(fields: [questionId], references: [id])
-
-  userId String
-  User   User   @relation(fields: [userId], references: [id])
-
-  userFeedbackUserId             String?
-  userFeedbackFeedbackTemplateId String?
-  UserFeedback                   UserFeedback? @relation(fields: [userFeedbackUserId, userFeedbackFeedbackTemplateId], references: [userId, feedbackTemplateId])
-
-  updatedAt DateTime @updatedAt()
-  createdAt DateTime @default(now())
-}
-
 model FeedbackTemplate {
-  id            String                   @id @default(cuid())
+  id            String                @id @default(cuid())
   templateState FeedbackTemplateState @default(DRAFT)
-
-  eventId String
-  Event   Event  @relation(fields: [eventId], references: [id])
-
-  Questions Question[]
-
-  UserFeedback UserFeedback[]
-
-  updatedAt DateTime @updatedAt()
-  createdAt DateTime @default(now())
+  eventId       String
+  updatedAt     DateTime              @updatedAt
+  createdAt     DateTime              @default(now())
+  AnswersType   AnswerType[]
+  Questions     String[]
+  Event         Event                 @relation(fields: [eventId], references: [id])
+  UserFeedback  UserFeedback[]
 }
 
 model UserFeedback {
-  userId String
-  User   User   @relation(fields: [userId], references: [id])
-
+  userId             String
   feedbackTemplateId String
+  updatedAt          DateTime         @updatedAt
+  createdAt          DateTime         @default(now())
+  Answers            String[]
   FeedbackTemplate   FeedbackTemplate @relation(fields: [feedbackTemplateId], references: [id])
-
-  Answers Answer[]
-
-  updatedAt DateTime @updatedAt()
-  createdAt DateTime @default(now())
+  User               User             @relation(fields: [userId], references: [id])
 
   @@id([userId, feedbackTemplateId])
   @@unique([userId, feedbackTemplateId])
@@ -313,17 +209,16 @@ model UserFeedback {
 model Payment {
   id                String   @id @default(cuid())
   userId            String
-  User              User     @relation(fields: [userId], references: [id])
   paymentName       String
   razorpayPaymentId String
   razorpayOrderId   String
   razorpaySignature String
   createdAt         DateTime @default(now())
+  User              User     @relation(fields: [userId], references: [id])
 
   @@unique([userId, razorpayPaymentId])
 }
 
-// Enumerations
 enum Role {
   USER
   MEMBER
@@ -337,7 +232,6 @@ enum EventType {
 }
 
 enum EventCategory {
-  // TODO: add more
   WORKSHOP
   COMPETITION
   HACKATHON

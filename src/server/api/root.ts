@@ -1,13 +1,13 @@
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { eventRouter } from "./routers/event";
 import { feedbackRouter } from "./routers/feedback";
-import { attendanceRouter } from "./routers/attendence";
+import { attendanceRouter } from "./routers/attendance";
 import { teamRouter } from "./routers/team";
 import { authRouter } from "./routers/auth";
 import { winnerRouter } from "./routers/winner";
 import { certificateRouter } from "./routers/certificate";
 import { activityPointsRouter } from "./routers/activitypoints";
-import { organisorRouter } from "./routers/organiser";
+import { organiserRouter } from "./routers/organiser";
 import { branchRouter } from "./routers/branch";
 import { userLinkRouter } from "./routers/userLink";
 import { payment } from "./routers/payment";
@@ -20,13 +20,13 @@ import { payment } from "./routers/payment";
 export const appRouter = createTRPCRouter({
   event: eventRouter,
   feedback: feedbackRouter,
-  attendence: attendanceRouter,
+  attendance: attendanceRouter,
   team: teamRouter,
   auth: authRouter,
   winner: winnerRouter,
   certificate: certificateRouter,
-  activitypoints:activityPointsRouter,
-  organiser: organisorRouter,
+  activitypoints: activityPointsRouter,
+  organiser: organiserRouter,
   branch: branchRouter,
   userLink: userLinkRouter,
   payment: payment,

@@ -4,7 +4,6 @@ import { signIn, signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { api } from "~/utils/api";
 
-
 export default function Home() {
   const router = useRouter();
 
@@ -23,12 +22,12 @@ export default function Home() {
       <button
         onClick={() => {
           signUp.mutate({
-            branchId: "cly1kesbp00004bj8a2twttca",
-            email: "nnm22is144@nmamit.in",
+            branchId: "clxo9upud000161ci3havtfke",
+            email: "sathwikhh@gmail.com",
             name: "sathwik",
             password: "password",
             confirmPassword: "password",
-            phone: "9902130645",
+            phone: "9448846524",
             year: "2023",
           });
         }}
@@ -39,16 +38,7 @@ export default function Home() {
       <button
         onClick={() => {
           sendVerificationEmail.mutate({
-            email: "nnm22is144@nmamit.in",
-          });
-        }}
-      >
-        send verifyEmail
-      </button>
-      <button
-        onClick={() => {
-          sendPasswordResetEmail.mutate({
-            email: "nnm22is144@nmamit.in",
+            email: "sathwikhh@gmail.com",
           });
         }}
       >
@@ -59,19 +49,7 @@ export default function Home() {
         onClick={() => {
           verifyEmail.mutate({
             token:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbHkxa2dxOXAwMDAwYnRqdTQweG10OHEwIiwianRpIjoiY2x5MWtoMjN2MDAwMmJ0anVycjl1NTJsOCIsImlhdCI6MTcxOTc1Mjg5OSwiZXhwIjoxNzE5ODM5Mjk5fQ.IF9bWSTN4_dpVTbQl0CzXSS37uKXGrX6TbW60yPdFXQ",
-          });
-        }}
-      >
-        verify email
-      </button>
-
-      <button
-        onClick={() => {
-          resetPassword.mutate({
-            newPassword: "password3",
-            token:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbHhvYTZ2YTMwMDA0NDR2ZHByODltMzh2IiwianRpIjoiY2x4cmxuZzBwMDAwMW02MzBpN253bzF3MiIsImlhdCI6MTcxOTE1MDIxNSwiZXhwIjoxNzE5MjM2NjE1fQ.wzcqtyqnGpdxVMCdNqGob1Faz8AWef9SQunoVbReWcc",
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiJjbHhvcXMzbzMwMDAwMTN2aWt2NzJrN3M2IiwianRpIjoiY2x4b3FzOTI3MDAwMjEzdmlyNHQ2ZGFkdyIsImlhdCI6MTcxODk3NzQzOSwiZXhwIjoxNzE5MDYzODM5fQ.uPsK9Me38dAZVQJdj4-Kb9AtI6i49YcW45eTlQ6-4vE",
           });
         }}
       >
@@ -81,7 +59,7 @@ export default function Home() {
       <button
         onClick={async () => {
           const res = signIn("credentials", {
-            email: "nnm22is144@nmamit.in",
+            email: "sathwikhh@gmail.com",
             password: "password",
             redirect: false,
           });

@@ -21,8 +21,7 @@ import {
 import { login } from "~/services/auth.service";
 
 import { User, Role } from "@prisma/client";
-import { LoginSchema } from "~/zod/authZ";
-
+import { LoginZ } from "~/zod/authZ";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -72,7 +71,7 @@ declare module "next-auth/jwt" {
   interface JWT {
     iat: number;
     exp: number;
-    role: Role; 
+    role: Role;
     accessToken: string;
     refreshToken: string;
   }
@@ -164,7 +163,7 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.sub;
         session.user.name = token.name;
         session.user.email = token.email!;
-        session.user.role = token.role; 
+        session.user.role = token.role;
         session.accessToken = token.accessToken;
       }
 
@@ -181,7 +180,7 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       credentials: {},
       async authorize(credentials: any, req: any): Promise<any> {
-        const validateFields = LoginSchema.safeParse(credentials);
+        const validateFields = LoginZ.safeParse(credentials);
         if (!validateFields.success) {
           console.log("Invalid fields", validateFields.error);
           return null;

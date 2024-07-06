@@ -1,37 +1,36 @@
 import { z } from "zod";
 
 const createTeamZ = z.object({
-    eventId: z.string(),
-    teamName: z.string(),
-    // userId: from session
+  eventId: z.string(),
+  teamName: z.string(),
 });
 
 const joinTeamZ = z.object({
-    teamId: z.string(),
-    // userId: from session 
+  eventId: z.string(),
+  teamId: z.string(),
 });
 
-const leaveTeamSchema = z.object({
-    teamId: z.string(),
-    // userId: from session 
+const leaveTeamZ = z.object({
+  teamId: z.string(),
 });
 
-const deleteTeamInput = z.object({
-    teamId: z.string(),
+const deleteTeamZ = z.object({
+  teamId: z.string(),
 });
 
-const getUserTeamsInput = z.object({
-    userId: z.string(),
+const confirmTeamZ = z.object({
+  teamId: z.string(),
 });
-const searchTeamForEventz = z.object({
-    eventId: z.string(),
-    // userId:  from session 
+
+const getTeamById = z.object({
+  teamId: z.string(),
 });
+
 export {
-    createTeamZ,
-    joinTeamZ,
-    searchTeamForEventz,
-    leaveTeamSchema,
-    getUserTeamsInput,
-  deleteTeamInput,
-}
+  createTeamZ,
+  joinTeamZ,
+  leaveTeamZ,
+  deleteTeamZ,
+  confirmTeamZ,
+  getTeamById,
+};

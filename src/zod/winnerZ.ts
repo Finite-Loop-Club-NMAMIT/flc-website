@@ -1,17 +1,18 @@
+import { WinnerType } from "@prisma/client";
 import { z } from "zod";
 
-const createWinnerZ = z.object({
-    eventId: z.string(),
-    teamId: z.string(),
-    winnerType: z.enum(['WINNER', 'RUNNER_UP', 'SECOND_RUNNER_UP']),
-  });
-  const getWinnersByEventIdZ = z.string()
-  const editWinnerTypeZ = z.object({
-    winnerId: z.string(),
-    winnerType: z.enum(['WINNER', 'RUNNER_UP', 'SECOND_RUNNER_UP']),
-  });
-export{
-    createWinnerZ,
-    getWinnersByEventIdZ,
-    editWinnerTypeZ,
-}
+const makeTeamWinnerZ = z.object({
+  eventId: z.string(),
+  teamId: z.string(),
+  winnerType: z.nativeEnum(WinnerType),
+});
+
+const removeWinnerZ = z.object({
+  eventId: z.string(),
+  winnerId: z.string(),
+});
+
+const getWinnersByEventIdZ = z.object({
+  eventId: z.string(),
+});
+export { makeTeamWinnerZ, removeWinnerZ, getWinnersByEventIdZ };

@@ -2,7 +2,7 @@ import { type RefreshToken, type VerificationToken } from "@prisma/client";
 import { error } from "console";
 import jwt from "jsonwebtoken";
 import { db } from "~/server/db";
-import { RefreshTokenSchema } from "~/zod/authZ";
+import { RefreshTokenZ } from "~/zod/authZ";
 import { hashToken } from "./hashToken";
 import { getUserById } from "./auth";
 import { v4 as uuidv4 } from "uuid";
@@ -163,7 +163,7 @@ const rotateTokens = async (token: string) => {
 
 const refreshToken = async (token: string) => {
   try {
-    const validateFields = RefreshTokenSchema.safeParse({
+    const validateFields = RefreshTokenZ.safeParse({
       refreshToken: token,
     });
     if (!validateFields.success) {

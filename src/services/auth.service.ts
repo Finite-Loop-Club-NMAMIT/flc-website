@@ -2,7 +2,7 @@ import { error } from "console";
 import { db } from "~/server/db";
 import { compareHashedPassword, getUserByEmail } from "~/utils/auth/auth";
 import { hashToken } from "~/utils/auth/hashToken";
-import { LoginSchema } from "~/zod/authZ";
+import { LoginZ } from "~/zod/authZ";
 import { v4 as uuidv4 } from "uuid";
 import { generateTokens } from "~/utils/auth/jwt";
 import * as cron from "node-cron";
@@ -85,7 +85,7 @@ const addRefreshTokenToWhitelist = async ({
 
 const login = async (input: { email: string; password: string }) => {
   try {
-    const validateFields = LoginSchema.safeParse(input);
+    const validateFields = LoginZ.safeParse(input);
     if (!validateFields.success) {
       console.error(validateFields.error);
       throw validateFields.error;
@@ -129,6 +129,7 @@ const login = async (input: { email: string; password: string }) => {
   }
 };
 
+// eslint-disable-next-line @typescript-eslint/no-misused-promises
 cron.schedule("*/3 * * * *", async () => {
   await db.refreshToken.deleteMany({
     where: {

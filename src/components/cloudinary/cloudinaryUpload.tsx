@@ -48,7 +48,7 @@ export default function CloudinaryUpload({ uploadName, userId, eventId, type }: 
       // });
     } else if (type == uploadTypeEnum.eventPicture) {
       addImageToEvent.mutate({
-        eventId: eventId ?? "clxgbokx4000ewc828rix4mxn", //from the auth
+        id: eventId ?? "clxgbokx4000ewc828rix4mxn", //from the auth
         imgSrc: secure_url,
       });
     }
@@ -63,7 +63,7 @@ export default function CloudinaryUpload({ uploadName, userId, eventId, type }: 
 
   return (
     <div>
-      <div className="m-auto my-12 w-fit rounded-md bg-slate-200 p-3">
+      <div className="m-auto my-12 w-fit rounded-md bg-slate-200 p-3 text-black">
         <CldUploadWidget
           signatureEndpoint="/api/cloudinary/sign"
           onSuccess={(result) => {
@@ -71,11 +71,7 @@ export default function CloudinaryUpload({ uploadName, userId, eventId, type }: 
           }}
         >
           {({ open }) => {
-            return (
-              <button onClick={() => open()}>
-               {uploadName}
-              </button>
-            );
+            return <button onClick={() => open()}>{uploadName}</button>;
           }}
         </CldUploadWidget>
       </div>

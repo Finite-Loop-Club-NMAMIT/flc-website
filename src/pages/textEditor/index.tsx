@@ -5,7 +5,7 @@ export default function index() {
   
   return (
     <div>
-      <Editor eventId="cly358cjt0000whuimrz5so25"></Editor>
+      <Editor eventId="cly4g5jlv000246ht681op1lc"></Editor>
     </div>
   );
 }

@@ -29,7 +29,7 @@ function page() {
       </div>
       <CloudinaryUpload
         uploadName="upload Event Image"
-        eventId="cly358cjt0000whuimrz5so25"
+        eventId="cly4g5jlv000246ht681op1lc"
         type={uploadTypeEnum.eventPicture}
       />
       <div className="mx-2 mt-8 flex flex-wrap justify-center gap-20 md:mx-8">

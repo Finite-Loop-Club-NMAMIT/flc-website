@@ -1,0 +1,25 @@
+.eye {
+    padding: 0;
+    margin: 0;
+    position: relative;
+    display: inline-block;
+    border-radius: 50%;
+    width: 1.2rem;
+    aspect-ratio: 1;
+    background: #ffffff;
+}
+
+.eye:after {
+    position: absolute;
+    bottom: 20%;
+    right: 8px;
+    width: 25%;
+    aspect-ratio: 1;
+    background: #000;
+    border-radius: 50%;
+    content: " ";
+}
+
+.logo{
+    filter: drop-shadow(2px 0 1px var(--color));
+}

@@ -19,7 +19,7 @@ export default function Index() {
   
   const userId = session?.data?.user.id ?? undefined;
   console.log(session?.data?.user.id); 
-
+  const imageYouWantToDelete ="https://res.cloudinary.com/dh0sqelog/image/upload/v1718884775/ln9uaziq0lnkzrzxiqqx.jpg";
   return (
     <div>
       {/*@FrontEnd use the component in any form - image will be uploaded to DB as userLink  */}
@@ -35,26 +35,22 @@ export default function Index() {
       {/*2. Uploading images for Events*/}
 
       <CloudinaryUpload
-        uploadName="upload image to Event schema"
-        eventId={"cly358cjt0000whuimrz5so25"}
+        uploadName="upload image to an Event "
+        eventId={"cly4g5jlv000246ht681op1lc"}
         type={uploadTypeEnum.eventPicture}
       />
 
       {/*3. Uploading images to user*/}
 
       {/* <CloudinaryUpload
-        linkName="Deletion test"
+        uploadName="Deletion test"
         userId={userId}
         type={uploadTypeEnum.userPicture}
       /> */}
 
-      {/* #props 
-             linkName : for the userLink schema
-             userId : is optional, suggested to pass from parent component
-      */}
+      {/* use this to delete Image from cloudinary only, delete from db with ur mutation */}
 
-      {/* you will see list of images, option to delete- both from cloudinary and db */}
-      <CloudinaryDelete></CloudinaryDelete>
+      <CloudinaryDelete imageUrl={imageYouWantToDelete}></CloudinaryDelete>
     </div>
   );
 }

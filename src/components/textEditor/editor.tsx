@@ -27,7 +27,7 @@ export default function Editor({ eventId }: { eventId?: string }) {
   const onConfirmEdit = async () => {
     try {
       await addEventDescription.mutateAsync({
-        eventId: eventId ?? "cly358cjt0000whuimrz5so25",
+        id: eventId ?? "cly4g5jlv000246ht681op1lc",
         description: text,
       });
       console.log("Event description updated successfully!");

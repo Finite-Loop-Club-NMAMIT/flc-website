@@ -8,6 +8,10 @@ import React from "react";
 import AvatarCustom from "~/components/avatar";
 import CopyBtn from "~/components/copyBtn";
 import { api } from "~/utils/api";
+import { type createEventZ } from "~/zod/eventZ";
+import {type z} from "zod"
+
+type EventType = z.infer<typeof createEventZ>;
 
 const EventSlug = () => {
   const router = useRouter();
@@ -22,9 +26,10 @@ const EventSlug = () => {
   if (!id) {
     return <h1>Error fetching id</h1>;
   }
-  const { data: event } = api.event.getEventById.useQuery({
-    eventId: id,
-  });
+
+const { data: event } = api.event.getEventById.useQuery({
+  eventId: id,
+}) as { data: EventType };
 
   if (!event) {
     return <h1>error fetching event</h1>;
@@ -43,7 +48,7 @@ const EventSlug = () => {
           />
         </div>
         <div className="flex-1 space-y-4  p-8">
-          <p className="text-5xl font-bold  md:text-6xl">{event.name}</p>
+          <p className="text-5xl font-bold  md:text-6xl">{event?.name} </p>
           <p className="text-base font-medium sm:text-lg">
             Wed, Aug 28 9:00 AM
           </p>

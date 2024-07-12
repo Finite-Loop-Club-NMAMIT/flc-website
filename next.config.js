@@ -23,12 +23,9 @@ const config = {
       {
         protocol: "https",
         hostname: "res.cloudinary.com",
-       
-        
       },
     ],
   },
-
 };
 
 export default config;

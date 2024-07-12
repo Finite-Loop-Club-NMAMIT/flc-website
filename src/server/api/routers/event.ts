@@ -42,7 +42,7 @@ export const eventRouter = createTRPCRouter({
     .input(updateEventZ)
     .mutation(async ({ ctx, input }) => {
       try {
-        const existingEvent = await findEventIfExistById(input.eventId ?? "");
+        const existingEvent = await findEventIfExistById(input.id ?? "");
         if (existingEvent.state !== "DRAFT") {
           //Can only be edited when in draft
           throw new TRPCError({

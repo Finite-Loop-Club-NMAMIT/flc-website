@@ -1,5 +1,7 @@
 //use This to upload Images in any form 
-//refer eg. pages/coudinary/index.tsx
+// HOW TO USE - 1.refer eg. pages/coudinary/index.tsx
+//            - 2. look into prps of this component 
+
 
 import React, { useState } from "react";
 import {
@@ -17,42 +19,38 @@ export enum uploadTypeEnum {
 }
 
 export type CloudinaryProp = {
-  linkName: string;
+  uploadName: string;
   userId?: string | null;
   eventId?: string | null;
   type: uploadTypeEnum;
 };
 
-export default function CloudinaryUpload({ linkName, userId, eventId, type }: CloudinaryProp) {
- 
+export default function CloudinaryUpload({ uploadName, userId, eventId, type }: CloudinaryProp) {
   const [url, setUrl] = useState<string | null>(null);
 
-  // let addImageTouserLink: UseTRPCMutationResult<{ id: string; linkName: string; url: string; userId: string | null; updatedAt: Date; createdAt: Date; }, TRPCClientErrorLike<{ input: { linkName: string; userId: string; url: string; }; output: { id: string; linkName: string; url: string; userId: string | null; updatedAt: Date; createdAt: Date; }; transformer: true; errorShape: { data: { zodError: z.typeToFlattenedError<any, string> | null; code: TRPC_ERROR_CODE_KEY; httpStatus: number; path?: string; stack?: string; }; message: string; code: TRPC_ERROR_CODE_NUMBER; }; }>, { linkName: string; userId: string; url: string; }, unknown>;
+  
 
   const addImageToUserLink = api.userLink.createUserLink.useMutation();
+  const addImageToEvent = api.event.updateEvent.useMutation();
   // const addImageToUser = api.user.update.useMutaion();
-   const addImageToEvent = api.event.updateEvent.useMutation()
- 
-  async function addImageToDB(secure_url:string) {
+
+  async function addImageToDB(secure_url: string) {
     if (type == uploadTypeEnum.userLink) {
       addImageToUserLink.mutate({
-        userId: userId ?? "cly1kgq9p0000btju40xmt8q0", //from the auth
+        userId: userId ?? "clxikjroh00003bzlqsg5znhd", //from the auth
         url: secure_url,
-        linkName: linkName ?? "Name of link", //from prop
+        linkName: "Test Images" , //from prop
       });
-    }
-    
-    else if(type == uploadTypeEnum.userPicture){
+    } else if (type == uploadTypeEnum.userPicture) {
       // addImageToUser.mutate({
       //   userId: userId ?? "clxikjroh00003bzlqsg5znhd", //from the auth
       //   image: secure_url,
       // });
-    }
-    else if(type == uploadTypeEnum.eventPicture){
-        addImageToEvent.mutate({
-          eventId: eventId ?? "cly4df38o000146ht9z1quoz9", //from the auth
-          imgSrc: secure_url,
-        });
+    } else if (type == uploadTypeEnum.eventPicture) {
+      addImageToEvent.mutate({
+        eventId: eventId ?? "clxgbokx4000ewc828rix4mxn", //from the auth
+        imgSrc: secure_url,
+      });
     }
   }
 
@@ -61,9 +59,6 @@ export default function CloudinaryUpload({ linkName, userId, eventId, type }: Cl
     const { secure_url } = info as CloudinaryUploadWidgetInfo;
     setUrl(secure_url);
     await addImageToDB(secure_url);
-
-    
-    
   };
 
   return (
@@ -76,7 +71,11 @@ export default function CloudinaryUpload({ linkName, userId, eventId, type }: Cl
           }}
         >
           {({ open }) => {
-            return <button onClick={() => open()}>Upload an Image</button>;
+            return (
+              <button onClick={() => open()}>
+               {uploadName}
+              </button>
+            );
           }}
         </CldUploadWidget>
       </div>

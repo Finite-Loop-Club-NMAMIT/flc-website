@@ -27,8 +27,11 @@ function page() {
       <div className="flex justify-center py-8 md:py-16">
         <RadioButtons />
       </div>
-      <CloudinaryUpload linkName="Deletion test" type={uploadTypeEnum.eventPicture} />
-
+      <CloudinaryUpload
+        uploadName="upload Event Image"
+        eventId="cly358cjt0000whuimrz5so25"
+        type={uploadTypeEnum.eventPicture}
+      />
       <div className="mx-2 mt-8 flex flex-wrap justify-center gap-20 md:mx-8">
         {events && events.length > 0 ? (
           <>
@@ -40,8 +43,6 @@ function page() {
           <div>No events available</div>
         )}
       </div>
-
-      
     </>
   );
 }

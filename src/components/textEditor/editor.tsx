@@ -4,11 +4,10 @@ import React, { useState } from "react";
 import "react-quill/dist/quill.snow.css";
 import { api } from "~/utils/api";
 import { modules, devices } from "./constants";
+
 const ReactQuill = dynamic(() => import("react-quill"), {
   ssr: false,
 });
-
-
 
 export default function Editor({ eventId }: { eventId?: string }) {
   const [text, setText] = useState("");
@@ -23,8 +22,8 @@ export default function Editor({ eventId }: { eventId?: string }) {
     setText(text);
     console.log(text);
   };
-  
-  //storing content in db
+
+  // storing content in db
   const onConfirmEdit = async () => {
     try {
       await addEventDescription.mutateAsync({
@@ -40,7 +39,7 @@ export default function Editor({ eventId }: { eventId?: string }) {
     }
   };
 
-  //setting size of display when its changed with mouse
+  // setting size of display when its changed with mouse
   const setSizeOfDisplay = () => {
     const displayElement = document.getElementById("display");
     if (displayElement) {
@@ -51,7 +50,7 @@ export default function Editor({ eventId }: { eventId?: string }) {
     }
   };
 
-  //setting size of display based on device selected
+  // setting size of display based on device selected
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const selectedDevice = event.target.value;
     console.log(`Selected device: ${selectedDevice}`);
@@ -82,22 +81,22 @@ export default function Editor({ eventId }: { eventId?: string }) {
           value={text}
           onChange={onChange}
           modules={modules}
-          className=" md:2/3 m-3 w-full sm:m-3 sm:mx-3   md:m-auto lg:m-auto lg:w-1/2"
+          className="md:2/3 m-3 w-full sm:m-3 sm:mx-3 md:m-auto lg:m-auto lg:w-1/2"
         />
-        <div className="md:2/3 flex w-full justify-between  mx-3 md:m-auto lg:m-auto  lg:w-1/2 ">
-          <form className="md m-3 ml-0 rounded bg-slate-200 p-3">
-            <label htmlFor="toggle">Preview content in other devices</label>
+        <div className="md:2/3 mx-3 flex w-full justify-between md:m-auto lg:m-auto lg:w-1/2 ">
+          <form className="md m-3 ml-0 rounded bg-slate-700 p-3 text-white">
+            <label htmlFor="toggle">Preview content on other devices</label>
             <input
               type="checkbox"
               name="toggle"
               onClick={handleToggle}
               id="toggle"
-              className="m-2 bg-slate-800"
+              className="m-2 bg-slate-600"
             />
           </form>
           <button
             onClick={onConfirmEdit}
-            className="m-3 mr-0 content-center rounded-md bg-slate-200 p-3"
+            className="m-3 mr-0 content-center rounded-md bg-slate-700 p-3 text-white"
           >
             Confirm Edit
           </button>
@@ -105,9 +104,14 @@ export default function Editor({ eventId }: { eventId?: string }) {
       </div>
 
       {preview && (
-        <div className="m-auto mb-6 flex h-fit w-fit justify-center rounded-md bg-slate-200 p-4">
+        <div className="m-auto mb-6 flex h-fit w-fit justify-center rounded-md bg-slate-700 p-4 text-white">
           <div>
-            <select name="device" id="device" onChange={handleChange}>
+            <select
+              name="device"
+              id="device"
+              onChange={handleChange}
+              className="bg-slate-600 text-white"
+            >
               {devices.map((device, index) => (
                 <option value={device[0]} key={index}>
                   {device[0]}
@@ -135,7 +139,7 @@ export default function Editor({ eventId }: { eventId?: string }) {
         <div
           dangerouslySetInnerHTML={{ __html: text }}
           id="display"
-          className="ql-editor m-auto mb-16 h-screen w-4/5 resize overflow-auto rounded-sm border border-4"
+          className="ql-editor m-auto mb-16 h-screen w-4/5 resize overflow-auto rounded-sm border border-4 bg-slate-800 text-white"
           onMouseDown={setSizeOfDisplay}
         ></div>
       )}

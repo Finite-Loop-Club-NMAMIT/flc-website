@@ -80,6 +80,7 @@ export default function Editor({ eventId }: { eventId?: string }) {
           href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.core.css"
         />
       </Helmet>
+      
       <div className="mt-12 ">
         <ReactQuill
           theme="snow"
@@ -109,6 +110,7 @@ export default function Editor({ eventId }: { eventId?: string }) {
         </div>
       </div>
 
+      {/* Choose device for preview */}
       {preview && (
         <div className="m-auto mb-6 flex h-fit w-fit justify-center rounded-md bg-slate-700 p-4 text-white">
           <div>
@@ -133,11 +135,13 @@ export default function Editor({ eventId }: { eventId?: string }) {
           </div>
         </div>
       )}
+
+      {/* Device Preview */}
       {preview && (
         <div
           className="ql-container quill sm:mx-3 md:m-auto lg:m-auto"
           data-gramm="false"
-          
+         
         >
           <div
             dangerouslySetInnerHTML={{ __html: text }}

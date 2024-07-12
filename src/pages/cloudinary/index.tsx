@@ -22,7 +22,7 @@ export default function Index() {
   const imageYouWantToDelete ="https://res.cloudinary.com/dh0sqelog/image/upload/v1718884775/ln9uaziq0lnkzrzxiqqx.jpg";
   return (
     <div>
-      {/*@FrontEnd use the component in any form - image will be uploaded to DB as userLink  */}
+      <p className="text-center mt-6">Refer /pages/cloudinary/index.tsx to understand usage of upload and delete </p>
 
       {/*1. Uploading images to userLink*/}
 

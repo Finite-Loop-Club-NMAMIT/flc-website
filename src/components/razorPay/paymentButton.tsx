@@ -65,7 +65,7 @@ export default function Payment({ amount, userId, name }: PropType) {
   return (
     <div className="App">
       <header className="App-header">
-        <button onClick={displayRazorpay}>Pay now</button>
+        <button onClick={displayRazorpay} className="p-2 rounded-md bg-white text-black">Pay now</button>
       </header>
     </div>
   );

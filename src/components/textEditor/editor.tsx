@@ -74,6 +74,12 @@ export default function Editor({ eventId }: { eventId?: string }) {
 
   return (
     <>
+      <Helmet>
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.core.css"
+        />
+      </Helmet>
       <div className="mt-12 ">
         <ReactQuill
           theme="snow"
@@ -81,7 +87,7 @@ export default function Editor({ eventId }: { eventId?: string }) {
           value={text}
           onChange={onChange}
           modules={modules}
-          className="md:2/3 m-3 w-full sm:m-3 sm:mx-3 md:m-auto lg:m-auto lg:w-1/2"
+          className="md:2/3 m-3 w-full bg-white text-black sm:m-3 sm:mx-3 md:m-auto lg:m-auto lg:w-1/2"
         />
         <div className="md:2/3 mx-3 flex w-full justify-between md:m-auto lg:m-auto lg:w-1/2 ">
           <form className="md m-3 ml-0 rounded bg-slate-700 p-3 text-white">
@@ -127,21 +133,19 @@ export default function Editor({ eventId }: { eventId?: string }) {
           </div>
         </div>
       )}
-
-      <Helmet>
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/quill@2.0.2/dist/quill.core.css"
-        />
-      </Helmet>
-
       {preview && (
         <div
-          dangerouslySetInnerHTML={{ __html: text }}
-          id="display"
-          className="ql-editor m-auto mb-16 h-screen w-4/5 resize overflow-auto rounded-sm border border-4 bg-slate-800 text-white"
-          onMouseDown={setSizeOfDisplay}
-        ></div>
+          className="ql-container quill sm:mx-3 md:m-auto lg:m-auto"
+          data-gramm="false"
+          
+        >
+          <div
+            dangerouslySetInnerHTML={{ __html: text }}
+            id="display"
+            className="ql-editor  m-auto mb-16 h-screen  resize overflow-auto rounded-sm border border-4 bg-white  text-black"
+            onMouseDown={setSizeOfDisplay}
+          ></div>
+        </div>
       )}
     </>
   );

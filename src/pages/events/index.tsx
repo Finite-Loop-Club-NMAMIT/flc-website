@@ -8,12 +8,14 @@ import { api } from "~/utils/api";
 import { uploadTypeEnum } from "~/components/cloudinary/cloudinaryUpload";
 function page() {
 
-  const { data: events, isLoading, error } = api.event.getAllEvents.useQuery();
+  const { data: events, isLoading, error } = api.event.getAllEvents.useQuery()
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
-
+ if(events){
+  console.log(events)
+ }
   if (error) {
     return <div>Error loading events</div>;
   }

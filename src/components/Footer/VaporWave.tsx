@@ -15,9 +15,9 @@ function VaporWave() {
     useFrame(() => {
         const elapsedTime = clock.getElapsedTime();
         if (plane1Ref.current && plane2Ref.current) {
-            plane1Ref.current!.position.z = (elapsedTime * 0.15) % 2;
+            plane1Ref.current.position.z = (elapsedTime * 0.15) % 2;
             //When the first plane reaches a position of z = 0 it to -2, its initial position
-            plane2Ref.current!.position.z = (elapsedTime * 0.15 % 2) - 2;
+            plane2Ref.current.position.z = (elapsedTime * 0.15 % 2) - 2;
         }
 
     })

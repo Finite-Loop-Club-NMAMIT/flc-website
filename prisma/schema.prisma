@@ -34,6 +34,7 @@ model User {
   VerificationToken   VerificationToken[]
   ActivityPoint       ActivityPoint[]     @relation("ActivityPointToUser")
   Team                Team[]              @relation("TeamToUser")
+  QuizResponse        QuizResponse[]
 }
 
 model VerificationToken {
@@ -219,6 +220,29 @@ model Payment {
   @@unique([userId, razorpayPaymentId])
 }
 
+model Quiz {
+  id        String         @id @default(cuid())
+  title     String
+  timeLimit Int
+  state     QuizState      @default(DRAFT)
+  questions Json
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt()
+  responses QuizResponse[]
+}
+
+model QuizResponse {
+  id         String   @id @default(cuid())
+  quizId     String
+  quiz       Quiz     @relation(fields: [quizId], references: [id])
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  answers    Json
+  totalScore Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt()
+}
+
 enum Role {
   USER
   MEMBER
@@ -271,4 +295,9 @@ enum FeedbackTemplateState {
 enum VerificationType {
   PASSWORD_RESET
   EMAIL_VERIFICATION
+}
+
+enum QuizState {
+  DRAFT
+  PUBLISHED
 }

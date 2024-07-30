@@ -111,8 +111,8 @@ function index() {
                 </div>
               </div>
 
-              <div className="mb-2 flex sm:mb-4">
-                <div className="w-1/2 pr-2">
+              <div className="mb-2 sm:mb-4 sm:flex">
+                <div className="mb-2 sm:mb-0 sm:w-1/2 sm:pr-2">
                   <label className="block sm:mb-1">Branch</label>
                   <div className="relative">
                     <input
@@ -130,7 +130,7 @@ function index() {
                     </div>
                   </div>
                 </div>
-                <div className="w-1/2 pl-2">
+                <div className="sm:w-1/2 sm:pl-2">
                   <label className="block sm:mb-1">Year</label>
                   <div className="relative">
                     <input
@@ -149,7 +149,6 @@ function index() {
                   </div>
                 </div>
               </div>
-
               <div className="mb-2 sm:mb-4">
                 <label className="block sm:mb-1">Password</label>
                 <div className="relative">

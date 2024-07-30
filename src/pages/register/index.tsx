@@ -50,13 +50,13 @@ function index() {
             </div>
           </div>
 
-          <div className="w-4/5 order-1 mx-8 flex-col justify-center rounded-lg bg-white/15  sm:w-2/3 lg:order-2 lg:w-1/2">
+          <div className="order-1 mx-8 w-4/5 flex-col justify-center rounded-lg bg-white/15  sm:w-2/3 lg:order-2 lg:w-1/2">
             <h2 className="mt-4 flex justify-center text-2xl sm:m-8 sm:mt-8 sm:text-3xl md:text-4xl">
               Register Now
             </h2>
-            <form className="mx-4 mb-6 mt-4 sm:mx-10 sm:mb-16 sm:mt-8 ">
+            <form className="mx-4 mb-6 mt-2 sm:mx-10 sm:mb-16 sm:mt-8 ">
               <div className="mb-2 sm:mb-4">
-                <label className="block sm:mb-2">Name</label>
+                <label className="block sm:mb-1">Name</label>
                 <div className="relative">
                   <input
                     type="text"
@@ -75,7 +75,7 @@ function index() {
               </div>
 
               <div className="mb-2 sm:mb-4">
-                <label className="block sm:mb-2">Email</label>
+                <label className="block sm:mb-1">Email</label>
                 <div className="relative">
                   <input
                     type="email"
@@ -93,12 +93,89 @@ function index() {
                 </div>
               </div>
               <div className="mb-2 sm:mb-4">
-                <label className="block sm:mb-2">Password</label>
+                <label className="block sm:mb-1">Phone</label>
+                <div className="relative">
+                  <input
+                    type="tel"
+                    className="w-full rounded bg-white/5 p-2 pl-10"
+                    placeholder="Phone"
+                  />
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-2">
+                    <Image
+                      src="/assets/phone.png"
+                      alt="Icon"
+                      width={18}
+                      height={18}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="mb-2 flex sm:mb-4">
+                <div className="w-1/2 pr-2">
+                  <label className="block sm:mb-1">Branch</label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      className="w-full rounded bg-white/5 p-2 pl-10"
+                      placeholder="Branch"
+                    />
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-2">
+                      <Image
+                        src="/assets/branch.png"
+                        alt="Icon"
+                        width={18}
+                        height={18}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="w-1/2 pl-2">
+                  <label className="block sm:mb-1">Year</label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      className="w-full rounded bg-white/5 p-2 pl-10"
+                      placeholder="Year"
+                    />
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-2">
+                      <Image
+                        src="/assets/year.png"
+                        alt="Icon"
+                        width={18}
+                        height={18}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mb-2 sm:mb-4">
+                <label className="block sm:mb-1">Password</label>
                 <div className="relative">
                   <input
                     type="password"
                     className="w-full rounded bg-white/5 p-2 pl-10"
                     placeholder="Password"
+                  />
+                  <div className="absolute inset-y-0 left-0 flex items-center pl-2">
+                    <Image
+                      src="/assets/password.png"
+                      alt="Icon"
+                      width={18}
+                      height={18}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="mb-2 sm:mb-4">
+                <label className="block sm:mb-1">Confirm Password</label>
+                <div className="relative">
+                  <input
+                    type="password"
+                    className="w-full rounded bg-white/5 p-2 pl-10"
+                    placeholder="Confirm Password"
                   />
                   <div className="absolute inset-y-0 left-0 flex items-center pl-2">
                     <Image

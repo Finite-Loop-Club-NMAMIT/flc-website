@@ -630,12 +630,15 @@ canvas {
   opacity: 0.3;
 }
 
+
 .radialgradient {
   background: radial-gradient(
-    circle at 50% -210%,
-    #fbe737,
-    #f5e74e 50%,
-    #0e0f1100 75%,
-    #0e0f1100 75%
+    circle at 50% -180%,
+    #800080, 
+    #4b0082 50%,
+    #0e0f11 75%,
+    #000000 100% 
   );
 }
+
+

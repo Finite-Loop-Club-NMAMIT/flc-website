@@ -110,7 +110,7 @@ const LoginForm: FunctionComponent<Props> = ({ className }) => {
           </Link>
         </div>
         <div className="flex  flex-col justify-center gap-2">
-          <Button className="bg-yellow-300 hover:bg-yellow-300" type="submit">
+          <Button className="bg-purple-700 hover:bg-purple-700" type="submit">
             Submit
           </Button>
           <p className="mb-4 text-center text-sm">

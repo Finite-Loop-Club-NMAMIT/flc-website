@@ -127,7 +127,7 @@ const SignUpForm: FunctionComponent<Props> = ({ className }) => {
           control={form.control}
           name="phone"
           render={({ field }) => (
-            <FormItem className="flex-1 rounded-lg p-2 sm:p-4">
+            <FormItem className="flex-1 rounded-lg">
               <FormLabel>Phone</FormLabel>
               <FormControl className="bg-[#494949]">
                 <InputOTP maxLength={10} {...field}>
@@ -177,12 +177,12 @@ const SignUpForm: FunctionComponent<Props> = ({ className }) => {
             </FormItem>
           )}
         />
-        <div className="flex flex-col space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
+        <div className="flex flex-col  space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
           <FormField
             control={form.control}
             name="branchId"
             render={({ field }) => (
-              <FormItem className="min-w-52">
+              <FormItem className=" min-w-52">
                 <FormLabel>Branch</FormLabel>
                 <FormControl className="bg-[#494949]">
                   <ComboBox
@@ -259,7 +259,7 @@ const SignUpForm: FunctionComponent<Props> = ({ className }) => {
         />
 
         <div className="flex flex-col justify-center gap-2">
-          <Button className="bg-yellow-300 hover:bg-yellow-300" type="submit">
+          <Button className="bg-purple-800" type="submit">
             Submit
           </Button>
           <p className="mb-4 text-center text-sm">

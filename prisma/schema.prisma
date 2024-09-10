@@ -159,8 +159,9 @@ model Event {
   minTeamSize Int       @default(1)
   maxTeamSize Int       @default(1)
 
-  flcAmount    Int @default(0)
-  nonFlcAmount Int @default(0)
+  isMembersOnly Boolean @default(false)
+  flcAmount     Int     @default(0)
+  nonFlcAmount  Int     @default(0)
 
   state    EventState @default(DRAFT)
   isLegacy Boolean    @default(false)

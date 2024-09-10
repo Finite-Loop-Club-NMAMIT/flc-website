@@ -1,3 +1,4 @@
+import { EventType } from "@prisma/client";
 import { Button } from "@radix-ui/themes";
 import { X } from "lucide-react";
 import React, { type FunctionComponent, useEffect, useState } from "react";
@@ -25,7 +26,17 @@ const TeamDialog: FunctionComponent<{
   eventId: number;
   maxTeamSize: number;
   eventName: string;
-}> = ({ eventId, maxTeamSize, flcAmount, nonFlcAmount, eventName }) => {
+  eventType: EventType;
+  refetchEvent: () => void;
+}> = ({
+  eventId,
+  maxTeamSize,
+  flcAmount,
+  nonFlcAmount,
+  eventName,
+  eventType,
+  refetchEvent,
+}) => {
   const [open, setOpen] = useState<boolean>(false);
 
   const [isCreatingTeam, setIsCreatingTeam] = useState(false);
@@ -53,6 +64,8 @@ const TeamDialog: FunctionComponent<{
   const confirmTeam = api.team.confirmTeam.useMutation();
   const leaveTeam = api.team.leaveTeam.useMutation();
   const removeFromTeam = api.team.removeFromTeam.useMutation();
+
+  const soloReg = api.team.soloTeamRegistration.useMutation();
 
   useEffect(() => {
     if (teamData?.isConfirmed) setTeamConfirmed(true);
@@ -102,7 +115,7 @@ const TeamDialog: FunctionComponent<{
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paymentStatus]);
 
-  return (
+  return eventType === "TEAM" ? (
     <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
       <DialogTrigger asChild>
         <Button className="card-button z-20">
@@ -330,6 +343,41 @@ const TeamDialog: FunctionComponent<{
         )}
       </DialogContent>
     </Dialog>
+  ) : (
+    <>
+      {/* <Button className="card-button z-20"
+
+      >
+        {inATeam ? "Thankyou for registering" : "Register"}
+      </Button> */}
+      {inATeam ? (
+        <h3 className="pt-8 text-lg font-semibold">
+          Thank you for registering!!
+        </h3>
+      ) : (
+        <Button
+          className="card-button z-20"
+          onClick={() => {
+            soloReg.mutate(
+              { eventId },
+              {
+                onSuccess: () => {
+                  toast.success("Thankyou for registering");
+                  refetchEvent();
+                  // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                  refetchTeamData();
+                },
+                onError: ({ message }) => {
+                  toast.error(message);
+                },
+              },
+            );
+          }}
+        >
+          Register
+        </Button>
+      )}
+    </>
   );
 };
 

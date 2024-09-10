@@ -28,7 +28,7 @@ const EventsSlug: NextPage = () => {
 
   const path = usePathname();
 
-  const url = `http://localhost:3000${path}`;
+  const url = `https://finiteloop.co.in${path}`;
 
   const {
     data: event,
@@ -49,18 +49,15 @@ const EventsSlug: NextPage = () => {
 
   return (
     <main className="container mb-1 mt-16 flex w-[100%] flex-col items-center justify-start space-y-4 font-sans">
-      <section className="intro-card relative flex h-96 w-full flex-col overflow-hidden rounded-2xl border border-border bg-accent md:flex-row">
+      <section className="intro-card relative flex h-fit w-full flex-col overflow-hidden rounded-2xl border border-border bg-accent md:h-96 md:flex-row">
         <div className="w-full md:w-2/5">
-          <div className="relative h-full w-full">
+          <div className="relative h-[300px] w-full md:h-full">
             <Image
               className="object-cover object-center"
-              src={
-                event.imgSrc && event.imgSrc.length > 0
-                  ? event.imgSrc
-                  : "/images/ui/event-fallback.png"
-              }
+              src={event.imgSrc ?? "/images/ui/event-fallback.png"}
               alt="event"
               fill
+              sizes="(max-width: 768px) 100vw, (min-width: 768px) 50vw"
             />
           </div>
         </div>
@@ -102,7 +99,7 @@ const EventsSlug: NextPage = () => {
               </p>
             )}
 
-            {user?.memberSince !== undefined && (
+            {event.fromDate > new Date() && (
               <TeamDialog
                 eventId={event.id}
                 maxTeamSize={event.maxTeamSize}
@@ -113,13 +110,6 @@ const EventsSlug: NextPage = () => {
             )}
           </div>
         </div>
-        <Image
-          src="/card_bottom.png"
-          alt=""
-          height={50}
-          width={50}
-          className="absolute bottom-0 left-0 right-0 top-auto w-[100%] opacity-50"
-        />
       </section>
 
       <section className="intro-card relative mx-auto flex w-full flex-col gap-4 overflow-hidden rounded-2xl border border-border bg-accent p-8 sm:flex-row">

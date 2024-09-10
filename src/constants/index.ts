@@ -14,7 +14,7 @@ const siteMetaData = {
   author: "FLC Tech Team",
 };
 
-const teamTabs = ["2022", "2023", "2024", "Faculty"];
+const teamTabs = ["2023", "2024", "Faculty"];
 
 const years = [2017, 2020, 2021, 2022, 2023, 2024];
 

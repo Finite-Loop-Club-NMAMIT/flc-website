@@ -41,7 +41,7 @@ const RegisterForm: FunctionComponent<{
 }> = ({ className }) => {
   const { data: user } = api.user.getUser.useQuery();
   if (!user) return null;
-  if (user.memberSince && user.paymentId) return <AlreadyMember user={user} />;
+  if (user.memberSince) return <AlreadyMember user={user} />;
   return <InnerRegisterForm className={className} user={user} />;
 };
 

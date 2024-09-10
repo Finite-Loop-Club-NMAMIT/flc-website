@@ -15,7 +15,7 @@ const transporter = nodemailer.createTransport({
 });
 
 const defaultTemplate = {
-  canonical_url: "http://localhost:3000",
+  canonical_url: "https://finiteloop.co.in",
   // TODO: Verify credentials
   instagram: "https://www.instagram.com/finiteloop_club_nmamit/",
   facebook: "https://www.facebook.com/FiniteLoopClub.Nmamit/",

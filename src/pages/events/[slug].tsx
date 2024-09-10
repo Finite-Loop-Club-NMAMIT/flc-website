@@ -136,18 +136,25 @@ const EventsSlug: NextPage = () => {
                     : event.teamCount > 0
                       ? `Registered (${event.teamCount})`
                       : "Register Now!"}
+                  {event.Team.length > event.maxTeams ? (
+                    <p className="text-lg font-semibold text-red-500">
+                      Registration Closed
+                    </p>
+                  ) : null}
                 </h1>
 
                 <AvatarGroup images={event.selectedImages} />
-                <TeamDialog
-                  eventId={event.id}
-                  maxTeamSize={event.maxTeamSize}
-                  flcAmount={event.flcAmount}
-                  nonFlcAmount={event.nonFlcAmount}
-                  eventName={event.name}
-                  eventType={event.eventType}
-                  refetchEvent={refetch}
-                />
+                {event.Team.length < event.maxTeams && (
+                  <TeamDialog
+                    eventId={event.id}
+                    maxTeamSize={event.maxTeamSize}
+                    flcAmount={event.flcAmount}
+                    nonFlcAmount={event.nonFlcAmount}
+                    eventName={event.name}
+                    eventType={event.eventType}
+                    refetchEvent={refetch}
+                  />
+                )}
                 <h1 className="mb-2 mt-8 text-xl font-medium">
                   Share with a friend
                 </h1>
@@ -173,15 +180,17 @@ const EventsSlug: NextPage = () => {
               </h1>
 
               <AvatarGroup images={event.selectedImages} />
-              <TeamDialog
-                eventId={event.id}
-                maxTeamSize={event.maxTeamSize}
-                flcAmount={event.flcAmount}
-                nonFlcAmount={event.nonFlcAmount}
-                eventName={event.name}
-                eventType={event.eventType}
-                refetchEvent={refetch}
-              />
+              {event.Team.length < event.maxTeams && (
+                <TeamDialog
+                  eventId={event.id}
+                  maxTeamSize={event.maxTeamSize}
+                  flcAmount={event.flcAmount}
+                  nonFlcAmount={event.nonFlcAmount}
+                  eventName={event.name}
+                  eventType={event.eventType}
+                  refetchEvent={refetch}
+                />
+              )}
               <h1 className="mb-2 mt-8 text-xl font-medium">
                 Share with a friend
               </h1>

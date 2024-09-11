@@ -52,13 +52,13 @@ model User {
   githubLink   String?
 
   branchId String
-  Branch   Branch @relation(fields: [branchId], references: [id])
+  Branch   Branch @relation(fields: [branchId], references: [id], onDelete: Cascade)
 
   UserLink UserLink[]
   Blog     Blog[]
 
   paymentId String?  @unique
-  Payment   Payment? @relation(fields: [paymentId], references: [id])
+  Payment   Payment? @relation(fields: [paymentId], references: [id], onDelete: SetNull)
 
   Attendance Attendance[]
   TeamLeader Team[]       @relation("leaderOfTeam")

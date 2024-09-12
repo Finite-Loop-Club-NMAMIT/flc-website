@@ -151,9 +151,9 @@ function Team() {
                   name={member.User.name}
                   role={member.position}
                   src={member.User.image ?? ""}
-                  github={undefined}
-                  linkedin={undefined}
-                  instagram={undefined}
+                  github={member.User.UserLink.find((link)=>link.linkName==="GitHub")?.url}
+                  linkedin={member.User.UserLink.find((link)=>link.linkName==="LinkedIn")?.url}
+                  instagram={member.User.UserLink.find((link)=>link.linkName==="Instagram")?.url}
                 />
               ))
             )}

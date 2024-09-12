@@ -283,13 +283,13 @@ const InnerRegisterForm: FunctionComponent<{
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-white dark:text-white">
-                Github Link
+                Github Profile Link
               </FormLabel>
               <FormControl>
                 <Input
                   onFocus={form.handleSubmit(onSubmit)}
                   className="bg-[#494949]"
-                  placeholder="Github Link"
+                  placeholder="Github Profile URL"
                   {...field}
                 />
               </FormControl>
@@ -362,12 +362,12 @@ const InnerRegisterForm: FunctionComponent<{
           )}
         />
 
-        <div className="flex justify-between">
-          <Link href="/profile">
+        <div className="flex justify-end">
+          {/* <Link href="/profile">
             <Button className="bg-red-500 text-white hover:bg-red-600">
               Not interested
             </Button>
-          </Link>
+          </Link> */}
           <FormField
             control={form.control}
             name="paymentId"

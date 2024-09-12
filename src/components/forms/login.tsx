@@ -135,7 +135,7 @@ const LoginForm: FunctionComponent<Props> = ({ className }) => {
           >
             Submit
           </Button>
-          <p className="mb-4  mt-4 text-center text-sm text-white dark:text-white">
+          <p className="mb-4  mt-4 text-center text-base text-white dark:text-white">
             Don&#39;t have an account?&nbsp;
             <strong className="underline">
               <Link href="/signup">Signup </Link>

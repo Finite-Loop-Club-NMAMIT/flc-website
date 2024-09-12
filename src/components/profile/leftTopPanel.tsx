@@ -80,7 +80,7 @@ const InnerLeftPanel = forwardRef<
                   <BsPatchCheckFill className="mt-[0.3px] text-green-500" />
                 </>
               ) : (
-                "Unofficial Member"
+                "Non-Member"
               )}
             </p>
           </div>

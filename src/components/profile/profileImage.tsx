@@ -29,7 +29,8 @@ const InnerProfileImage = forwardRef<
             src={user.image}
             alt={"Profile Image"}
             fill
-            className="rounded-full object-fill object-center"
+            objectFit="cover"
+            className="rounded-full object-cover object-center"
           />
           {!notMine && <UploadForm oldImage={user.image} />}
           {/* mutation, uploading, deletion of image is taken care of here*/}

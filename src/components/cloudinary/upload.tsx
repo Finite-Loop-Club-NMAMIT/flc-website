@@ -163,6 +163,7 @@ export default function UploadForm({oldImage,buttonText}: UploadFormProps) {
               className="m-auto rounded-full border-4 border-white object-fill object-center"
               alt="Uploaded"
               fill
+              objectFit="cover"
               style={{ maxWidth: "200px", maxHeight: "200px" }}
             />
           </div>

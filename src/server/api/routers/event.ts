@@ -14,6 +14,7 @@ import {
 import {
   adminProcedure,
   createTRPCRouter,
+  organiserProcedure,
   protectedProcedure,
   publicProcedure,
 } from "../trpc";
@@ -247,7 +248,29 @@ const eventRouter = createTRPCRouter({
     });
   }),
 
-  getEventById: publicProcedure
+  getEventById:organiserProcedure
+  .input(getEventByIdZ)
+  .query(async ({ ctx, input }) => {
+    const event = await ctx.db.event.findUnique({ 
+      where: { id: input.eventId }, 
+      include:{
+        Team : {
+          include: {
+            Members: true,
+          }
+        }
+      }
+    })
+    if (!event) {
+      throw new TRPCError({
+        code: "NOT_FOUND",
+        message: "Event not found",
+      });
+    }
+    return event
+  }),
+
+  getAvatarGroup: publicProcedure
     .input(getEventByIdZ)
     .query(async ({ ctx, input }) => {
       const event = await ctx.db.event.findUnique({

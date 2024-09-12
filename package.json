@@ -47,7 +47,7 @@
     "@tabler/icons-react": "^3.12.0",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tanstack/react-query": "^5.39.0",
-    "@tanstack/react-table": "^8.20.1",
+    "@tanstack/react-table": "^8.20.5",
     "@trpc/client": "next",
     "@trpc/next": "next",
     "@trpc/react-query": "next",

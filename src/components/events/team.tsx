@@ -69,11 +69,13 @@ const TeamDialog: FunctionComponent<{
 
   const soloReg = api.team.soloTeamRegistration.useMutation({
     onSuccess: async () => {
+      toast.dismiss("registering");
       toast.success("Thankyou for registering");
       refetchEvent();
       await refetchTeamData();
     },
     onError: ({ message }) => {
+      toast.dismiss("registering");
       toast.error(message);
     },
   });
@@ -397,8 +399,12 @@ const TeamDialog: FunctionComponent<{
               <Button
                 className="card-button z-20"
                 onClick={async () => {
+                  toast.loading(`Registering for ${eventName}`, {
+                    id: "registering",
+                  });
                   await soloReg.mutateAsync({ eventId });
                 }}
+                disabled={soloReg.isPending}
               >
                 Register
               </Button>

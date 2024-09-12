@@ -112,7 +112,7 @@ const EventsSlug: NextPage = () => {
         </div>
 
         {event.isMembersOnly ? (
-          <Badge className="absolute right-5 top-5 border-yellow-500 bg-yellow-500/50 text-base text-white">
+          <Badge className="absolute right-2 top-2 border-yellow-500 bg-yellow-500/50 text-white">
             Exclusive for Members
           </Badge>
         ) : null}
@@ -145,15 +145,17 @@ const EventsSlug: NextPage = () => {
 
                 <AvatarGroup images={event.selectedImages} />
                 {event.Team.length < event.maxTeams && (
-                  <TeamDialog
-                    eventId={event.id}
-                    maxTeamSize={event.maxTeamSize}
-                    flcAmount={event.flcAmount}
-                    nonFlcAmount={event.nonFlcAmount}
-                    eventName={event.name}
-                    eventType={event.eventType}
-                    refetchEvent={refetch}
-                  />
+                  <div className="pt-10">
+                    <TeamDialog
+                      eventId={event.id}
+                      maxTeamSize={event.maxTeamSize}
+                      flcAmount={event.flcAmount}
+                      nonFlcAmount={event.nonFlcAmount}
+                      eventName={event.name}
+                      eventType={event.eventType}
+                      refetchEvent={refetch}
+                    />
+                  </div>
                 )}
                 <h1 className="mb-2 mt-8 text-xl font-medium">
                   Share with a friend
@@ -181,15 +183,17 @@ const EventsSlug: NextPage = () => {
 
               <AvatarGroup images={event.selectedImages} />
               {event.Team.length < event.maxTeams && (
-                <TeamDialog
-                  eventId={event.id}
-                  maxTeamSize={event.maxTeamSize}
-                  flcAmount={event.flcAmount}
-                  nonFlcAmount={event.nonFlcAmount}
-                  eventName={event.name}
-                  eventType={event.eventType}
-                  refetchEvent={refetch}
-                />
+                <div className="pt-10">
+                  <TeamDialog
+                    eventId={event.id}
+                    maxTeamSize={event.maxTeamSize}
+                    flcAmount={event.flcAmount}
+                    nonFlcAmount={event.nonFlcAmount}
+                    eventName={event.name}
+                    eventType={event.eventType}
+                    refetchEvent={refetch}
+                  />
+                </div>
               )}
               <h1 className="mb-2 mt-8 text-xl font-medium">
                 Share with a friend

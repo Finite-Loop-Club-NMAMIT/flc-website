@@ -1,5 +1,6 @@
 import { type inferProcedureOutput } from "@trpc/server";
 import Image from "next/image";
+import Link from "next/link";
 import React, { type FunctionComponent } from "react";
 
 import { type AppRouter } from "~/server/api/root";
@@ -144,12 +145,14 @@ const OrganisorCard: FunctionComponent<{
         >
           Feedback
         </button>
+        
+        <Link href={`/dashboard/organiser/attendance/${event.id}`} className="rounded-md bg-yellow-500 px-4 py-2 text-white hover:bg-yellow-600">
         <button
           onClick={() => handleAttendanceClick(event.id)}
-          className="rounded-md bg-yellow-500 px-4 py-2 text-white hover:bg-yellow-600"
+          
         >
           Attendance
-        </button>
+        </button></Link> 
         <button
           onClick={() => handleCertificateClick(event.id)}
           className="rounded-md bg-purple-500 px-4 py-2 text-white hover:bg-purple-600"

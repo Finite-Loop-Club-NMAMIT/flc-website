@@ -35,7 +35,7 @@ const Layout: FunctionComponent<{ children: ReactNode }> = ({ children }) => {
     void routerPush("/auth/login");
 
   // Protected routes with special previlages
-  if (
+  /* if (
     status === "authenticated" &&
     ((pathname.startsWith("/dashboard/organiser") &&
       session.user.role !== "ORGANISER" &&
@@ -44,7 +44,7 @@ const Layout: FunctionComponent<{ children: ReactNode }> = ({ children }) => {
         session.user.role !== "ADMIN") ||
       pathname.startsWith("/dashboard"))
   )
-    return <Unauthorized user={session.user} />;
+    return <Unauthorized user={session.user} />; */
 
   if (pathname.startsWith("/dashboard"))
     return <DashboardLayout>{children}</DashboardLayout>;

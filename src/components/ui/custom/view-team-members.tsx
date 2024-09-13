@@ -10,24 +10,12 @@ import {
   DialogTrigger,
 } from "~/components/ui/dialog";
 import { Check, X } from "lucide-react";
-import { type Team } from "@prisma/client";
-import { useState } from "react";
+import { api } from "~/utils/api";
+import { type User } from "~/store";
 
-export function TeamMembersDialog({ team }: { team: Team[] }) {
-  const [teamDetails, setTeamDetails] = useState(team);
-
-  const toggleAttendance = (memberId: string) => {
-    setTeamDetails((prevTeamDetails) =>
-      prevTeamDetails.map((member) =>
-        member.id === memberId
-          ? { ...member, hasAttended: !member.hasAttended } 
-          : member
-      )
-    );
-
-    console.log(`Toggling attendance for member: ${memberId}`);
-  };
-
+export function TeamMembersDialog({ team , eventId}: { team: User[], eventId: number }) {
+  /* const toggleAttendance = api.attendance.toggleAttendance.useMutation();
+  console.log("Team : ",team) */
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -50,19 +38,24 @@ export function TeamMembersDialog({ team }: { team: Team[] }) {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {teamDetails.map((member) => (
+              {team.map((member) => (
                 <tr key={member.id}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{member.id}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{member.name}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <button
-                      onClick={() => toggleAttendance(member.id)}
+                      /* onClick={() => 
+                        toggleAttendance.mutate({
+                        userId : member.id,
+                        eventId : eventId,
+                      })} */
                     >
-                      {member.hasAttended ? (
+                      
+                      {/* {member. ? (
                         <X className="h-5 w-5 text-red-600" />
                       ) : (
                         <Check className="h-5 w-5 text-green-600" />
-                      )}
+                      )} */}
                     </button>
                   </td>
                 </tr>

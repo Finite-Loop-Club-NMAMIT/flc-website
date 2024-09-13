@@ -19,7 +19,7 @@ const Navbar: FunctionComponent = ({}) => {
     <nav className="fixed top-0 z-[80] flex w-full items-center justify-center border-0 px-8  py-4 backdrop-blur-lg backdrop-filter">
       <Link href="/" className="flex cursor-pointer items-center gap-3">
         <div className="relative size-12">
-          <Image src="/images/flc-logo-crop.png" alt="Logo" fill />
+          <Image src="/images/flc-logo-crop.png" alt="Logo" fill/>
         </div>
         <p className="hidden font-bold lg:block lg:text-2xl">
           Finite Loop Club

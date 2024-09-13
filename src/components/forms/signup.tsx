@@ -130,7 +130,7 @@ const SignUpForm: FunctionComponent<Props> = ({ className }) => {
               <FormControl>
                 <Input
                   className="bg-[#494949]"
-                  placeholder="Email"
+                  placeholder="Personal Email"
                   {...field}
                 />
               </FormControl>
@@ -166,7 +166,7 @@ const SignUpForm: FunctionComponent<Props> = ({ className }) => {
                       <InputOTPSlot
                         key={idx}
                         index={idx}
-                        className="size-9 bg-[#494949] sm:size-10"
+                        className="size-8 bg-[#494949] sm:size-10"
                       />
                     ))}
                   </InputOTPGroup>
@@ -290,10 +290,10 @@ const SignUpForm: FunctionComponent<Props> = ({ className }) => {
           >
             Submit
           </Button>
-          <p className="mb-4 text-center text-sm text-white dark:text-white">
+          <p className="mb-4 text-center text-base text-white dark:text-white">
             Already have an account?&nbsp;
             <strong className="underline">
-              <Link href="/auth/login">LogIn </Link>
+              <Link href="/auth/login">Login </Link>
             </strong>
           </p>
         </div>

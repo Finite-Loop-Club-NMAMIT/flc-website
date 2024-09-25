@@ -18,6 +18,8 @@ const Home: NextPage = () => {
         autoPlay
         muted
         loop
+        disablePictureInPicture
+        controlsList="nodownload"
         className={cn(
           "absolute top-[40vh] h-[60vh] w-full object-cover object-center md:top-[42vh] md:h-auto lg:top-[30vh] xl:top-[20vh]",
           theme === "dark" ? "brightness-100" : "brightness-75 ",

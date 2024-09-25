@@ -2,7 +2,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import React, { type FunctionComponent } from "react";
+import { type FunctionComponent } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { type z } from "zod";
@@ -57,9 +57,9 @@ const LoginForm: FunctionComponent<Props> = ({ className }) => {
         if (s?.ok) {
           toast.success("Logged in successfully");
           const { data: user } = await refetchUser();
-          if (user?.memberSince)
-            setTimeout(() => void router.push(`/profile`), 1000);
-          else setTimeout(() => void router.push(`/register`), 1000);
+          // if (user?.memberSince)
+          setTimeout(() => void router.push(`/profile`), 1000);
+          // else setTimeout(() => void router.push(`/register`), 1000);
         } else {
           toast.error(
             s?.error ?? "Failed to log in! You sure about your credentials?",
@@ -135,7 +135,7 @@ const LoginForm: FunctionComponent<Props> = ({ className }) => {
           >
             Submit
           </Button>
-          <p className="mb-4  mt-4 text-center text-sm text-white dark:text-white">
+          <p className="mb-4  mt-4 text-center text-base text-white dark:text-white">
             Don&#39;t have an account?&nbsp;
             <strong className="underline">
               <Link href="/signup">Signup </Link>

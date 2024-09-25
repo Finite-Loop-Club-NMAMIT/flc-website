@@ -2,6 +2,7 @@
 
 import { format } from "date-fns";
 import { type NextPage } from "next";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useRouter } from "next/router";
@@ -9,6 +10,7 @@ import React from "react";
 
 import NotFound from "~/pages/404";
 
+import { Badge } from "~/components/ui/badge";
 import { AvatarGroup } from "~/components/ui/custom/avatar-group";
 import { Input } from "~/components/ui/input";
 
@@ -22,6 +24,8 @@ const EventsSlug: NextPage = () => {
 
   const { data: user } = api.user.getUser.useQuery();
 
+  const { data: session } = useSession();
+
   const id = Array.isArray(router.query.slug)
     ? router.query.slug[0]
     : router.query.slug;
@@ -34,7 +38,7 @@ const EventsSlug: NextPage = () => {
     data: event,
     isLoading,
     status,
-  } = api.event.getEventById.useQuery({
+  } = api.event.getAvatarGroup.useQuery({
     eventId: parseInt(id!),
   });
 
@@ -98,18 +102,19 @@ const EventsSlug: NextPage = () => {
                   : " Free"}{" "}
               </p>
             )}
-
-            {event.fromDate > new Date() && (
-              <TeamDialog
-                eventId={event.id}
-                maxTeamSize={event.maxTeamSize}
-                flcAmount={event.flcAmount}
-                nonFlcAmount={event.nonFlcAmount}
-                eventName={event.name}
-              />
-            )}
           </div>
+          {!session?.user ? (
+            <h3 className="pt-4 text-lg font-bold text-red-500">
+              Login to Register for the event
+            </h3>
+          ) : null}
         </div>
+
+        {event.isMembersOnly ? (
+          <Badge className="absolute right-2 top-2 border-yellow-500 bg-yellow-500/50 text-white">
+            Exclusive for Members
+          </Badge>
+        ) : null}
       </section>
 
       <section className="intro-card relative mx-auto flex w-full flex-col gap-4 overflow-hidden rounded-2xl border border-border bg-accent p-8 sm:flex-row">
@@ -121,29 +126,88 @@ const EventsSlug: NextPage = () => {
           />
         </div>
         {new Date() < (event.deadline ?? new Date()) ? (
-          <div className="b" style={{ flex: 1 }}>
-            <h1 className="text-xl font-medium">
-              {event.state === "COMPLETED"
-                ? "Registration Closed"
-                : event.teamCount > 0
-                  ? `Registered (${event.teamCount})`
-                  : "Register Now!"}
-            </h1>
+          event.isMembersOnly ? (
+            user?.memberSince ? (
+              <div className="b" style={{ flex: 1 }}>
+                <h1 className="text-xl font-medium">
+                  {event.state === "COMPLETED"
+                    ? "Registration Closed"
+                    : event.teamCount > 0
+                      ? `Registered (${event.teamCount})`
+                      : "Register Now!"}
+                  {event.Team.length > event.maxTeams ? (
+                    <p className="text-lg font-semibold text-red-500">
+                      Registration Closed
+                    </p>
+                  ) : null}
+                </h1>
 
-            <AvatarGroup images={event.selectedImages} />
-            <h1 className="mb-2 mt-8 text-xl font-medium">
-              Share with a friend
-            </h1>
-            <div className="flex gap-2 ">
-              <Input
-                className="card-attributes flex-1 rounded-lg text-xs"
-                type="text"
-                value={url}
-                disabled
-              />
-              <CopyBtn value={url} />
+                <AvatarGroup images={event.selectedImages} />
+                {event.Team.length < event.maxTeams && (
+                  <div className="pt-10">
+                    <TeamDialog
+                      eventId={event.id}
+                      maxTeamSize={event.maxTeamSize}
+                      flcAmount={event.flcAmount}
+                      nonFlcAmount={event.nonFlcAmount}
+                      eventName={event.name}
+                      eventType={event.eventType}
+                      refetchEvent={refetch}
+                    />
+                  </div>
+                )}
+                <h1 className="mb-2 mt-8 text-xl font-medium">
+                  Share with a friend
+                </h1>
+                <div className="flex gap-2 ">
+                  <Input
+                    className="card-attributes flex-1 rounded-lg text-xs"
+                    type="text"
+                    value={url}
+                    disabled
+                  />
+                  <CopyBtn value={url} />
+                </div>
+              </div>
+            ) : null
+          ) : (
+            <div className="b" style={{ flex: 1 }}>
+              <h1 className="text-xl font-medium">
+                {event.state === "COMPLETED"
+                  ? "Registration Closed"
+                  : event.teamCount > 0
+                    ? `Registered (${event.teamCount})`
+                    : "Register Now!"}
+              </h1>
+
+              <AvatarGroup images={event.selectedImages} />
+              {event.Team.length < event.maxTeams && (
+                <div className="pt-10">
+                  <TeamDialog
+                    eventId={event.id}
+                    maxTeamSize={event.maxTeamSize}
+                    flcAmount={event.flcAmount}
+                    nonFlcAmount={event.nonFlcAmount}
+                    eventName={event.name}
+                    eventType={event.eventType}
+                    refetchEvent={refetch}
+                  />
+                </div>
+              )}
+              <h1 className="mb-2 mt-8 text-xl font-medium">
+                Share with a friend
+              </h1>
+              <div className="flex gap-2 ">
+                <Input
+                  className="card-attributes flex-1 rounded-lg text-xs"
+                  type="text"
+                  value={url}
+                  disabled
+                />
+                <CopyBtn value={url} />
+              </div>
             </div>
-          </div>
+          )
         ) : null}
       </section>
     </main>

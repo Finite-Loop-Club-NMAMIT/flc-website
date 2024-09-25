@@ -1,4 +1,6 @@
+import { EventType } from "@prisma/client";
 import { Button } from "@radix-ui/themes";
+import { set } from "date-fns";
 import { X } from "lucide-react";
 import React, { type FunctionComponent, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -10,6 +12,7 @@ import {
   DialogTitle,
   DialogDescription,
   DialogClose,
+  DialogFooter,
 } from "~/components/ui/dialog";
 
 import Payment from "~/components/razorPay/paymentButton";
@@ -25,7 +28,17 @@ const TeamDialog: FunctionComponent<{
   eventId: number;
   maxTeamSize: number;
   eventName: string;
-}> = ({ eventId, maxTeamSize, flcAmount, nonFlcAmount, eventName }) => {
+  eventType: EventType;
+  refetchEvent: () => void;
+}> = ({
+  eventId,
+  maxTeamSize,
+  flcAmount,
+  nonFlcAmount,
+  eventName,
+  eventType,
+  refetchEvent,
+}) => {
   const [open, setOpen] = useState<boolean>(false);
 
   const [isCreatingTeam, setIsCreatingTeam] = useState(false);
@@ -53,6 +66,19 @@ const TeamDialog: FunctionComponent<{
   const confirmTeam = api.team.confirmTeam.useMutation();
   const leaveTeam = api.team.leaveTeam.useMutation();
   const removeFromTeam = api.team.removeFromTeam.useMutation();
+
+  const soloReg = api.team.soloTeamRegistration.useMutation({
+    onSuccess: async () => {
+      toast.dismiss("registering");
+      toast.success("Thankyou for registering");
+      refetchEvent();
+      await refetchTeamData();
+    },
+    onError: ({ message }) => {
+      toast.dismiss("registering");
+      toast.error(message);
+    },
+  });
 
   useEffect(() => {
     if (teamData?.isConfirmed) setTeamConfirmed(true);
@@ -102,7 +128,7 @@ const TeamDialog: FunctionComponent<{
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [paymentStatus]);
 
-  return (
+  return eventType === "TEAM" ? (
     <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
       <DialogTrigger asChild>
         <Button className="card-button z-20">
@@ -330,6 +356,63 @@ const TeamDialog: FunctionComponent<{
         )}
       </DialogContent>
     </Dialog>
+  ) : (
+    <>
+      {/* <Button className="card-button z-20"
+
+      >
+        {inATeam ? "Thankyou for registering" : "Register"}
+      </Button> */}
+      {inATeam ? (
+        <h3 className="pt-8 text-lg font-semibold">
+          Thank you for registering!!
+        </h3>
+      ) : (
+        <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
+          <DialogTrigger asChild>
+            <Button className="card-button z-20">Register</Button>
+          </DialogTrigger>
+          <DialogContent className="intro-card w-[90%] border-none !opacity-100  sm:mx-0 sm:w-[40%]">
+            <DialogClose asChild>
+              <button
+                className="absolute right-1.5 top-1.5 z-30 p-1.5 text-gray-600 hover:text-white"
+                aria-label="Close"
+              >
+                <X />
+              </button>
+            </DialogClose>
+
+            <DialogTitle>
+              Are you sure you want to register for this event?
+            </DialogTitle>
+
+            <DialogFooter className="flex w-full justify-between">
+              <Button
+                className="card-button z-20"
+                onClick={() => {
+                  setOpen(false);
+                }}
+              >
+                Cancel
+              </Button>
+
+              <Button
+                className="card-button z-20"
+                onClick={async () => {
+                  toast.loading(`Registering for ${eventName}`, {
+                    id: "registering",
+                  });
+                  await soloReg.mutateAsync({ eventId });
+                }}
+                disabled={soloReg.isPending}
+              >
+                Register
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
+    </>
   );
 };
 

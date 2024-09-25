@@ -1,12 +1,8 @@
 import { useSession } from "next-auth/react";
-import Link from "next/link";
-import { useRef, useEffect, useState } from "react";
-import { LuArrowRight } from "react-icons/lu";
+import { useEffect, useRef, useState } from "react";
 
 import AnimatedShinyText from "~/components/magicui/animated-shiny-text";
 import { api } from "~/utils/api";
-
-import { Button } from "../ui/button";
 
 function Hero() {
   const { data: session } = useSession();
@@ -37,18 +33,20 @@ function Hero() {
           NMAMIT&apos;s premier coding community. Realizing ideas, inspiring the
           next.
         </p>
-        {!user?.paymentId && (
-          <div className="z-10 flex items-center justify-center">
-            <Link href="/register">
-              <Button>
-                <span className=" mr-2 text-center font-title text-sm font-thin tracking-tight text-white sm:text-sm md:text-lg lg:text-xl">
-                  Register Now
-                </span>
-                <LuArrowRight size={16} color="white" />
-              </Button>
-            </Link>
-          </div>
-        )}
+        {/*
+          {!user?.paymentId && (
+            <div className="z-10 flex items-center justify-center">
+              <Link href="/register">
+                <Button>
+                  <span className=" mr-2 text-center font-title text-sm font-thin tracking-tight text-white sm:text-sm md:text-lg lg:text-xl">
+                    Register Now
+                  </span>
+                  <LuArrowRight size={16} color="white" />
+                </Button>
+              </Link>
+            </div>
+          )}
+          */}
       </div>
     </section>
   );

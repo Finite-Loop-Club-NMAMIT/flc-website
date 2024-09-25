@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { type FunctionComponent } from "react";
 import { useForm } from "react-hook-form";
-import { LuLogOut } from "react-icons/lu";
+import { LuArrowRight, LuLogOut } from "react-icons/lu";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -42,7 +42,35 @@ const RegisterForm: FunctionComponent<{
   const { data: user } = api.user.getUser.useQuery();
   if (!user) return null;
   if (user.memberSince) return <AlreadyMember user={user} />;
-  return <InnerRegisterForm className={className} user={user} />;
+  return <RegistrationsClosed />;
+  // return <InnerRegisterForm className={className} user={user} />;
+};
+
+const RegistrationsClosed: FunctionComponent = () => {
+  return (
+    <Card className="mt-14 flex flex-col items-center justify-center border-none bg-gradient-to-bl from-[#1e1333] via-[#0a001c]  to-[#0e0a2a] py-4">
+      <CardHeader>
+        <CardTitle className="text-center text-3xl">
+          Registrations Closed!
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="flex max-w-prose flex-col gap-3">
+        <div className="text-center">
+          Maximum number of acceptance to club reached.
+        </div>
+
+        <div className="text-center">Thank you for considering.</div>
+      </CardContent>
+      <CardFooter className="flex justify-center">
+        <Link href="/profile">
+          <Button size="sm">
+            Profile
+            <LuArrowRight className="ml-2 size-5" />
+          </Button>
+        </Link>
+      </CardFooter>
+    </Card>
+  );
 };
 
 const AlreadyMember: FunctionComponent<{
@@ -283,13 +311,13 @@ const InnerRegisterForm: FunctionComponent<{
           render={({ field }) => (
             <FormItem>
               <FormLabel className="text-white dark:text-white">
-                Github Link
+                Github Profile Link
               </FormLabel>
               <FormControl>
                 <Input
                   onFocus={form.handleSubmit(onSubmit)}
                   className="bg-[#494949]"
-                  placeholder="Github Link"
+                  placeholder="Github Profile URL"
                   {...field}
                 />
               </FormControl>
@@ -362,12 +390,12 @@ const InnerRegisterForm: FunctionComponent<{
           )}
         />
 
-        <div className="flex justify-between">
-          <Link href="/profile">
+        <div className="flex justify-end">
+          {/* <Link href="/profile">
             <Button className="bg-red-500 text-white hover:bg-red-600">
               Not interested
             </Button>
-          </Link>
+          </Link> */}
           <FormField
             control={form.control}
             name="paymentId"

@@ -69,4 +69,9 @@ export const adminNavItems: NavItem[] = [
     name: "payments",
     link: "/dashboard/admin/payments",
   },
+  {
+    type: "both",
+    name: "organiser",
+    link: "/dashboard/organiser"
+  }
 ];

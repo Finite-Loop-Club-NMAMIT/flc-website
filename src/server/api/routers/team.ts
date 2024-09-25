@@ -341,6 +341,55 @@ const teamRouter = createTRPCRouter({
       };
     }),
 
+  soloTeamRegistration: protectedProcedure
+    .input(getEventByIdZ)
+    .mutation(async ({ ctx, input }) => {
+      const inTeam = await ctx.db.team.findFirst({
+        where: {
+          AND: [
+            {
+              eventId: input.eventId,
+            },
+            {
+              Members: {
+                some: {
+                  id: ctx.session.user.id,
+                },
+              },
+            },
+          ],
+        },
+      });
+
+      if (inTeam)
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Already in a team for this event",
+        });
+
+      await ctx.db.team.create({
+        data: {
+          name: ctx.session.user.name,
+          Event: {
+            connect: {
+              id: input.eventId,
+            },
+          },
+          Leader: {
+            connect: {
+              id: ctx.session.user.id, // Leader ID to connect
+            },
+          },
+          Members: {
+            connect: {
+              id: ctx.session.user.id,
+            },
+          },
+          isConfirmed: true,
+        },
+      });
+    }),
+
   // Retrieve
   getTeamById: protectedProcedure
     .input(getTeamByIdZ)

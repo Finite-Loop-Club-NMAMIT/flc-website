@@ -72,12 +72,12 @@ const EventsSlug: NextPage = () => {
           </p>
 
           <p className="text-base font-medium sm:text-lg">
-            Date: {format(event.fromDate, "dd/MM/yyyy")}
+            Date: {format(event.fromDate, "dd/MM/yyyy hh:mm a")}
           </p>
 
           <p className="text-base font-medium">Venue : {event.venue}</p>
           {event.Organiser.length !== 0 ? (
-            <p className="text-sm font-medium sm:text-base">
+            <p className="text-base font-medium sm:text-base">
               Organisers :{" "}
               {event.Organiser?.map((organiser) => organiser.User.name).join(
                 ", ",

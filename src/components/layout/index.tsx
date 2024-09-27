@@ -42,7 +42,10 @@ const Layout: FunctionComponent<{ children: ReactNode }> = ({ children }) => {
       session.user.role !== "ADMIN") ||
       (pathname.startsWith("/dashboard/admin") &&
         session.user.role !== "ADMIN") ||
-      pathname.startsWith("/dashboard"))
+      (session.user.role === "ADMIN" &&
+        (pathname.startsWith("/dashboard/cloudinary") ||
+          pathname.startsWith("/dashboard/core") ||
+          pathname === "/dashboard")))
   )
     return <Unauthorized user={session.user} />;
 

@@ -58,7 +58,7 @@ export default function Attendance() {
 
   const startCamera = async () => {
     await navigator.mediaDevices
-      .getUserMedia({ video: { facingMode: "environment" } })
+      ?.getUserMedia({ video: { facingMode: "environment" } })
       .then((stream) => {
         const video = ref.current;
         if (video) {

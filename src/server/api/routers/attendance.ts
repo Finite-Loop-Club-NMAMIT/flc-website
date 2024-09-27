@@ -92,6 +92,20 @@ const attendanceRouter = createTRPCRouter({
       });
     }),
 
+  markTeamAttendance: protectedProcedure
+    .input(toggleTeamAttendanceZ)
+    .mutation(async ({ ctx, input }) => {
+      return await ctx.db.team.update({
+        where: {
+          id: input.teamId,
+          eventId: input.eventId,
+        },
+        data: {
+          hasAttended: true,
+        },
+      });
+    }),
+
   getAttendanceByUserId: protectedProcedure.query(async ({ ctx }) => {
     const totalEvents = await ctx.db.event.count();
     const user = await ctx.db.user.findUnique({

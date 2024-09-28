@@ -69,7 +69,7 @@ export default function Attendance() {
 
   if (
     !user ||
-    (user?.user.role !== "ORGANISER" && user?.user.role !== "ADMIN")
+    (user.user.role == "USER")
   ) {
     return <NotFound />;
   }

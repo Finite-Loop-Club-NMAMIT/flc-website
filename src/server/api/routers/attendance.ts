@@ -1,5 +1,6 @@
 import { TRPCError } from "@trpc/server";
 
+import { pidToId } from "~/utils/id";
 import { toggleTeamAttendanceZ, toggleAttendanceZ } from "~/zod/attendanceZ";
 
 import {
@@ -31,6 +32,7 @@ const attendanceRouter = createTRPCRouter({
       });
 
       const team = user?.Team.find((t) => t.eventId === input.eventId);
+      console.log({ team });
 
       const attendance = user?.Attendance.find(
         (a) => a.eventId === input.eventId,
@@ -95,9 +97,28 @@ const attendanceRouter = createTRPCRouter({
   markTeamAttendance: protectedProcedure
     .input(toggleTeamAttendanceZ)
     .mutation(async ({ ctx, input }) => {
+      const id = pidToId(input.teamId);
+      if (id === null) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Invalid team id",
+        });
+      }
+      const team = await ctx.db.team.findFirst({
+        where: {
+		  Members:{
+			  some:{
+				  id
+			  }
+		  },
+          eventId: input.eventId,
+        },
+      });
+      console.log({ team });
+
       return await ctx.db.team.update({
         where: {
-          id: input.teamId,
+          id: team?.id,
           eventId: input.eventId,
         },
         data: {

@@ -59,7 +59,7 @@ const InnerLeftPanel = forwardRef<
       >
         <LuShare2 className="size-6" />
       </Button>
-      <div className="flex flex-col items-center justify-center gap-10 md:flex-row">
+      <div className="flex flex-col items-center justify-center gap-10 lg:flex-row">
         <ProfileImage notMine={notMine} />
         <div className="flex w-full flex-col items-center justify-center gap-6">
           <div className="text-center text-2xl">

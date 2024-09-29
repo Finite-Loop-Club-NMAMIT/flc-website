@@ -43,20 +43,20 @@ const InnerBottomPanel = forwardRef<
       ref={ref}
       className={cn(
         className,
-        "flex flex-col items-center gap-5 overflow-hidden rounded-lg border-opacity-50 bg-card p-10 backdrop-blur-[32px] backdrop-filter",
+        "flex flex-col items-center rounded-lg border-opacity-50 bg-card p-10 backdrop-blur-[32px] backdrop-filter",
       )}
     >
-      <p className="text-lg font-bold">My Events</p>
+      <p className="m-2 text-lg font-bold">My Events</p>
       {images.length > 0 ? (
         <Carousel>
+          <CarouselPrevious />
           <CarouselContent>
             {images.map((image, idx) => (
-              <CarouselItem key={idx} className="relative size-40">
+              <CarouselItem key={idx} className="relative h-40 w-20  ">
                 <Image src={image} alt={image} fill />
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious />
           <CarouselNext />
         </Carousel>
       ) : (

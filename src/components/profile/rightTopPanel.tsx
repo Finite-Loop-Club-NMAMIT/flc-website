@@ -103,13 +103,13 @@ const InnerRightTopPanel = forwardRef<
           {user.UserLink.map((link, idx) => (
             <div
               key={idx}
-              className="flex w-full gap-1 rounded-lg border border-gray-600 "
+              className="flex w-full rounded-lg border border-gray-600"
             >
               <Link href={link.url} className="flex w-full" target="_blank">
                 <Button
                   variant="ghost"
                   isShimmer={false}
-                  className="flex w-full items-center justify-center gap-4 shadow-2xl hover:bg-[#140a28]"
+                  className="flex w-full items-center justify-center gap-2 shadow-2xl hover:bg-[#140a28] md:px-2"
                 >
                   {link.linkName.toLowerCase() === "github" ? (
                     <SiGithub className="size-6 text-white" />
@@ -122,14 +122,16 @@ const InnerRightTopPanel = forwardRef<
                   ) : (
                     <SiPusher className="size-6 text-white" />
                   )}
-                  {link.linkName}
+                  <span className="hidden sm:block md:hidden lg:block">
+                    {link.linkName}
+                  </span>
                 </Button>
               </Link>
               {!notMine && (
                 <Button
                   isShimmer={false}
                   variant="ghost"
-                  className="px-2 sm:px-2 md:px-2 lg:px-2 hover:bg-[#140a28]"
+                  className="px-2 hover:bg-[#140a28]"
                   onClick={() => {
                     toast.loading("Removing Link...");
                     removeUserLink.mutate(

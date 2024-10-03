@@ -362,6 +362,10 @@ const TeamDialog: FunctionComponent<{
                       onSuccess={(paymentId: string) => {
                         setPaymentId(paymentId);
                       }}
+                      disabled={
+                        teamData.Members.length < minTeamSize ||
+                        teamData.Members.length > maxTeamSize
+                      }
                       onFailure={() => {
                         toast.error("Payment failed!");
                       }}

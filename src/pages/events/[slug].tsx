@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@radix-ui/themes";
 import { format } from "date-fns";
 import { type NextPage } from "next";
 import { useSession } from "next-auth/react";
@@ -53,8 +54,6 @@ const EventsSlug: NextPage = () => {
   if (status === "error") return <NotFound />;
 
   if (event.state === "DRAFT") return <NotFound />;
-
-  if (!session) void router.push("/login");
 
   return (
     <main className="container mb-1 mt-16 flex w-[100%] flex-col items-center justify-start space-y-4 font-sans">
@@ -151,16 +150,25 @@ const EventsSlug: NextPage = () => {
                 {event.Team.length <
                   (event.maxTeams > 0 ? event.maxTeams : 1000000) && (
                   <div className="pt-10">
-                    <TeamDialog
-                      eventId={event.id}
-                      minTeamSize={event.minTeamSize}
-                      maxTeamSize={event.maxTeamSize}
-                      flcAmount={event.flcAmount}
-                      nonFlcAmount={event.nonFlcAmount}
-                      eventName={event.name}
-                      eventType={event.eventType}
-                      refetchEvent={refetch}
-                    />
+                    {session ? (
+                      <TeamDialog
+                        eventId={event.id}
+                        minTeamSize={event.minTeamSize}
+                        maxTeamSize={event.maxTeamSize}
+                        flcAmount={event.flcAmount}
+                        nonFlcAmount={event.nonFlcAmount}
+                        eventName={event.name}
+                        eventType={event.eventType}
+                        refetchEvent={refetch}
+                      />
+                    ) : (
+                      <Button
+                        className="card-button z-20"
+                        onClick={() => router.push("/login")}
+                      >
+                        Login to Register
+                      </Button>
+                    )}
                   </div>
                 )}
                 <h1 className="mb-2 mt-8 text-xl font-medium">
@@ -191,16 +199,25 @@ const EventsSlug: NextPage = () => {
               {event.Team.length <
                 (event.maxTeams > 0 ? event.maxTeams : 1000000) && (
                 <div className="pt-10">
-                  <TeamDialog
-                    eventId={event.id}
-                    minTeamSize={event.minTeamSize}
-                    maxTeamSize={event.maxTeamSize}
-                    flcAmount={event.flcAmount}
-                    nonFlcAmount={event.nonFlcAmount}
-                    eventName={event.name}
-                    eventType={event.eventType}
-                    refetchEvent={refetch}
-                  />
+                  {session ? (
+                    <TeamDialog
+                      eventId={event.id}
+                      minTeamSize={event.minTeamSize}
+                      maxTeamSize={event.maxTeamSize}
+                      flcAmount={event.flcAmount}
+                      nonFlcAmount={event.nonFlcAmount}
+                      eventName={event.name}
+                      eventType={event.eventType}
+                      refetchEvent={refetch}
+                    />
+                  ) : (
+                    <Button
+                      className="card-button z-20"
+                      onClick={() => router.push("/login")}
+                    >
+                      Login to Register
+                    </Button>
+                  )}
                 </div>
               )}
               <h1 className="mb-2 mt-8 text-xl font-medium">

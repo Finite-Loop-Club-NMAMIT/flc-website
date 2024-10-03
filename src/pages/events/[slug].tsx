@@ -54,6 +54,8 @@ const EventsSlug: NextPage = () => {
 
   if (event.state === "DRAFT") return <NotFound />;
 
+  if (!session) void router.push("/login");
+
   return (
     <main className="container mb-1 mt-16 flex w-[100%] flex-col items-center justify-start space-y-4 font-sans">
       <section className="intro-card relative flex h-fit w-full flex-col overflow-hidden rounded-2xl border border-border bg-accent md:h-96 md:flex-row">

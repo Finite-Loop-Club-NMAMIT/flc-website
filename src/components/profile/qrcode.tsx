@@ -32,17 +32,18 @@ const InnerQRCode: FunctionComponent<{
   const router = useRouter();
 
   if (!user.memberSince)
-    return (
-      <Button
-        className={className}
-        onClick={async () => {
-          await router.push("/register");
-        }}
-      >
-        Register
-        <LuUserCircle className="ml-2 size-5" />
-      </Button>
-    );
+    // return (
+    //   <Button
+    //     className={className}
+    //     onClick={async () => {
+    //       await router.push("/register");
+    //     }}
+    //   >
+    //     Register
+    //     <LuUserCircle className="ml-2 size-5" />
+    //   </Button>
+    // );
+    return null;
 
   return (
     <DialogDrawer>

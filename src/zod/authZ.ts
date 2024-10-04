@@ -86,7 +86,30 @@ const refreshTokenZ = z.object({
   refreshToken: z.string(),
 });
 
+const eventZ = z
+  .object({
+      name: z.string().min(3, {
+      message: "Name is required",
+    }),
+    description:z.string(),
+    venue:z.string(),
+    maxTeams:z.string(),
+    minTeamSize:z.string(),
+    maxTeamSize:z.string(),
+    flcAmount:z.string(),
+    nonFlcAmount:z.string(),
+    fromDate:z.string(),
+    toDate:z.string(),
+    deadline:z.string(),
+    isMembersOnly:z.string(),
+    state:z.string(),
+    isLegacy:z.string(),
+    category:z.string(),
+    eventType:z.string(),
+  });
+
 export {
+  eventZ,
   signUpZ,
   loginZ,
   registerZ,

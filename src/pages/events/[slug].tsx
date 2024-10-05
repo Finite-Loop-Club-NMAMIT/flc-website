@@ -124,8 +124,8 @@ const EventsSlug: NextPage = () => {
       <section className="intro-card relative mx-auto flex w-full flex-col gap-4 overflow-hidden rounded-2xl border border-border bg-accent p-8 sm:flex-row">
         <div className="space-y-4 " style={{ flex: 2 }}>
           <h1 className="text-3xl font-bold ">Description</h1>
-          <p
-            className="font-extralight"
+          <div
+            className="font-light"
             dangerouslySetInnerHTML={{ __html: event.description ?? "" }}
           />
         </div>

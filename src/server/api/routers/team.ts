@@ -231,26 +231,26 @@ const teamRouter = createTRPCRouter({
           id: input.teamId,
         },
         select: {
+          Event: true,
           isConfirmed: true,
-          Event: {
-            select: {
-              id: true,
-              isLegacy: true,
-            },
-          },
         },
       });
-
       if (!team)
         throw new TRPCError({
           code: "NOT_FOUND",
           message: "Team not found",
         });
 
-      if (team.isConfirmed || team.Event.isLegacy)
+      if (team.isConfirmed)
         throw new TRPCError({
-          code: "FORBIDDEN",
-          message: "You cannot leave this team anymore!",
+          code: "BAD_REQUEST",
+          message: "You cannot delete this team anymore!",
+        });
+
+      if (team.Event.eventType === "SOLO")
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Registrations cannot be cancelled for this event",
         });
 
       await ctx.db.team.delete({

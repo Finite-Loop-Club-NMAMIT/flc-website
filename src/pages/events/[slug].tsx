@@ -38,6 +38,7 @@ const EventsSlug: NextPage = () => {
     data: event,
     isLoading,
     status,
+    refetch,
   } = api.event.getAvatarGroup.useQuery({
     eventId: parseInt(id!),
   });

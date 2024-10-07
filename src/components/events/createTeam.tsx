@@ -21,6 +21,10 @@ const CreateTeam: FunctionComponent<CreateTeamProps> = ({
   const createTeam = api.team.createTeam.useMutation();
 
   const handleCreateTeam = () => {
+    if (!teamName) {
+      toast.error("Please enter team name");
+      return;
+    }
     toast.loading("Creating team...");
     createTeam.mutate(
       { eventId: eventId, teamName: teamName },
@@ -39,7 +43,7 @@ const CreateTeam: FunctionComponent<CreateTeamProps> = ({
   };
 
   return (
-    <div className="mt-4">
+    <div className="mt-4 text-white">
       <Input
         placeholder="Enter Team Name"
         value={teamName}

@@ -1,4 +1,4 @@
-import { useTheme } from "next-themes";
+// import { useTheme } from "next-themes";
 import Link from "next/link";
 import { type FunctionComponent } from "react";
 
@@ -7,8 +7,8 @@ import { Button } from "~/components/ui/button";
 import Particles from "~/components/magicui/particles";
 
 const Error: FunctionComponent = () => {
-  const { theme } = useTheme();
-  const isDarkMode = theme === "dark";
+  // const { theme } = useTheme();
+  const isDarkMode = true;
 
   return (
     <section className="relative -mt-4 flex min-h-screen items-center justify-center overflow-hidden">

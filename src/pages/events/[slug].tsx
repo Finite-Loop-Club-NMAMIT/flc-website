@@ -56,7 +56,7 @@ const EventsSlug: NextPage = () => {
   if (event.state === "DRAFT") return <NotFound />;
 
   return (
-    <main className="container mb-1 mt-16 flex w-[100%] flex-col items-center justify-start space-y-4 font-sans">
+    <main className="mb-1 mt-2 flex w-[100%] flex-col items-center justify-start space-y-4 p-3 font-sans md:mt-16">
       <section className="intro-card relative flex h-fit w-full flex-col overflow-hidden rounded-2xl border border-border bg-accent md:h-96 md:flex-row">
         <div className="w-full md:w-2/5">
           <div className="relative h-[300px] w-full md:h-full">
@@ -80,7 +80,7 @@ const EventsSlug: NextPage = () => {
 
           <p className="text-base font-medium">Venue : {event.venue}</p>
           {event.Organiser.length !== 0 ? (
-            <p className="text-base font-medium sm:text-base">
+            <p className="text-base font-medium sm:text-lg">
               Organisers :{" "}
               {event.Organiser?.map((organiser) => organiser.User.name).join(
                 ", ",

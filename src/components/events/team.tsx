@@ -26,6 +26,7 @@ const TeamDialog: FunctionComponent<{
   flcAmount: number;
   nonFlcAmount: number;
   eventId: number;
+  minTeamSize: number;
   maxTeamSize: number;
   eventName: string;
   eventType: EventType;
@@ -34,6 +35,7 @@ const TeamDialog: FunctionComponent<{
   eventId,
   maxTeamSize,
   flcAmount,
+  minTeamSize,
   nonFlcAmount,
   eventName,
   eventType,
@@ -63,7 +65,18 @@ const TeamDialog: FunctionComponent<{
   const { data: teamData, refetch: refetchTeamData } =
     api.team.inATeamOfEvent.useQuery({ eventId });
 
-  const confirmTeam = api.team.confirmTeam.useMutation();
+  const confirmTeam = api.team.confirmTeam.useMutation({
+    onSuccess: async () => {
+      toast.dismiss("registering");
+      toast.success("Thankyou for registering");
+      refetchEvent();
+      await refetchTeamData();
+    },
+    onError: ({ message }) => {
+      toast.dismiss("registering");
+      toast.error(message);
+    },
+  });
   const leaveTeam = api.team.leaveTeam.useMutation();
   const removeFromTeam = api.team.removeFromTeam.useMutation();
   const deleteTeam = api.team.deleteTeam.useMutation();
@@ -237,10 +250,10 @@ const TeamDialog: FunctionComponent<{
                 </div>
               )}
             </DialogTitle>
-            <DialogDescription className="flex gap-2">
+            <DialogDescription>
               <p>
-                {teamData?.Members?.length} members in this team. (Max{" "}
-                {maxTeamSize})
+                {teamData?.Members?.length} members in this team. (Min{" "}
+                {minTeamSize} - Max {maxTeamSize})
               </p>
               {!teamConfirmed && isTeamLeader && (
                 <p
@@ -354,6 +367,10 @@ const TeamDialog: FunctionComponent<{
                           );
                         }
                       }}
+                      disabled={
+                        teamData.Members.length < minTeamSize ||
+                        teamData.Members.length > maxTeamSize
+                      }
                     >
                       Confirm Team
                     </Button>
@@ -370,6 +387,10 @@ const TeamDialog: FunctionComponent<{
                       onSuccess={(paymentId: string) => {
                         setPaymentId(paymentId);
                       }}
+                      disabled={
+                        teamData.Members.length < minTeamSize ||
+                        teamData.Members.length > maxTeamSize
+                      }
                       onFailure={() => {
                         toast.error("Payment failed!");
                       }}

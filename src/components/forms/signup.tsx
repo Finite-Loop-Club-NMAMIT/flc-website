@@ -212,10 +212,10 @@ const SignUpForm: FunctionComponent<Props> = ({ className }) => {
                       <SelectValue placeholder="Choose Year" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="2028" className="text-white">
+                      {/* <SelectItem value="2028" className="text-white">
                         2028 1st B.Tech
-                      </SelectItem>
-                      {/* {getGraduationYears().map((year, idx) => (
+                      </SelectItem> */}
+                      {getGraduationYears().map((year, idx) => (
                         <SelectItem
                           key={idx}
                           value={`${year}`}
@@ -233,7 +233,7 @@ const SignUpForm: FunctionComponent<Props> = ({ className }) => {
                                   : ""}
                           )
                         </SelectItem>
-                      ))} */}
+                      ))}
                     </SelectContent>
                   </Select>
                 </FormControl>

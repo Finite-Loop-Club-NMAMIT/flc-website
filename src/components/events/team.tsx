@@ -1,6 +1,5 @@
-import { EventType } from "@prisma/client";
+import { type EventType } from "@prisma/client";
 import { Button } from "@radix-ui/themes";
-import { set } from "date-fns";
 import { X } from "lucide-react";
 import React, { type FunctionComponent, useEffect, useState } from "react";
 import { toast } from "sonner";

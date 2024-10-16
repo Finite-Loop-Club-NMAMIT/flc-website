@@ -68,7 +68,7 @@ const SignUpForm: FunctionComponent<Props> = ({ className }) => {
       {
         branchId: values.branchId,
         confirmPassword: values.confirmPassword,
-        email: values.email,
+        email: values.email.toLowerCase(),
         usn: values.usn,
         name: values.name,
         password: values.password,

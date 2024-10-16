@@ -42,7 +42,7 @@ const SendVerifyEmailForm: FunctionComponent<Props> = ({ className }) => {
     toast.loading("Sending verification email");
     sendVerificationEmail.mutate(
       {
-        email: values.email,
+        email: values.email.toLowerCase(),
       },
       {
         onSuccess: () => {

@@ -39,7 +39,7 @@ const SendResetForm = ({ className }: { className?: string }) => {
     toast.loading("Sending reset password email...");
     sendPasswordResetEmail.mutate(
       {
-        email: values.email,
+        email: values.email.toLowerCase(),
       },
       {
         onSuccess: () => {

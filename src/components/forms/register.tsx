@@ -43,7 +43,7 @@ const RegisterForm: FunctionComponent<{
   if (!user) return null;
   if (user.memberSince) return <AlreadyMember user={user} />;
 
-  const registrationsOpen = true;
+  const registrationsOpen = false;
   if (registrationsOpen)
     return <InnerRegisterForm className={className} user={user} />;
   else return <RegistrationsClosed />;

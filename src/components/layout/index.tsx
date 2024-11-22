@@ -35,16 +35,19 @@ const Layout: FunctionComponent<{ children: ReactNode }> = ({ children }) => {
     void routerPush("/auth/login");
 
   // Protected routes with special previlages
-  /* if (
+  if (
     status === "authenticated" &&
     ((pathname.startsWith("/dashboard/organiser") &&
       session.user.role !== "ORGANISER" &&
       session.user.role !== "ADMIN") ||
       (pathname.startsWith("/dashboard/admin") &&
         session.user.role !== "ADMIN") ||
-      pathname.startsWith("/dashboard"))
+      (session.user.role === "ADMIN" &&
+        (pathname.startsWith("/dashboard/cloudinary") ||
+          pathname.startsWith("/dashboard/core") ||
+          pathname === "/dashboard")))
   )
-    return <Unauthorized user={session.user} />; */
+    return <Unauthorized user={session.user} />;
 
   if (pathname.startsWith("/dashboard"))
     return <DashboardLayout>{children}</DashboardLayout>;

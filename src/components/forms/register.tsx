@@ -42,8 +42,11 @@ const RegisterForm: FunctionComponent<{
   const { data: user } = api.user.getUser.useQuery();
   if (!user) return null;
   if (user.memberSince) return <AlreadyMember user={user} />;
-  return <RegistrationsClosed />;
-  // return <InnerRegisterForm className={className} user={user} />;
+
+  const registrationsOpen = true;
+  if (registrationsOpen)
+    return <InnerRegisterForm className={className} user={user} />;
+  else return <RegistrationsClosed />;
 };
 
 const RegistrationsClosed: FunctionComponent = () => {

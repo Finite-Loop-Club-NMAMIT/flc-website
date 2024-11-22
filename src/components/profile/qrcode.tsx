@@ -43,6 +43,7 @@ const InnerQRCode: FunctionComponent<{
         <LuUserCircle className="ml-2 size-5" />
       </Button>
     );
+  // return null;
 
   return (
     <DialogDrawer>

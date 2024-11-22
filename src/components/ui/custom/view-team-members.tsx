@@ -9,11 +9,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
-import { Check, X } from "lucide-react";
-import { api } from "~/utils/api";
+
 import { type User } from "~/store";
 
-export function TeamMembersDialog({ team , eventId}: { team: User[], eventId: number }) {
+export function TeamMembersDialog({ team }: { team: User[]; eventId: number }) {
   /* const toggleAttendance = api.attendance.toggleAttendance.useMutation();
   console.log("Team : ",team) */
   return (
@@ -32,25 +31,34 @@ export function TeamMembersDialog({ team , eventId}: { team: User[], eventId: nu
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User ID</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Attendance</th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  User ID
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Name
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
+                  Attendance
+                </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="divide-y divide-gray-200 bg-white">
               {team.map((member) => (
                 <tr key={member.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{member.id}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{member.name}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                    {member.id}
+                  </td>
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                    {member.name}
+                  </td>
+                  <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                     <button
-                      /* onClick={() => 
+                    /* onClick={() =>
                         toggleAttendance.mutate({
                         userId : member.id,
                         eventId : eventId,
                       })} */
                     >
-                      
                       {/* {member. ? (
                         <X className="h-5 w-5 text-red-600" />
                       ) : (

@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -12,6 +11,11 @@ import {
   getSortedRowModel,
   flexRender,
 } from "@tanstack/react-table";
+import { Check, SortAscIcon, X } from "lucide-react";
+import { useRouter } from "next/router";
+import * as React from "react";
+
+import { TeamMembersDialog } from "~/components/ui/custom/view-team-members";
 import { Input } from "~/components/ui/input";
 import {
   Table,
@@ -21,13 +25,12 @@ import {
   TableHeader,
   TableRow,
 } from "~/components/ui/table";
-import { api } from "~/utils/api";
-import { useRouter } from "next/router";
-import { Check, SortAscIcon, X } from "lucide-react";
-import { TeamMembersDialog } from "~/components/ui/custom/view-team-members";
-import { toggleTeamAttendanceZ } from "~/zod/attendanceZ";
 
-export const columnsForSolo: (toggleTeamAttendance: any) => ColumnDef<any>[] = (toggleTeamAttendance) => [
+import { api } from "~/utils/api";
+
+export const columnsForSolo: (toggleTeamAttendance: any) => ColumnDef<any>[] = (
+  toggleTeamAttendance,
+) => [
   {
     accessorFn: (row) => row.Members?.[0]?.id ?? "N/A",
     id: "userId",
@@ -54,13 +57,13 @@ export const columnsForSolo: (toggleTeamAttendance: any) => ColumnDef<any>[] = (
       const hasAttended = getValue();
       const teamId = row.original.id;
       const eventId = row.original.eventId;
-      console.log("teamId : ", teamId, "  eventiD : ",eventId)
+      console.log("teamId : ", teamId, "  eventiD : ", eventId);
       return (
-        <span onClick={() => toggleTeamAttendance.mutate({teamId, eventId})}>
+        <span onClick={() => toggleTeamAttendance.mutate({ teamId, eventId })}>
           {hasAttended ? (
-            <Check className="text-green-500 h-6 w-6 cursor-pointer" />
+            <Check className="h-6 w-6 cursor-pointer text-green-500" />
           ) : (
-            <X className="text-red-500 h-6 w-6 cursor-pointer" />
+            <X className="h-6 w-6 cursor-pointer text-red-500" />
           )}
         </span>
       );
@@ -68,7 +71,9 @@ export const columnsForSolo: (toggleTeamAttendance: any) => ColumnDef<any>[] = (
   },
 ];
 
-export const columnsForTeam: (toggleTeamAttendance: any) => ColumnDef<any>[] = (toggleTeamAttendance) => [
+export const columnsForTeam: (toggleTeamAttendance: any) => ColumnDef<any>[] = (
+  toggleTeamAttendance,
+) => [
   {
     accessorKey: "id",
     header: "Team ID",
@@ -99,11 +104,11 @@ export const columnsForTeam: (toggleTeamAttendance: any) => ColumnDef<any>[] = (
       const eventId = row.original.eventId;
 
       return (
-        <span onClick={() => toggleTeamAttendance.mutate({teamId, eventId})}>
+        <span onClick={() => toggleTeamAttendance.mutate({ teamId, eventId })}>
           {hasAttended ? (
-            <Check className="text-green-500 h-6 w-6 cursor-pointer" />
+            <Check className="h-6 w-6 cursor-pointer text-green-500" />
           ) : (
-            <X className="text-red-500 h-6 w-6 cursor-pointer" />
+            <X className="h-6 w-6 cursor-pointer text-red-500" />
           )}
         </span>
       );
@@ -113,26 +118,34 @@ export const columnsForTeam: (toggleTeamAttendance: any) => ColumnDef<any>[] = (
     id: "viewMembers",
     cell: ({ row }) => {
       const team = row.original.Members;
-      return <TeamMembersDialog team={team} eventId={row.original.eventId}/>;
+      return <TeamMembersDialog team={team} eventId={row.original.eventId} />;
     },
   },
 ];
 
 const Registrations = () => {
   const router = useRouter();
-  const id = Array.isArray(router.query.slug) ? router.query.slug[0] : router.query.slug;
-  const { data: event, isLoading, error } = api.event.getEventById.useQuery({ eventId: parseInt(id!) });
+  const id = Array.isArray(router.query.slug)
+    ? router.query.slug[0]
+    : router.query.slug;
+  const { data: event } = api.event.getEventById.useQuery({
+    eventId: parseInt(id!),
+  });
 
-  const toggleAttendance = api.attendance.toggleAttendance.useMutation();
-  const toggleTeamAttendance = api.attendance.toggleTeamAttendance.useMutation();
+  const toggleTeamAttendance =
+    api.attendance.toggleTeamAttendance.useMutation();
 
   console.log("Event:  ", event);
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    [],
+  );
 
   const isTeamEvent = event?.maxTeamSize && event.maxTeamSize > 1;
-  const columns = isTeamEvent ? columnsForTeam(toggleTeamAttendance) : columnsForSolo(toggleTeamAttendance);
+  const columns = isTeamEvent
+    ? columnsForTeam(toggleTeamAttendance)
+    : columnsForSolo(toggleTeamAttendance);
 
   const table = useReactTable({
     data: event?.Team ?? [],
@@ -150,13 +163,19 @@ const Registrations = () => {
   });
 
   return (
-    <div className="w-full text-white p-10">
+    <div className="w-full p-10 text-white">
       <div className="flex items-center py-4">
         <Input
           placeholder={`Filter ${isTeamEvent ? "team names" : "user names"}...`}
-          value={(table.getColumn(isTeamEvent ? "name" : "userName")?.getFilterValue() as string) ?? ""}
+          value={
+            (table
+              .getColumn(isTeamEvent ? "name" : "userName")
+              ?.getFilterValue() as string) ?? ""
+          }
           onChange={(event) =>
-            table.getColumn(isTeamEvent ? "name" : "userName")?.setFilterValue(event.target.value)
+            table
+              .getColumn(isTeamEvent ? "name" : "userName")
+              ?.setFilterValue(event.target.value)
           }
           className="max-w-sm text-white"
         />
@@ -168,7 +187,14 @@ const Registrations = () => {
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead key={header.id} className="text-white">
-                    {header.isPlaceholder ? null : header.column.columnDef.header ? flexRender(header.column.columnDef.header, header.getContext()) : null}
+                    {header.isPlaceholder
+                      ? null
+                      : header.column.columnDef.header
+                        ? flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )
+                        : null}
                   </TableHead>
                 ))}
               </TableRow>
@@ -180,14 +206,22 @@ const Registrations = () => {
                 <TableRow key={row.id} className="text-white">
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="text-white">
-                      {cell.column.columnDef.cell ? flexRender(cell.column.columnDef.cell, cell.getContext()) : "No content"}
+                      {cell.column.columnDef.cell
+                        ? flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext(),
+                          )
+                        : "No content"}
                     </TableCell>
                   ))}
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center text-white">
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center text-white"
+                >
                   No results.
                 </TableCell>
               </TableRow>

@@ -2,7 +2,7 @@ import { z } from "zod";
 
 const createTeamZ = z.object({
   eventId: z.number().int(),
-  teamName: z.string(),
+  teamName: z.string().min(3, "Team name must be at least 3 characters"),
 });
 
 const joinTeamZ = z.object({

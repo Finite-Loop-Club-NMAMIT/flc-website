@@ -1,6 +1,5 @@
-import { EventType } from "@prisma/client";
+import { type EventType } from "@prisma/client";
 import { Button } from "@radix-ui/themes";
-import { set } from "date-fns";
 import { X } from "lucide-react";
 import React, { type FunctionComponent, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -26,6 +25,7 @@ const TeamDialog: FunctionComponent<{
   flcAmount: number;
   nonFlcAmount: number;
   eventId: number;
+  minTeamSize: number;
   maxTeamSize: number;
   eventName: string;
   eventType: EventType;
@@ -34,6 +34,7 @@ const TeamDialog: FunctionComponent<{
   eventId,
   maxTeamSize,
   flcAmount,
+  minTeamSize,
   nonFlcAmount,
   eventName,
   eventType,
@@ -63,9 +64,21 @@ const TeamDialog: FunctionComponent<{
   const { data: teamData, refetch: refetchTeamData } =
     api.team.inATeamOfEvent.useQuery({ eventId });
 
-  const confirmTeam = api.team.confirmTeam.useMutation();
+  const confirmTeam = api.team.confirmTeam.useMutation({
+    onSuccess: async () => {
+      toast.dismiss("registering");
+      toast.success("Thankyou for registering");
+      refetchEvent();
+      await refetchTeamData();
+    },
+    onError: ({ message }) => {
+      toast.dismiss("registering");
+      toast.error(message);
+    },
+  });
   const leaveTeam = api.team.leaveTeam.useMutation();
   const removeFromTeam = api.team.removeFromTeam.useMutation();
+  const deleteTeam = api.team.deleteTeam.useMutation();
 
   const soloReg = api.team.soloTeamRegistration.useMutation({
     onSuccess: async () => {
@@ -155,7 +168,7 @@ const TeamDialog: FunctionComponent<{
         {teamConfirmed ? "View Team" : "Register"}
       </Button> */}
 
-      <DialogContent className="intro-card w-[90%] border-none !opacity-100  sm:mx-0 sm:w-[40%]">
+      <DialogContent className="intro-card w-[90%] border-none text-white  !opacity-100 sm:mx-0 sm:w-[40%]">
         <DialogClose asChild>
           <button
             className="absolute right-1.5 top-1.5 z-30 p-1.5 text-gray-600 hover:text-white"
@@ -237,8 +250,32 @@ const TeamDialog: FunctionComponent<{
               )}
             </DialogTitle>
             <DialogDescription>
-              {teamData?.Members?.length} members in this team. (Max{" "}
-              {maxTeamSize})
+              <p>
+                {teamData?.Members?.length} members in this team. (Min{" "}
+                {minTeamSize} - Max {maxTeamSize})
+              </p>
+              {!teamConfirmed && isTeamLeader && (
+                <p
+                  className="z-[60] cursor-pointer rounded-full border px-1  text-xs text-white hover:bg-red-600"
+                  onClick={() => {
+                    deleteTeam.mutate(
+                      { teamId: teamData.id },
+                      {
+                        onSuccess: () => {
+                          toast.success("team deleted!");
+                          void refetchTeamData();
+                        },
+                        onError: (error) => {
+                          toast.error(error.message);
+                          return;
+                        },
+                      },
+                    );
+                  }}
+                >
+                  Delete Team
+                </p>
+              )}
             </DialogDescription>
 
             <div>
@@ -329,6 +366,10 @@ const TeamDialog: FunctionComponent<{
                           );
                         }
                       }}
+                      disabled={
+                        teamData.Members.length < minTeamSize ||
+                        teamData.Members.length > maxTeamSize
+                      }
                     >
                       Confirm Team
                     </Button>
@@ -345,6 +386,10 @@ const TeamDialog: FunctionComponent<{
                       onSuccess={(paymentId: string) => {
                         setPaymentId(paymentId);
                       }}
+                      disabled={
+                        teamData.Members.length < minTeamSize ||
+                        teamData.Members.length > maxTeamSize
+                      }
                       onFailure={() => {
                         toast.error("Payment failed!");
                       }}

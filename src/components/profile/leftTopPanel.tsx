@@ -86,6 +86,7 @@ const InnerLeftPanel = forwardRef<
           </div>
 
           <div className="flex gap-5">
+            {/* NOTE: Register button is inside */}
             {!notMine && <QRCode />}
             {!notMine && (
               <Button

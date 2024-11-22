@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@radix-ui/themes";
 import { format } from "date-fns";
 import { type NextPage } from "next";
 import { useSession } from "next-auth/react";
@@ -38,6 +39,7 @@ const EventsSlug: NextPage = () => {
     data: event,
     isLoading,
     status,
+    refetch,
   } = api.event.getAvatarGroup.useQuery({
     eventId: parseInt(id!),
   });
@@ -51,8 +53,10 @@ const EventsSlug: NextPage = () => {
 
   if (status === "error") return <NotFound />;
 
+  if (event.state === "DRAFT") return <NotFound />;
+
   return (
-    <main className="container mb-1 mt-16 flex w-[100%] flex-col items-center justify-start space-y-4 font-sans">
+    <main className="mb-1 mt-2 flex w-[100%] flex-col items-center justify-start space-y-4 p-3 font-sans md:mt-16">
       <section className="intro-card relative flex h-fit w-full flex-col overflow-hidden rounded-2xl border border-border bg-accent md:h-96 md:flex-row">
         <div className="w-full md:w-2/5">
           <div className="relative h-[300px] w-full md:h-full">
@@ -71,12 +75,12 @@ const EventsSlug: NextPage = () => {
           </p>
 
           <p className="text-base font-medium sm:text-lg">
-            Date: {format(event.fromDate, "dd/MM/yyyy")}
+            Date: {format(event.fromDate, "dd/MM/yyyy hh:mm a")}
           </p>
 
           <p className="text-base font-medium">Venue : {event.venue}</p>
           {event.Organiser.length !== 0 ? (
-            <p className="text-sm font-medium sm:text-base">
+            <p className="text-base font-medium sm:text-lg">
               Organisers :{" "}
               {event.Organiser?.map((organiser) => organiser.User.name).join(
                 ", ",
@@ -120,8 +124,8 @@ const EventsSlug: NextPage = () => {
       <section className="intro-card relative mx-auto flex w-full flex-col gap-4 overflow-hidden rounded-2xl border border-border bg-accent p-8 sm:flex-row">
         <div className="space-y-4 " style={{ flex: 2 }}>
           <h1 className="text-3xl font-bold ">Description</h1>
-          <p
-            className="font-extralight"
+          <div
+            className="font-light"
             dangerouslySetInnerHTML={{ __html: event.description ?? "" }}
           />
         </div>
@@ -143,17 +147,28 @@ const EventsSlug: NextPage = () => {
                 </h1>
 
                 <AvatarGroup images={event.selectedImages} />
-                {event.Team.length < event.maxTeams && (
+                {event.Team.length <
+                  (event.maxTeams > 0 ? event.maxTeams : 1000000) && (
                   <div className="pt-10">
-                    <TeamDialog
-                      eventId={event.id}
-                      maxTeamSize={event.maxTeamSize}
-                      flcAmount={event.flcAmount}
-                      nonFlcAmount={event.nonFlcAmount}
-                      eventName={event.name}
-                      eventType={event.eventType}
-                      refetchEvent={refetch}
-                    />
+                    {session ? (
+                      <TeamDialog
+                        eventId={event.id}
+                        minTeamSize={event.minTeamSize}
+                        maxTeamSize={event.maxTeamSize}
+                        flcAmount={event.flcAmount}
+                        nonFlcAmount={event.nonFlcAmount}
+                        eventName={event.name}
+                        eventType={event.eventType}
+                        refetchEvent={refetch}
+                      />
+                    ) : (
+                      <Button
+                        className="card-button z-20"
+                        onClick={() => router.push("/login")}
+                      >
+                        Login to Register
+                      </Button>
+                    )}
                   </div>
                 )}
                 <h1 className="mb-2 mt-8 text-xl font-medium">
@@ -181,17 +196,28 @@ const EventsSlug: NextPage = () => {
               </h1>
 
               <AvatarGroup images={event.selectedImages} />
-              {event.Team.length < event.maxTeams && (
+              {event.Team.length <
+                (event.maxTeams > 0 ? event.maxTeams : 1000000) && (
                 <div className="pt-10">
-                  <TeamDialog
-                    eventId={event.id}
-                    maxTeamSize={event.maxTeamSize}
-                    flcAmount={event.flcAmount}
-                    nonFlcAmount={event.nonFlcAmount}
-                    eventName={event.name}
-                    eventType={event.eventType}
-                    refetchEvent={refetch}
-                  />
+                  {session ? (
+                    <TeamDialog
+                      eventId={event.id}
+                      minTeamSize={event.minTeamSize}
+                      maxTeamSize={event.maxTeamSize}
+                      flcAmount={event.flcAmount}
+                      nonFlcAmount={event.nonFlcAmount}
+                      eventName={event.name}
+                      eventType={event.eventType}
+                      refetchEvent={refetch}
+                    />
+                  ) : (
+                    <Button
+                      className="card-button z-20"
+                      onClick={() => router.push("/login")}
+                    >
+                      Login to Register
+                    </Button>
+                  )}
                 </div>
               )}
               <h1 className="mb-2 mt-8 text-xl font-medium">

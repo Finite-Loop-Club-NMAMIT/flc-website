@@ -14,9 +14,11 @@ const createEventZ = z.object({
   maxTeamSize: z.number(),
   maxTeams: z.number(),
   category: z.nativeEnum(EventCategory),
-  amount: z.number(),
   state: z.nativeEnum(EventState),
   isLegacy: z.boolean(),
+  isMembersOnly:z.boolean(),
+  flcAmount:z.number(),
+  nonFlcAmount:z.number(),
 });
 
 const updateEventZ = z.object({
@@ -33,9 +35,11 @@ const updateEventZ = z.object({
   maxTeamSize: z.number().optional(),
   maxTeams: z.number().optional(),
   category: z.nativeEnum(EventCategory).optional(),
-  amount: z.number().optional(),
   state: z.nativeEnum(EventState).optional(),
   isLegacy: z.boolean().optional(),
+  isMemberOnly:z.boolean().optional(),
+  flcAmount:z.number().optional(),
+  nonFlcAmount:z.number().optional(),
 });
 
 const deleteEventZ = z.object({ eventId: z.number() });

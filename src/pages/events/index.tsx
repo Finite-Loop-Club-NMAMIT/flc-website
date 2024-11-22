@@ -16,7 +16,7 @@ function Events() {
   const { data: events, isLoading } = api.event.getAllEventsForUser.useQuery({
     year: selectedYear,
   });
-
+  console.log("event:", events);
   return (
     <div className="relative bottom-0 top-0 min-h-screen pb-2 font-sans">
       <div className="event-bg"></div>

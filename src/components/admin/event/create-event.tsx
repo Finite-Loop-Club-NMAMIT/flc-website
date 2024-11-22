@@ -52,9 +52,11 @@ const CreateEvent: React.FC = () => {
     maxTeamSize: 4,
     maxTeams: 20,
     category: "COMPETITION",
-    amount: 0,
+    flcAmount: 0,
+    nonFlcAmount: 0,
     state: "DRAFT",
     isLegacy: false,
+    isMembersOnly: false,
   });
 
   const handleChange = (
@@ -315,14 +317,30 @@ const CreateEvent: React.FC = () => {
             </div>
 
             <div className="flex w-full flex-col space-y-1.5">
-              <Label className="text-black-100 font-bold" htmlFor="amount">
-                Amount
+              <Label className="text-black-100 font-bold" htmlFor="flcAmount">
+                flc Amount
               </Label>
               <Input
                 className="bg-white font-normal text-black hover:text-black focus:bg-white focus-visible:border-slate-400"
-                id="amount"
+                id="flcAmount"
                 type="number"
-                value={formValues.amount}
+                value={formValues.flcAmount}
+                onChange={handleChange}
+                placeholder="Event amount"
+              />
+            </div>
+            <div className="flex w-full flex-col space-y-1.5">
+              <Label
+                className="text-black-100 font-bold"
+                htmlFor="nonFlcAmount"
+              >
+                non FlcAmount
+              </Label>
+              <Input
+                className="bg-white font-normal text-black hover:text-black focus:bg-white focus-visible:border-slate-400"
+                id="nonFlcAmount"
+                type="number"
+                value={formValues.nonFlcAmount}
                 onChange={handleChange}
                 placeholder="Event amount"
               />
@@ -375,6 +393,19 @@ const CreateEvent: React.FC = () => {
                 Is Legacy
               </Label>
             </div>
+            <div className="flex w-full items-center space-x-2">
+              <Checkbox
+                id="isMembersOnly"
+                checked={formValues.isMembersOnly}
+                onChange={handleChange}
+              />
+              <Label
+                className="text-black-100 font-bold"
+                htmlFor="isMembersOnly"
+              >
+                Is MembersOnly
+              </Label>
+            </div>
           </div>
         </form>
         <div className="flex justify-end">
@@ -382,8 +413,10 @@ const CreateEvent: React.FC = () => {
             variant="default"
             className="ml-auto"
             onClick={() => {
+              console.log(formValues);
               createEvent.mutate({
-                amount: formValues.amount,
+                flcAmount: formValues.flcAmount,
+                nonFlcAmount: formValues.nonFlcAmount,
                 category: formValues.category,
                 deadline: formValues.deadline,
                 description: formValues.description,
@@ -396,6 +429,7 @@ const CreateEvent: React.FC = () => {
                 name: formValues.name,
                 state: formValues.state,
                 toDate: formValues.toDate,
+                isMembersOnly: formValues.isMembersOnly,
                 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 eventType: formValues.eventType,
                 venue: formValues.venue,

@@ -12,11 +12,11 @@ const siteMetaData = {
   email: "",
   address: "",
   author: "FLC Tech Team",
-};
+} as const;
 
-const teamTabs = ["2023", "2024", "Faculty"];
+const teamTabs = ["2016", "2021", "2022", "2023", "2024", "Faculty"] as const;
 
-const years = [2017, 2020, 2021, 2022, 2023, 2024];
+const years = [2017, 2020, 2021, 2022, 2023, 2024] as const;
 
 const userLinkNames = [
   "Instagram",
@@ -24,7 +24,7 @@ const userLinkNames = [
   "GitHub",
   "Portfolio",
   "Leetcode",
-];
+] as const;
 
 export {
   userNavItems,

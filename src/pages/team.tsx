@@ -80,18 +80,22 @@ function Team() {
             <li key={tab}>
               <a
                 onClick={() => {
-                  setToggleState(tab);
+                  if (tab === "2016") setToggleState("2017");
+                  else setToggleState(tab);
                   onYearChange();
                 }}
                 className="relative block cursor-pointer p-4"
               >
-                {toggleState === tab ? (
-                  <span className="absolute inset-x-0 -bottom-px h-px w-full bg-primary"></span>
+                {toggleState === tab ||
+                (toggleState === "2017" && tab === "2016") ? (
+                  <span className="absolute inset-x-0 -bottom-px h-px w-full bg-primary" />
                 ) : null}
                 <div className="flex items-center justify-center">
                   <span className="ml-3 text-xs font-light text-foreground lg:text-sm lg:font-medium">
                     {tab !== "Faculty"
-                      ? `${parseInt(tab)}-${parseInt(tab) + 1}`
+                      ? tab == "2016"
+                        ? "2016-2020"
+                        : `${parseInt(tab)}-${parseInt(tab) + 1}`
                       : tab}
                   </span>
                 </div>
@@ -105,7 +109,8 @@ function Team() {
             className="rounded-md border-2 border-border bg-card px-3 py-1 text-white"
             value={toggleState}
             onChange={(e) => {
-              setToggleState(e.target.value);
+              if (e.target.value === "2016") setToggleState("2017");
+              else setToggleState(e.target.value);
               onYearChange();
             }}
           >
@@ -116,7 +121,9 @@ function Team() {
                 value={year}
               >
                 {year !== "Faculty"
-                  ? `${parseInt(year)}-${parseInt(year) + 1}`
+                  ? year == "2016"
+                    ? "2016-2020"
+                    : `${parseInt(year)}-${parseInt(year) + 1}`
                   : year}
               </option>
             ))}
@@ -151,9 +158,21 @@ function Team() {
                   name={member.User.name}
                   role={member.position}
                   src={member.User.image ?? ""}
-                  github={member.User.UserLink.find((link)=>link.linkName==="GitHub")?.url}
-                  linkedin={member.User.UserLink.find((link)=>link.linkName==="LinkedIn")?.url}
-                  instagram={member.User.UserLink.find((link)=>link.linkName==="Instagram")?.url}
+                  github={
+                    member.User.UserLink.find(
+                      (link) => link.linkName === "GitHub",
+                    )?.url
+                  }
+                  linkedin={
+                    member.User.UserLink.find(
+                      (link) => link.linkName === "LinkedIn",
+                    )?.url
+                  }
+                  instagram={
+                    member.User.UserLink.find(
+                      (link) => link.linkName === "Instagram",
+                    )?.url
+                  }
                 />
               ))
             )}

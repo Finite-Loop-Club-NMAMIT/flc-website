@@ -48,7 +48,7 @@ const LoginForm: FunctionComponent<Props> = ({ className }) => {
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     toast.loading("Logging in...");
     signIn("credentials", {
-      email: values.email.toLowerCase(),
+      email: values.email,
       password: values.password,
       redirect: false,
     })

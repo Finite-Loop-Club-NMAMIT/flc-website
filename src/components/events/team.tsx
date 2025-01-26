@@ -1,6 +1,6 @@
 import { type EventType } from "@prisma/client";
 import { Button } from "@radix-ui/themes";
-import { X } from "lucide-react";
+import { Pencil, X } from "lucide-react";
 import React, { type FunctionComponent, useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -231,9 +231,11 @@ const TeamDialog: FunctionComponent<{
         {teamData && (
           <>
             <DialogTitle className="flex items-center justify-between">
+
               <p className="events-heading text-2xl font-bold capitalize">
                 {teamData?.name}
               </p>
+
               {!teamConfirmed && (
                 <div className="flex flex-col gap-2">
                   <p className="text-xs">Share team id to join</p>
@@ -254,9 +256,10 @@ const TeamDialog: FunctionComponent<{
                 {teamData?.Members?.length} members in this team. (Min{" "}
                 {minTeamSize} - Max {maxTeamSize})
               </p>
+            </DialogDescription>
               {!teamConfirmed && isTeamLeader && (
-                <p
-                  className="z-[60] cursor-pointer rounded-full border px-1  text-xs text-white hover:bg-red-600"
+                <button
+                className="z-[60] cursor-pointer rounded-full w-fit border px-1 text-xs text-white hover:bg-red-600"
                   onClick={() => {
                     deleteTeam.mutate(
                       { teamId: teamData.id },
@@ -274,9 +277,8 @@ const TeamDialog: FunctionComponent<{
                   }}
                 >
                   Delete Team
-                </p>
+                </button>
               )}
-            </DialogDescription>
 
             <div>
               {teamData?.Members?.map((member) => (
